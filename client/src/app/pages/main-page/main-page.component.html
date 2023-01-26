@@ -1,6 +1,5 @@
 <div class="container justified">
-    <h1 class="header-item">Bienvenue au cours {{ title }}</h1>
-    <img src="https://bit.ly/3QofL1J" alt="Logo Projet" />
+    <app-header></app-header>
     <section id="server-message" class="justified">
         <p>Petit message du serveur : {{ message.getValue() }}</p>
         <div class="justified">
@@ -10,13 +9,19 @@
         </div>
     </section>
 
+    <!-- Bouton pour les options de jeux  -->
+
+    <button class="button" mat-flat-button color="primary" routerLink="/game-selection">Mode Classique</button>
+    <button class="button" mat-flat-button color="primary">Mode Temps limité</button>
+    <button class="button" mat-stroked-button color="primary">Configuration</button>
+
     <button class="button" routerLink="/game">Jouer!</button>
 
     <footer class="footer-item">
-        <h4 class="team-name">Équipe Poly</h4>
+        <h4 class="team-name">Équipe 209</h4>
         <p>
-            <span>Coéquipier #1</span>, <span>Coéquipier #2</span>, <span>Coéquipier #3</span>, 
-            <span>Coéquipier #4</span>, <span>Coéquipier #5</span>, <span>Coéquipier #6</span>
+            <span>Ahmed El Shami</span>, <span>Skander Hannachi</span>, <span>Ziad Kaabie</span>, <span>Rayan Fellah</span>,
+            <span>Mohammed Awad</span>, <span>Radwan Rahman</span>
         </p>
     </footer>
 </div>
