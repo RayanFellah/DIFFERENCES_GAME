@@ -9,11 +9,13 @@ import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
-import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { GameCardsGridComponent } from './components/game-cards-grid/game-cards-grid.component';
 import { HeaderComponent } from './components/header/header.component';
-
+import { GamePageComponent } from './pages/game-page/game-page.component';
+import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
+import { GameScoreComponent } from './components/game-score/game-score.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -21,8 +23,27 @@ import { HeaderComponent } from './components/header/header.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MainPageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent, HeaderComponent],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
+    declarations: [
+        AppComponent,
+        MainPageComponent,
+        MaterialPageComponent,
+        PlayAreaComponent,
+        SidebarComponent,
+        HeaderComponent,
+        SelectionPageComponent,
+        GameCardsGridComponent,
+        GamePageComponent,
+        GameScoreComponent,
+    ],
+    imports: [
+        AppMaterialModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        FormsModule,
+        HttpClientModule,
+        MatGridListModule,
+    ],
     providers: [],
     bootstrap: [AppComponent],
 })

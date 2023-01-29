@@ -1,0 +1,44 @@
+<div class="button-navigator">
+    <button type="button" (click)="prevGrid()">
+        Prev
+        <mat-icon>arrow_left</mat-icon>
+    </button>
+    <button type="button" (click)="nextGrid()">
+        next
+        <mat-icon>arrow_right</mat-icon>
+    </button>
+</div>
+<mat-grid-list cols="4">
+    <mat-grid-tile *ngFor="let game of games.slice(gridIndexStart, gridIndexEnd)" rowspan="2">
+        <mat-grid-tile-header>
+            <a class="center" [title]="game.name">
+                {{ game.name }}
+            </a>
+            <div class="difficulty-container">
+                <div class="difficulty-bar">
+                    <div *ngIf="game.difficulty === 'easy'" class="difficulty-bar easy"></div>
+                    <div *ngIf="game.difficulty === 'hard'" class="difficulty-bar hard"></div>
+                </div>
+            </div>
+        </mat-grid-tile-header>
+        <mat-card-content>
+            <img src="..\..\assets\all.jpg" alt="jeu image" />
+
+            <h2>TOP 3 Best Scores</h2>
+            <div class="scores-container">
+                <div class="scores-solo">
+                    <h3>Solo</h3>
+                    <app-game-score></app-game-score>
+                </div>
+                <div class="scores-1V1">
+                    <h3>1 vs 1</h3>
+                    <app-game-score></app-game-score>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-grid-tile-footer>
+            <button type="button" class="button" mat-raised-button>Jouer</button>
+            <button type="button" class="button" mat-raised-button>Créer</button>
+        </mat-grid-tile-footer>
+    </mat-grid-tile>
+</mat-grid-list>
