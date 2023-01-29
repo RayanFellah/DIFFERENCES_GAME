@@ -1,9 +1,9 @@
 <div class="button-navigator">
-    <button type="button" (click)="prevGrid()">
+    <button [ngClass]="{ hidden: gridIndexStart == 0 }" type="button" (click)="prevGrid()">
         Prev
         <mat-icon>arrow_left</mat-icon>
     </button>
-    <button type="button" (click)="nextGrid()">
+    <button type="button" [ngClass]="{ hidden: gridIndexEnd >= games.length }" (click)="nextGrid()">
         next
         <mat-icon>arrow_right</mat-icon>
     </button>

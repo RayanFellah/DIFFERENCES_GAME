@@ -12,10 +12,11 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { GameCardsGridComponent } from './components/game-cards-grid/game-cards-grid.component';
+import { GameScoreComponent } from './components/game-score/game-score.component';
 import { HeaderComponent } from './components/header/header.component';
+import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
 import { GamePageComponent } from './pages/game-page/game-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
-import { GameScoreComponent } from './components/game-score/game-score.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -34,16 +35,9 @@ import { GameScoreComponent } from './components/game-score/game-score.component
         GameCardsGridComponent,
         GamePageComponent,
         GameScoreComponent,
+        ConfigurationPageComponent,
     ],
-    imports: [
-        AppMaterialModule,
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        BrowserModule,
-        FormsModule,
-        HttpClientModule,
-        MatGridListModule,
-    ],
+    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
     providers: [],
     bootstrap: [AppComponent],
 })
