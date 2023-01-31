@@ -12,7 +12,7 @@ export class GameScoreComponent implements OnInit {
         return this.scores.map((score) => {
             const minutes = Math.floor(score.time / 60);
             const seconds = Math.floor(score.time % 60).toFixed(0);
-            return `${score.playerName}    ${minutes}:${seconds} min `;
+            return `${score.playerName}  ${minutes}:${seconds} min`;
         });
     };
 

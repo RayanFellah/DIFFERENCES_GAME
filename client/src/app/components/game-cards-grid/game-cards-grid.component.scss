@@ -6,17 +6,27 @@
     display: block;
     width: 70%;
 }
+.game-title {
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
 
 mat-grid-list {
     display: grid;
     grid-template: repeat(4, 1fr);
     grid-row-gap: 20px;
     grid-column-gap: 20px;
+    background-color: #3f51b5;
+    border: outset 5px #3f51b5;
 }
 mat-grid-tile {
     display: inline-block;
     width: 100%;
-    margin: 10px;
+    border: outset 5px #16205c;
 }
 
 button:nth-of-type(1) {
@@ -25,24 +35,16 @@ button:nth-of-type(1) {
 }
 
 button:nth-of-type(2) {
-    background-color: #008cff;
+    background-color: #ff13e3;
 }
 
 button:hover {
     background-color: yellow;
 }
 
-.times {
-    justify-content: center;
-    padding: 5em;
-    font-size: smaller;
-    background: rgba(0, 0, 0, 0);
-    color: white;
-}
-
 img {
-    width: auto;
-    height: auto;
+    width: 250px;
+    height: 300px;
     order: 1;
 }
 
@@ -56,9 +58,16 @@ app-game-score {
 }
 
 .scores-container {
+    text-align: center;
+    border: 4px ridge rgba(63, 81, 181, 0.38);
+    background-color: white;
+    margin-top: 40px;
+}
+
+.scores-details-container {
     display: flex;
     justify-content: space-between;
-    border: 2px solid #ccc;
+    border: 4px solid rgba(63, 81, 181, 0.38);
     padding: 10px;
     margin-top: 20px;
 }
@@ -71,18 +80,20 @@ app-game-score {
     align-items: center;
 }
 h3 {
+    text-align: center;
     font-weight: bold;
 }
 
 .difficulty-container {
-    width: 100%;
-    height: 20px;
 }
 
 .difficulty-bar {
+    margin-top: -10px;
     height: 100%;
     background-color: white;
-    border-radius: 5px;
+    border-radius: 10px;
+    width: 100%;
+    height: 20px;
 }
 
 .easy {
@@ -95,15 +106,25 @@ h3 {
     width: 75%;
 }
 
+.easy-border {
+    text-shadow: 2px 1px green;
+}
+
+.hard-border {
+    text-shadow: 2px 1px red;
+}
+
 .button-navigator {
     display: flex;
     justify-content: space-between;
     margin-top: 5px;
+    background-color: #3f51b5;
 }
 
 h2 {
     text-align: center;
     margin-bottom: 10px;
+    font-weight: bold;
 }
 
 .hidden {
