@@ -11,6 +11,7 @@ import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { ConfigButtonsComponent } from './components/config-buttons/config-buttons.component';
 import { GameCardsGridComponent } from './components/game-cards-grid/game-cards-grid.component';
 import { GameScoreComponent } from './components/game-score/game-score.component';
 import { HeaderComponent } from './components/header/header.component';
@@ -36,6 +37,7 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
         GamePageComponent,
         GameScoreComponent,
         ConfigurationPageComponent,
+        ConfigButtonsComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
     providers: [],

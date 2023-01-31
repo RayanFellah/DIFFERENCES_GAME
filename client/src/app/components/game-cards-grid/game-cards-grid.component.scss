@@ -7,6 +7,7 @@
     width: 70%;
 }
 .game-title {
+    color: #bbbfda;
     text-align: center;
     width: 100%;
     position: absolute;
@@ -18,28 +19,27 @@
 mat-grid-list {
     display: grid;
     grid-template: repeat(4, 1fr);
-    grid-row-gap: 20px;
-    grid-column-gap: 20px;
     background-color: #3f51b5;
-    border: outset 5px #3f51b5;
 }
 mat-grid-tile {
     display: inline-block;
     width: 100%;
-    border: outset 5px #16205c;
+    border-left: solid 3px #16205c;
+    border-right: solid 3px #16205c;
+    background-color: #3f51b5;
 }
 
 button:nth-of-type(1) {
-    background-color: rgb(255, 119, 0);
+    background-color: #bbbfda;
     margin-right: 10px;
 }
 
 button:nth-of-type(2) {
-    background-color: #ff13e3;
+    background-color: #bbbfda;
 }
 
 button:hover {
-    background-color: yellow;
+    background-color: rgb(151, 232, 11);
 }
 
 img {
@@ -84,9 +84,6 @@ h3 {
     font-weight: bold;
 }
 
-.difficulty-container {
-}
-
 .difficulty-bar {
     margin-top: -10px;
     height: 100%;
@@ -97,12 +94,12 @@ h3 {
 }
 
 .easy {
-    background-color: green;
+    background-color: rgb(88, 211, 88);
     width: 45%;
 }
 
 .hard {
-    background-color: red;
+    background-color: rgb(246, 61, 10);
     width: 75%;
 }
 
@@ -111,13 +108,21 @@ h3 {
 }
 
 .hard-border {
-    text-shadow: 2px 1px red;
+    text-shadow: 2px 1px rgb(246, 61, 10);
 }
 
 .button-navigator {
     display: flex;
-    justify-content: space-between;
     margin-top: 5px;
+    justify-content: center;
+}
+
+.button-navigator > button {
+    margin-right: 1vw;
+    margin-left: 1vw;
+    margin-bottom: 2vh;
+}
+body {
     background-color: #3f51b5;
 }
 
