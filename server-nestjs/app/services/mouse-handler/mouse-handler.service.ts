@@ -1,5 +1,5 @@
+import { Coord } from '@app/interfaces/Coord';
 import { Injectable } from '@nestjs/common';
-import { Coord } from '../Coord';
 import { Difference } from '../difference/difference.service';
 
 Injectable();

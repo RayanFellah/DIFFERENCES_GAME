@@ -1,6 +1,5 @@
+import { Coord } from '@app/interfaces/Coord';
 import { Injectable } from '@nestjs/common';
-import { Coord } from '../Coord';
-
 @Injectable()
 export class Difference {
     listEdges: Array<Coord> = [];

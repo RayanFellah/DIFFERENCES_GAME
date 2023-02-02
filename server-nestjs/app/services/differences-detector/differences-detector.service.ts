@@ -1,9 +1,9 @@
 const Jimp = require('jimp');
+import { Coord } from '@app/interfaces/Coord';
 import { Injectable } from '@nestjs/common';
-import { Coord } from '../Coord';
-import { ImageService } from '../Image-service/Image.service';
 import { Difference } from '../difference/difference.service';
 import { enlargeRadius } from '../enlargement/radius-enlargement.service';
+import { ImageService } from '../Image-service/Image.service';
 
 @Injectable()
 export class DifferenceDetector {
