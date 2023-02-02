@@ -13,6 +13,8 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { HeaderComponent } from './components/header/header.component';
+import { ImageAreaComponent } from './components/image-area/image-area.component';
+import { GameCreationPageComponent } from './pages/game-creation-page/game-creation-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -21,7 +23,7 @@ import { HeaderComponent } from './components/header/header.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MainPageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent, HeaderComponent],
+    declarations: [AppComponent, GamePageComponent, MainPageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent, HeaderComponent, ImageAreaComponent, GameCreationPageComponent],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
     providers: [],
     bootstrap: [AppComponent],

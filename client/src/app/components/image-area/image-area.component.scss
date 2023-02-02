@@ -1,0 +1,26 @@
+.image-area-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+#foreground {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
+#background {
+    position: absolute;
+    border: 1px solid black;
+    left: 0;
+    top: 0;
+    z-index: 0;
+}
+
+.canvas {
+    position: relative;
+    height: 480px;
+    width: 640px;
+}
