@@ -17,7 +17,7 @@ import { MongooseModule } from '@nestjs/mongoose';
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: async (config: ConfigService) => ({
-                uri: config.get<string>('mongodb+srv://Rayan:Project-DB@cluster0.enmzwny.mongodb.net/?retryWrites=true&w=majority'), // Loaded from .env
+                uri: config.get<string>(process.env.DATABASE_CONNECTION_STRING), // Loaded from .env
             }),
         }),
         MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
