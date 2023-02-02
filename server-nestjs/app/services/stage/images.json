@@ -1,0 +1,10 @@
+[
+    {
+        "id": 0,
+        "src": "./imageStubs/img1.png"
+    },
+    {
+        "id": 1,
+        "src": "./imageStubs/img2.png"
+    }
+]
