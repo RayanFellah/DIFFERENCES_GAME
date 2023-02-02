@@ -1,0 +1,138 @@
+.button {
+    display: block;
+    width: 50%;
+}
+.center {
+    display: block;
+    width: 70%;
+}
+.game-title {
+    color: #bbbfda;
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+mat-grid-list {
+    display: grid;
+    grid-template: repeat(4, 1fr);
+    background-color: #3f51b5;
+    height: 7%;
+}
+mat-grid-tile {
+    display: inline-block;
+    width: 100%;
+    border-left: solid 3px #16205c;
+    border-right: solid 3px #16205c;
+    background-color: #3f51b5;
+}
+
+button:nth-of-type(1) {
+    background-color: #bbbfda;
+    margin-right: 10px;
+}
+
+button:nth-of-type(2) {
+    background-color: #bbbfda;
+}
+
+button:hover {
+    background-color: rgb(151, 232, 11);
+}
+
+img {
+    width: 250px;
+    height: 300px;
+    order: 1;
+}
+
+mat-card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+app-game-score {
+    order: 2;
+}
+
+.scores-container {
+    text-align: center;
+    border: 4px ridge rgba(63, 81, 181, 0.38);
+    background-color: white;
+    margin-top: 40px;
+}
+
+.scores-details-container {
+    display: flex;
+    justify-content: space-between;
+    border: 4px solid rgba(63, 81, 181, 0.38);
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.scores-solo,
+.scores-1V1 {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+h3 {
+    text-align: center;
+    font-weight: bold;
+}
+
+.difficulty-bar {
+    margin-top: -10px;
+    height: 100%;
+    background-color: white;
+    border-radius: 10px;
+    width: 100%;
+    height: 20px;
+}
+
+.easy {
+    background-color: rgb(88, 211, 88);
+    width: 45%;
+}
+
+.hard {
+    background-color: rgb(246, 61, 10);
+    width: 75%;
+}
+
+.easy-border {
+    text-shadow: 2px 1px green;
+}
+
+.hard-border {
+    text-shadow: 2px 1px rgb(246, 61, 10);
+}
+
+.button-navigator {
+    display: flex;
+    justify-content: center;
+    background-color: #3f51b5;
+}
+
+.button-navigator > button {
+    margin-right: 1vw;
+    margin-left: 1vw;
+    margin-bottom: 2vh;
+}
+body {
+    background-color: #3f51b5;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.hidden {
+    visibility: hidden;
+}
