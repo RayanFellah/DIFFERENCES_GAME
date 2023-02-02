@@ -18,6 +18,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
 import { GamePageComponent } from './pages/game-page/game-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
+import { GameConstantsComponent } from './components/game-constants/game-constants.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -38,6 +39,7 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
         GameScoreComponent,
         ConfigurationPageComponent,
         ConfigButtonsComponent,
+        GameConstantsComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
     providers: [],

@@ -20,6 +20,7 @@ mat-grid-list {
     display: grid;
     grid-template: repeat(4, 1fr);
     background-color: #3f51b5;
+    height: 7%;
 }
 mat-grid-tile {
     display: inline-block;
@@ -113,8 +114,8 @@ h3 {
 
 .button-navigator {
     display: flex;
-    margin-top: 5px;
     justify-content: center;
+    background-color: #3f51b5;
 }
 
 .button-navigator > button {
