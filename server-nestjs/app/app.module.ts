@@ -1,14 +1,14 @@
-import { Logger, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Course, courseSchema } from '@app/model/database/course';
 import { CourseController } from '@app/controllers/course/course.controller';
-import { CourseService } from '@app/services/course/course.service';
 import { DateController } from '@app/controllers/date/date.controller';
-import { DateService } from '@app/services/date/date.service';
-import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { ExampleService } from '@app/services/example/example.service';
 import { ExampleController } from '@app/controllers/example/example.controller';
+import { ChatGateway } from '@app/gateways/chat/chat.gateway';
+import { Course, courseSchema } from '@app/model/database/course';
+import { CourseService } from '@app/services/course/course.service';
+import { DateService } from '@app/services/date/date.service';
+import { ExampleService } from '@app/services/example/example.service';
+import { Logger, Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
     imports: [
@@ -17,7 +17,7 @@ import { ExampleController } from '@app/controllers/example/example.controller';
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: async (config: ConfigService) => ({
-                uri: config.get<string>('DATABASE_CONNECTION_STRING'), // Loaded from .env
+                uri: config.get<string>('mongodb+srv://Rayan:Project-DB@cluster0.enmzwny.mongodb.net/?retryWrites=true&w=majority'), // Loaded from .env
             }),
         }),
         MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
