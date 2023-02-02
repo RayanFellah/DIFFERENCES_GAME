@@ -13,7 +13,7 @@ const routes: Routes = [
     { path: 'material', component: MaterialPageComponent },
     { path: 'creation', component: GameCreationPageComponent },
     { path: 'selection-page', component: SelectionPageComponent },
-    { path: 'configuration-page', component: ConfigurationPageComponent },
+    { path: 'config', component: ConfigurationPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

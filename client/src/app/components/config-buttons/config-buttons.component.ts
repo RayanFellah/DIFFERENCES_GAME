@@ -12,7 +12,7 @@ export class ConfigButtonsComponent implements OnInit {
     ngOnInit(): void {}
 
     openDialog(): void {
-        this.dialog.open(GameConstantsComponent, { data: { gameTime: 30, penaltyTime: 5, savedTime: 5 } });
+        this.dialog.open(GameConstantsComponent, { data: { gameTime: 30, penaltyTime: 5, savedTime: 5 }, panelClass: 'custom-modalbox' });
     }
 
     onNoClick(): void {
