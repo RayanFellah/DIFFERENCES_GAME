@@ -9,11 +9,18 @@ import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
-import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { ConfigButtonsComponent } from './components/config-buttons/config-buttons.component';
+import { GameCardsGridComponent } from './components/game-cards-grid/game-cards-grid.component';
+import { GameConstantsComponent } from './components/game-constants/game-constants.component';
+import { GameScoreComponent } from './components/game-score/game-score.component';
 import { HeaderComponent } from './components/header/header.component';
-
+import { ImageAreaComponent } from './components/image-area/image-area.component';
+import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
+import { GameCreationPageComponent } from './pages/game-creation-page/game-creation-page.component';
+import { GamePageComponent } from './pages/game-page/game-page.component';
+import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -21,7 +28,23 @@ import { HeaderComponent } from './components/header/header.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MainPageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent, HeaderComponent],
+    declarations: [
+        AppComponent,
+        MainPageComponent,
+        MaterialPageComponent,
+        PlayAreaComponent,
+        SidebarComponent,
+        HeaderComponent,
+        SelectionPageComponent,
+        GameCardsGridComponent,
+        GamePageComponent,
+        GameScoreComponent,
+        ConfigurationPageComponent,
+        ConfigButtonsComponent,
+        GameConstantsComponent,
+        ImageAreaComponent,
+        GameCreationPageComponent,
+    ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
     providers: [],
     bootstrap: [AppComponent],
