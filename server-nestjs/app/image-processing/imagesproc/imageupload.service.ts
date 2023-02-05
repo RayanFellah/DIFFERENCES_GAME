@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { createWriteStream, promises } from 'fs';
+import { createWriteStream, promises, createReadStream, readFileSync } from 'fs';
 import { generateRandomId } from '@app/services/randomID/random-id';
 import { ImageDto } from './interfaces/image.dto';
 
 @Injectable()
 export class ImageStorageService {
-    dataPath: string = './images.json';
+    dataPath: string = './app/image-processing/imagesproc/data/images.json';
+    uploadPath: string = './app/image-processing/imagesproc/uploads';
 
     async getAllImages() {
-        await this.readFromJsonFile();
+        return await this.readFromJsonFile();
     }
 
     async findImageById(id: string): Promise<ImageDto> | undefined {
@@ -16,37 +17,43 @@ export class ImageStorageService {
         return images.find((img) => img.id === id);
     }
 
-    async updateImage(id: string): Promise<void> {
-        const image = await this.findImageById(id);
+    async updateImage(image: ImageDto): Promise<void> {
         let images = await this.readFromJsonFile();
         images = images.map((img) => {
-            return img === image ? image : img;
+            return img.id === image.id ? image : img;
         });
         await this.writeToJsonFile(images);
     }
 
     async uploadImage(image: Express.Multer.File, sheetToAdd: string): Promise<void> {
-        const imageName = `${Date.now()}.bmp`;
-        const imagePath = `./uploads/${imageName}`;
-        const imageStream = createWriteStream(imagePath);
-        imageStream.write(image);
-        imageStream.end();
+        try {
+            if (!image) return;
+            const imageName = `${image.filename}.bmp`;
+            const imagePath = `${this.uploadPath}/${imageName}`;
+            const imageStream = createWriteStream(imagePath);
+            if (!image) console.log('ici');
+            console.log(image)
 
-        // const imageDto: ImageDto = {
-        //     id: generateRandomId(),
-        //     name: imageName,
-        //     sheetId: sheetToAdd,
-        //     path: imagePath,
-        // };
+            imageStream.write(image);
+            imageStream.end();
 
-        // await this.addImage(imageDto);
+            const imageDto: ImageDto = {
+                id: generateRandomId(),
+                name: imageName,
+                sheetId: sheetToAdd,
+                path: imagePath,
+            };
+            await this.addImage(imageDto).catch((err) => console.error(err));
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     async deleteImage(id: string): Promise<void> {
         const image = await this.findImageById(id);
         let images = await this.readFromJsonFile();
         images = images.filter((img) => {
-            if (img !== image) {
+            if (img === image) {
                 return img;
             }
         });
@@ -55,22 +62,22 @@ export class ImageStorageService {
     }
 
     private async readFromJsonFile(): Promise<ImageDto[]> {
-        try {
-            const fileData = await promises.readFile(this.dataPath, 'utf-8');
-            return JSON.parse(fileData);
-        } catch (error) {
-            throw new Error('cant read json file');
-        }
+        const fileData = await promises
+            .readFile(this.dataPath, 'utf-8')
+            .then((res) => JSON.parse(res))
+            .catch((err) => console.error(err));
+        return fileData;
     }
 
     private async writeToJsonFile(images: ImageDto[]): Promise<void> {
-        await promises.writeFile(this.dataPath, JSON.stringify(images));
+        await promises.writeFile(this.dataPath, JSON.stringify(images)).catch((err) => console.error(err));
     }
 
     private async addImage(image: ImageDto): Promise<void> {
         try {
             const images = await this.readFromJsonFile();
             images.push(image);
+            await this.writeToJsonFile(images);
         } catch (error) {
             throw new Error('cant add this item');
         }

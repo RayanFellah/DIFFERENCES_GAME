@@ -7,12 +7,17 @@ import { Express } from 'express';
 export class ImagesController {
     constructor(private readonly imageStorage: ImageStorageService) {}
 
-    @Post('upload')
+    @Get('test')
+    async test(): Promise<string> {
+        return 'dasdadasdasd';
+    }
+
+    @Post('upload/:sheetId')
     @UseInterceptors(FileInterceptor('image'))
     async uploadImage(@Body() image: Express.Multer.File, @Param('sheetId') sheetId: string): Promise<string> {
         try {
             console.log('init');
-            await this.imageStorage.uploadImage(image, sheetId);
+            await this.imageStorage.uploadImage(image, sheetId).catch((err) => console.error(err));
             return 'uploaded successfully';
         } catch (error) {
             throw new BadRequestException({ cause: new Error(), description: 'Could not upload the file' });
