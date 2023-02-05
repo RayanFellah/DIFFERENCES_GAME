@@ -2,11 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { createWriteStream, promises, createReadStream, readFileSync } from 'fs';
 import { generateRandomId } from '@app/services/randomID/random-id';
 import { ImageDto } from './interfaces/image.dto';
+import { Express } from 'express';
+import { SheetService } from '@app/model/database/Sheets/sheet.service';
 
 @Injectable()
 export class ImageStorageService {
     dataPath: string = './app/image-processing/imagesproc/data/images.json';
-    uploadPath: string = './app/image-processing/imagesproc/uploads';
+    uploadPath: string = './app/image-processing/imagesproc/uploads/';
+
 
     async getAllImages() {
         return await this.readFromJsonFile();
@@ -25,15 +28,11 @@ export class ImageStorageService {
         await this.writeToJsonFile(images);
     }
 
-    async uploadImage(image: Express.Multer.File, sheetToAdd: string): Promise<void> {
+    async uploadImage(image: Buffer, sheetToAdd: string, filename: string): Promise<void> {
         try {
-            if (!image) return;
-            const imageName = `${image.filename}.bmp`;
-            const imagePath = `${this.uploadPath}/${imageName}`;
+            const imageName = `${filename}.bmp`;
+            const imagePath = `${this.uploadPath}${imageName}`;
             const imageStream = createWriteStream(imagePath);
-            if (!image) console.log('ici');
-            console.log(image)
-
             imageStream.write(image);
             imageStream.end();
 
@@ -43,9 +42,9 @@ export class ImageStorageService {
                 sheetId: sheetToAdd,
                 path: imagePath,
             };
-            await this.addImage(imageDto).catch((err) => console.error(err));
+            await this.addImage(imageDto);
         } catch (error) {
-            console.error(error);
+            throw new Error('could not read the file');
         }
     }
 
@@ -61,11 +60,16 @@ export class ImageStorageService {
         await this.writeToJsonFile(images);
     }
 
+    async getSheetId(id: string): Promise<string> {
+        return (await this.findImageById(id)).sheetId;
+    }
+
+    async getImagePathFromId(id: string): Promise<string> {
+        return (await this.findImageById(id)).path;
+    }
+
     private async readFromJsonFile(): Promise<ImageDto[]> {
-        const fileData = await promises
-            .readFile(this.dataPath, 'utf-8')
-            .then((res) => JSON.parse(res))
-            .catch((err) => console.error(err));
+        const fileData = await promises.readFile(this.dataPath, 'utf-8').then((res) => JSON.parse(res));
         return fileData;
     }
 

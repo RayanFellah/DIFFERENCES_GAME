@@ -1,29 +1,45 @@
-import { Controller, Get, Body, Post, Response, BadRequestException, HttpException, Param, NotFoundException, Delete, UseInterceptors } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Request,
+    Body,
+    Post,
+    UploadedFile,
+    BadRequestException,
+    HttpException,
+    Param,
+    NotFoundException,
+    Delete,
+    UseInterceptors,
+} from '@nestjs/common';
 import { ImageDto } from './interfaces/image.dto';
-import { ImageStorageService } from './imageupload.service';
+import { ImageStorageService } from './image-storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import * as fs from 'fs';
+import { UnsupportedMediaTypeException } from '@nestjs/common/exceptions/unsupported-media-type.exception';
 @Controller('images')
 export class ImagesController {
     constructor(private readonly imageStorage: ImageStorageService) {}
 
     @Get('test')
     async test(): Promise<string> {
-        return 'dasdadasdasd';
+        return 'ServerIsClean';
     }
 
-    @Post('upload/:sheetId')
-    @UseInterceptors(FileInterceptor('image'))
-    async uploadImage(@Body() image: Express.Multer.File, @Param('sheetId') sheetId: string): Promise<string> {
-        try {
-            console.log('init');
-            await this.imageStorage.uploadImage(image, sheetId).catch((err) => console.error(err));
-            return 'uploaded successfully';
-        } catch (error) {
-            throw new BadRequestException({ cause: new Error(), description: 'Could not upload the file' });
+    @Post('upload')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadImage(@UploadedFile() file: Express.Multer.File, @Param('sheetId') sheetId: string) {
+        if (file.mimetype !== 'image/bmp') {
+            throw new UnsupportedMediaTypeException();
         }
+        try {
+            await this.imageStorage.uploadImage(file.buffer, sheetId, file.originalname);
+        } catch (error) {
+            throw new BadRequestException();
+        }
+        return 'uploaded';
     }
-
     @Get()
     async getAllImages() {
         try {

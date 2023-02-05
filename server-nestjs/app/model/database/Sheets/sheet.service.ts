@@ -22,6 +22,8 @@ export class SheetService {
             bestScore: '',
             difficulty,
             topPlayer: '',
+            originalImagePath: '',
+            modifiedImagePath: '',
         });
     }
 
