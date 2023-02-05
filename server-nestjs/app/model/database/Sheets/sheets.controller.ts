@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateSheetDto } from './dto/create-sheet.dto';
 import { UpdateSheetDto } from './dto/update-sheet.dto';
-import { Sheet } from './schemas/Sheet';
+import { Sheet } from './schemas/sheet';
 import { SheetService } from './sheet.service';
 @Controller('sheets')
 export class SheetController {

@@ -1,4 +1,4 @@
-import { Sheet, sheetSchema } from '@app/model/database/Sheets/schemas/Sheet';
+import { Sheet, sheetSchema } from '@app/model/database/Sheets/schemas/sheet';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SheetsRepository } from './sheet.repos';

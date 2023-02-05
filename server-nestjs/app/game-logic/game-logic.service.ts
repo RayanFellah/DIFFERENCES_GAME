@@ -1,42 +1,29 @@
-import { GameSheet } from '@app/interfaces/GameSheet';
 import { DifferenceDetector } from '@app/services/differences-detector/differences-detector.service';
 import { ImageService } from '@app/services/Image-service/Image.service';
 import { Injectable } from '@nestjs/common';
-export class ImageDto {
-    id: string;
-    name: string;
-    sheetId: string;
-    path: string;
-}
+import { Sheet } from '@app/model/database/Sheets/schemas/sheet';
 
 @Injectable()
 export class GameLogicService {
-    dataPath: string = './app/game-logic/data/game-logic.json';
-
-    async findAllGameSheets() {}
-    async findGameSheetById(sheetId: string) {
-        return;
-    }
-    async getAllDifferences(gameSheet: GameSheet) {
+    async getAllDifferences(gameSheet: Sheet) {
         const image1 = new ImageService(gameSheet.originalImagePath);
         const image2 = new ImageService(gameSheet.modifiedImagePath);
         const diffDetector = new DifferenceDetector(image1, image2);
-        return diffDetector.getAllClusters(gameSheet.radius);
+        return await diffDetector.getAllClusters(gameSheet.radius);
     }
 
-    async findDifference(gameSheet: GameSheet, x, y) {
-        for (const diff of gameSheet.differences) {
-            const found = diff.find((coord) => coord.posX === x && coord.posY === y);
+    async getDifficulty() {
+        return 'Hard';
+    }
+
+    async findDifference(gameSheet: Sheet, x, y) {
+        const differences = await this.getAllDifferences(gameSheet);
+        for (const diff of differences) {
+            const found = diff.coords.find((coord) => coord.posX === x && coord.posY === y);
             if (found) {
                 return diff;
             }
         }
+        return undefined;
     }
-
-    async addGameSheet() {}
 }
-
-/*GameSheet:
-    
-
-*/

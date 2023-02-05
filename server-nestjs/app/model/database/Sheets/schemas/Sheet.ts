@@ -25,6 +25,9 @@ export class Sheet {
 
     @Prop()
     modifiedImagePath: string;
+
+    @Prop()
+    radius: number;
 }
 
 export const sheetSchema = SchemaFactory.createForClass(Sheet);
