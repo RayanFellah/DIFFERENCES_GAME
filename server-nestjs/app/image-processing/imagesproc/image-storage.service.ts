@@ -10,7 +10,6 @@ export class ImageStorageService {
     dataPath: string = './app/image-processing/imagesproc/data/images.json';
     uploadPath: string = './app/image-processing/imagesproc/uploads/';
 
-
     async getAllImages() {
         return await this.readFromJsonFile();
     }
@@ -30,7 +29,7 @@ export class ImageStorageService {
 
     async uploadImage(image: Buffer, sheetToAdd: string, filename: string): Promise<void> {
         try {
-            const imageName = `${filename}.bmp`;
+            const imageName = `${filename}`;
             const imagePath = `${this.uploadPath}${imageName}`;
             const imageStream = createWriteStream(imagePath);
             imageStream.write(image);
