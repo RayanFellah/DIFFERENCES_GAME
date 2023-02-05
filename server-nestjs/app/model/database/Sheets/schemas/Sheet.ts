@@ -19,6 +19,12 @@ export class Sheet {
 
     @Prop()
     topPlayer: string;
+
+    @Prop()
+    originalImagePath: string;
+
+    @Prop()
+    modifiedImagePath: string;
 }
 
-export const SheetSchema = SchemaFactory.createForClass(Sheet);
+export const sheetSchema = SchemaFactory.createForClass(Sheet);
