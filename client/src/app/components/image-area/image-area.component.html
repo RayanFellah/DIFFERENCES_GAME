@@ -1,9 +1,11 @@
 <div class="image-area-container">
     <div class="canvas">
-        <canvas id="foreground" #foregroundCanvas [attr.width]="width" [attr.height]="height"></canvas>
-        <canvas id="background" #backgroundCanvas [attr.width]="width" [attr.height]="height"></canvas>
+        <canvas id="foreground" #foregroundCanvas [attr.width]="width" [attr.height]="height"> </canvas>
+        <canvas id="background" #backgroundCanvas [attr.width]="width" [attr.height]="height"> </canvas>
     </div>
     <div class="input">
         <input type="file" accept="image/bmp" (change)="fileChange($event)" />
     </div>
+    <div><strong>Width:</strong>&nbsp;{{ windowSize.width }}</div>
+    <div><strong>Height:</strong>&nbsp;{{ windowSize.height }}</div>
 </div>
