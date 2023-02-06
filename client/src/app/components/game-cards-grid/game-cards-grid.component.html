@@ -1,0 +1,48 @@
+<body>
+    <mat-grid-list cols="4">
+        <mat-grid-tile *ngFor="let game of games.slice(gridIndexStart, gridIndexEnd); let gameIndex = index" rowspan="2">
+            <mat-grid-tile-header>
+                <div class="game-title">
+                    <h2>{{ game.name }}</h2>
+                </div>
+            </mat-grid-tile-header>
+            <mat-card-content>
+                <div class="difficulty-container">
+                    <h3 [ngClass]="{ 'easy-border': game.difficulty === 'easy', 'hard-border': game.difficulty === 'hard' }">
+                        {{ game.difficulty }}
+                    </h3>
+                    <div class="difficulty-bar">
+                        <div *ngIf="game.difficulty === 'easy'" class="difficulty-bar easy"></div>
+                        <div *ngIf="game.difficulty === 'hard'" class="difficulty-bar hard"></div>
+                    </div>
+                </div>
+                <img src="..\..\assets\all.jpg" alt="game image" />
+
+                <div class="scores-container">
+                    <h2>TOP 3</h2>
+                    <div class="scores-details-container">
+                        <div class="scores-solo">
+                            <h3>Solo</h3>
+                            <app-game-score></app-game-score>
+                        </div>
+                        <div class="scores-1V1">
+                            <h3>1 vs 1</h3>
+                            <app-game-score></app-game-score>
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+            <mat-grid-tile-footer>
+                <app-game-card-buttons (deleteGame)="deleteGame($event)" [isConfigPage]="isConfigPage"></app-game-card-buttons>
+            </mat-grid-tile-footer>
+        </mat-grid-tile>
+    </mat-grid-list>
+    <div class="button-navigator">
+        <button mat-fab color="primary" [ngClass]="{ hidden: gridIndexStart == 0 }" matTooltip="Prev" (click)="prevGrid()">
+            <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button mat-fab color="primary" [ngClass]="{ hidden: gridIndexEnd >= games.length }" matTooltip="Next" (click)="nextGrid()">
+            <mat-icon>chevron_right</mat-icon>
+        </button>
+    </div>
+</body>

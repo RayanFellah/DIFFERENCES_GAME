@@ -1,0 +1,30 @@
+#sectionHeader {
+    grid-area: hd;
+}
+
+.OGImg {
+    grid-area: OG;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.newbieImg {
+    grid-area: newbie;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+section {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+    grid-template-areas:
+        'hd hd hd hd'
+        'OG OG newbie newbie';
+}
+
+h1 {
+    font-weight: bolder;
+}
