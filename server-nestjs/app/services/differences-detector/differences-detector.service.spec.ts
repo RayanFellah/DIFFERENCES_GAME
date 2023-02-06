@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import cluster from 'cluster';
 import { Coord } from '../Coord';
-import { ImageService } from '../Image-service/Image.service';
+import { ImageService } from '../Image-service/image.service';
 import { DifferenceDetector } from './differences-detector.service';
 const Jimp = require('jimp');
 

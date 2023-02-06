@@ -1,3 +1,34 @@
 ::ng-deep.mat-dialog-container {
     padding: 50px;
 }
+<<<<<<< HEAD
+=======
+
+::ng-deep.mat-dialog-content {
+    margin-top: 20px;
+    text-align: center;
+}
+::ng-deep.mat-dialog-container {
+    border-radius: 40px;
+    padding: 10px;
+}
+
+::ng-deep.mat-dialog-actions {
+    margin-top: 20px;
+    justify-content: center;
+}
+
+section {
+    padding: 65px;
+    background-color: white;
+    border-radius: 40px;
+
+    border: groove 15px #16205c;
+}
+
+h1 {
+    text-align: center;
+    font-weight: bold;
+    margin-top: -40px;
+}
+>>>>>>> origin/configuration-view-fix

@@ -2,7 +2,7 @@ import { StopWatch } from '@app/controllers/chronometer/stopwatch.component';
 import { PlayerHandler } from '@app/controllers/player/player.component';
 import { Difference } from '../difference/difference.service';
 import { DifferenceDetector } from '../differences-detector/differences-detector.service';
-import { ImageService } from '../Image-service/Image.service';
+import { ImageService } from '../Image-service/image.service';
 import { MouseHandlerService } from '../mouse-handler/mouse-handler.service';
 import { GameLogicService } from './game-logic.service';
 const Jimp = require('jimp');

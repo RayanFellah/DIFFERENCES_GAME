@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Component, OnInit } from '@angular/core';
+=======
+import { Component, Input, OnInit } from '@angular/core';
+>>>>>>> origin/configuration-view-fix
 import { games } from '../../../../../common/game';
 
 @Component({
@@ -7,6 +11,10 @@ import { games } from '../../../../../common/game';
     styleUrls: ['./game-cards-grid.component.scss'],
 })
 export class GameCardsGridComponent implements OnInit {
+<<<<<<< HEAD
+=======
+    @Input() public isConfigPage: boolean;
+>>>>>>> origin/configuration-view-fix
     public games = games;
     public gridGames = games;
     public gridIndexStart = 0;
@@ -33,4 +41,18 @@ export class GameCardsGridComponent implements OnInit {
             this.gridGames = this.games.slice(this.gridIndexStart, this.gridIndexEnd);
         }
     }
+<<<<<<< HEAD
+=======
+
+    playGame() {}
+
+    createMultiGame() {}
+
+    deleteGame(index: number) {
+        this.games.splice(index, 1);
+        this.gridGames = this.games.slice(this.gridIndexStart, this.gridIndexEnd);
+    }
+
+    resetScores() {}
+>>>>>>> origin/configuration-view-fix
 }

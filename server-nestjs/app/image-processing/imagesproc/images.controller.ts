@@ -6,7 +6,6 @@ import {
     Post,
     UploadedFile,
     BadRequestException,
-    HttpException,
     Param,
     NotFoundException,
     Delete,
@@ -17,6 +16,7 @@ import { ImageStorageService } from './image-storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import * as fs from 'fs';
+
 import { UnsupportedMediaTypeException } from '@nestjs/common/exceptions/unsupported-media-type.exception';
 @Controller('images')
 export class ImagesController {

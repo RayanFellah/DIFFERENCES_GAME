@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ImageService } from './Image.service';
+import { ImageService } from './image.service';
 const Jimp = require('jimp');
 describe('testing the Image component', () => {
     let service: ImageService;
-    let imagePathStub: String = 'app/services/Image-service/imageStubs/img1.png';
+    const imagePathStub = 'app/services/Image-service/imageStubs/img1.png';
     let jimpStub;
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
