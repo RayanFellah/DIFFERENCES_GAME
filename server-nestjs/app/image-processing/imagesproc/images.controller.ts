@@ -16,6 +16,7 @@ import { ImageStorageService } from './image-storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import * as fs from 'fs';
+import { ApiConsumes, ApiBody } from '@nestjs/swagger';
 
 import { UnsupportedMediaTypeException } from '@nestjs/common/exceptions/unsupported-media-type.exception';
 @Controller('images')
@@ -28,6 +29,20 @@ export class ImagesController {
     }
 
     @Post('upload')
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                sheetId: { type: 'string' },
+                imageName: { type: 'string' },
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+        },
+    })
     @UseInterceptors(FileInterceptor('file'))
     async uploadImage(@UploadedFile() file: Express.Multer.File, @Param('sheetId') sheetId: string) {
         if (file.mimetype !== 'image/bmp') {
