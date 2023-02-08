@@ -8,17 +8,12 @@ const bootstrap = async () => {
     app.setGlobalPrefix('api');
     app.useGlobalPipes(new ValidationPipe());
     app.enableCors();
-    const config = new DocumentBuilder()
-        .setTitle('Cadriciel Serveur')
-        .setDescription('Serveur du projet de base pour le cours de LOG2990')
-        .setVersion('1.0.0')
-        .build();
+    const config = new DocumentBuilder().setTitle('Cadriciel Serveur').setDescription('Serveur du Jeu des differences').setVersion('1.0.0').build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, document);
     SwaggerModule.setup('', app, document);
 
     await app.listen(3000);
-    console.log('listening...');
 };
 
 bootstrap();
