@@ -6,12 +6,17 @@ import { Component } from '@angular/core';
     styleUrls: ['./game-creation-page.component.scss'],
 })
 export class GameCreationPageComponent {
-    windowSize = { width: window.innerWidth, height: window.innerHeight };
-    get width() {
-        return this.windowSize.width;
+    file: File;
+    fileName = '';
+    get childFile() {
+        return this.file;
     }
-
-    get height() {
-        return this.windowSize.height;
+    uploadImage(event: Event) {
+        const target = event.target as HTMLInputElement;
+        if (target.files != null && target.files.length > 0) {
+            this.file = target.files[0];
+            // eslint-disable-next-line no-console
+            console.log(this.file);
+        }
     }
 }

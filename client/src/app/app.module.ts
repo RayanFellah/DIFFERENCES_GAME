@@ -23,7 +23,17 @@ import { GameCreationPageComponent } from './pages/game-creation-page/game-creat
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MainPageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent, HeaderComponent, ImageAreaComponent, GameCreationPageComponent],
+    declarations: [
+        AppComponent,
+        GamePageComponent,
+        MainPageComponent,
+        MaterialPageComponent,
+        PlayAreaComponent,
+        SidebarComponent,
+        HeaderComponent,
+        ImageAreaComponent,
+        GameCreationPageComponent,
+    ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
     providers: [],
     bootstrap: [AppComponent],

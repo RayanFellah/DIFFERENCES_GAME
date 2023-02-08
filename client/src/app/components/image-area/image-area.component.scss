@@ -6,11 +6,11 @@
 }
 #foreground {
     z-index: 1;
-    border: solid 1px black;
+    border: solid 1px #3F51B5;
 }
 
 #background {
-    border: solid 1px black;
+    border: solid 1px #3F51B5;
     z-index: 0;
 }
 
@@ -20,7 +20,9 @@
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
 }
-
+.file-input {
+    display: none;
+  }
 canvas {
     width: 100%;
     height: 100%;
@@ -30,3 +32,7 @@ canvas {
     grid-row-start: 1;
     grid-column-start: 1;
 }
+
+button[mat-mini-fab] {
+    transform: scale(0.7) !important;
+   }

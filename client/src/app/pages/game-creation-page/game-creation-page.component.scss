@@ -33,7 +33,6 @@ section {
     grid-template-rows: auto;
     grid-column-gap: 10px;
     grid-template-areas:
-        'hd hd hd hd'
         'OG OG newbie newbie';
 }
 
@@ -42,7 +41,11 @@ h1 {
 }
 h3 {
     margin: 0;
+    color: #3F51B5;
     font-weight: bold;
+}
+h2 {
+    color: #FF4081;
 }
 header {
     flex: 0 1 auto;
@@ -53,4 +56,16 @@ main {
 }
 footer {
     flex: 0 1 40px;
+}
+
+.file-input {
+    display: none;
+  }
+
+form {
+    color: #3F51B5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
 }
