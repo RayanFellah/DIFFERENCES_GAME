@@ -16,6 +16,6 @@ export class ConfigButtonsComponent implements OnInit {
     }
 
     onNoClick(): void {
-        this.dialog.open(GameConstantsComponent).close();
+        this.dialog.closeAll();
     }
 }
