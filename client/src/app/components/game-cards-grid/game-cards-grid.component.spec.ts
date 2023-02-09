@@ -48,7 +48,8 @@ describe('GameCardsGridComponent', () => {
     });
 
     it('prevGrid() should decrease gridIndexStart and gridIndexEnd a by 4 and update gridGames to the new slice of games', () => {
-        component.gridIndexStart = 1;
+        component.gridIndexStart = 4;
+        component.gridIndexEnd = 8;
         component.prevGrid();
         expect(component.gridIndexStart).toEqual(0);
         expect(component.gridIndexEnd).toEqual(4);
