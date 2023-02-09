@@ -42,6 +42,7 @@ export class GameCardsGridComponent implements OnInit {
     deleteGame(index: number) {
         this.games.splice(index, 1);
         this.gridGames = this.games.slice(this.gridIndexStart, this.gridIndexEnd);
+        console.log('delete is called');
     }
 
     resetScores() {}
