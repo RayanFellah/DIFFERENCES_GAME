@@ -1,37 +1,10 @@
-import {
-    Controller,
-    Get,
-    Res,
-    Body,
-    Post,
-    UploadedFile,
-    BadRequestException,
-    Param,
-    NotFoundException,
-    Delete,
-    UseInterceptors,
-    HttpStatus,
-    UploadedFiles,
-} from '@nestjs/common';
-import { ImageDto } from './interfaces/image.dto';
-import { ImageStorageService } from './image-storage.service';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { Express, Request, Response } from 'express';
-import * as fs from 'fs';
-import {
-    ApiConsumes,
-    ApiBody,
-    ApiTags,
-    ApiBodyOptions,
-    ApiOkResponse,
-    ApiNotFoundResponse,
-    ApiCreatedResponse,
-    ApiBadRequestResponse,
-    ApiResponse,
-} from '@nestjs/swagger';
 import { generateRandomId } from '@app/services/randomID/random-id';
-import { UnsupportedMediaTypeException } from '@nestjs/common/exceptions/unsupported-media-type.exception';
-
+import { Controller, Delete, Get, HttpStatus, NotFoundException, Param, Post, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { ApiBadRequestResponse, ApiBody, ApiConsumes, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { ImageStorageService } from './image-storage.service';
+import { ImageDto } from './interfaces/image.dto';
 @ApiTags('Images')
 @Controller('images')
 export class ImagesController {
@@ -64,15 +37,22 @@ export class ImagesController {
             },
         },
     })
-    @UseInterceptors(FilesInterceptor('files'))
-    async uploadImages(@UploadedFiles() files: Express.Multer.File[], @Res() res: Response) {
+    @UseInterceptors(
+        FileFieldsInterceptor([
+            { name: 'original', maxCount: 1 },
+            { name: 'modified', maxCount: 1 },
+        ]),
+    )
+    async uploadFile(@UploadedFiles() files: { original: Express.Multer.File[]; modified: Express.Multer.File[] }, @Res() res: Response) {
+        console.log(files.original[0]);
         try {
             const sheetId = generateRandomId();
-            for (const file of files) {
-                await this.imageStorage.uploadImage(file.buffer, sheetId, file.originalname);
-            }
-            return res.status(HttpStatus.CREATED).send('files have been uploaded');
+            await this.imageStorage.uploadImage(files.original[0].buffer, sheetId, files.original[0].originalname);
+            await this.imageStorage.uploadImage(files.modified[0].buffer, sheetId, files.modified[0].originalname);
+
+            return res.status(HttpStatus.CREATED).send({ message: 'files have been uploaded' });
         } catch (error) {
+            console.error(error);
             res.status(HttpStatus.BAD_REQUEST).send('Could not upload dem files');
         }
     }
@@ -106,7 +86,7 @@ export class ImagesController {
         try {
             console.log('test');
             const images = await this.imageStorage.sendImagesFromSheetId(sheetId);
-            return res.send
+            return res.send;
         } catch (error) {
             return res.status(HttpStatus.NOT_FOUND).send(error.message);
         }

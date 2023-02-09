@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { createWriteStream, promises, readFileSync } from 'fs';
 import { generateRandomId } from '@app/services/randomID/random-id';
+import { Injectable } from '@nestjs/common';
+import { createWriteStream, promises } from 'fs';
 import { ImageDto } from './interfaces/image.dto';
-import { Express } from 'express';
 
 @Injectable()
 export class ImageStorageService {
@@ -27,6 +26,8 @@ export class ImageStorageService {
     }
 
     async uploadImage(image: Buffer, sheetToAdd: string, filename: string): Promise<void> {
+        console.log('uploadImage');
+        console.log(image);
         try {
             const imageName = `${filename}`;
             const imagePath = `${this.uploadPath}${imageName}`;
@@ -65,15 +66,15 @@ export class ImageStorageService {
 
         const images = await this.getAllImages();
 
-        for (const img of images) {
-            if (img.sheetId === sheetId) {
-                if (img.original) {
-                    pairOfPaths.push({ original: img.path });
-                } else {
-                    pairOfPaths.push({ modified: img.path });
-                }
-            }
-        }
+        // for (const img of images) {
+        //     if (img.sheetId === sheetId) {
+        //         if (img.original) {
+        //             pairOfPaths.push({ original: img.path });
+        //         } else {
+        //             pairOfPaths.push({ modified: img.path });
+        //         }
+        //     }
+        // }
         return pairOfPaths;
     }
 

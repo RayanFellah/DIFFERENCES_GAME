@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, EMPTY } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { EMPTY, Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -9,16 +9,24 @@ export class ImageUploaderService {
     // API url
     baseApiUrl = 'http://localhost:3000/';
     fileName: string;
-    constructor(private http: HttpClient) {}
+    files: File[] = [];
+    constructor(private readonly http: HttpClient) {}
 
+    setImage(file: File) {
+        this.files.push(file);
+    }
     // Returns an observable
-    upload(file: File): Observable<unknown> {
-        if (file) {
-            this.fileName = file.name;
+    upload(): Observable<unknown> {
+        if (this.files.length === 2) {
             const formData = new FormData();
-            formData.append('file', file, file.name);
-            return this.http.post('http://localhost:3000/images/upload', formData);
+            // eslint-disable-next-line @typescript-eslint/prefer-for-of
+            formData.append('original', this.files[0]);
+            formData.append('modified', this.files[1]);
+
+            console.log(formData.get('original'));
+            return this.http.post('http://localhost:3000/api/images/upload', formData);
         }
+        console.log(this.files);
         return EMPTY;
     }
 }

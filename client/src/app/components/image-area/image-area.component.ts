@@ -1,7 +1,7 @@
-import { Component, ElementRef, OnChanges, SimpleChanges, ViewChild, Input } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '@app/classes/constants';
-import { ImageUploaderService } from '@app/services/image-uploader.service';
 import { BmpVerificationService } from '@app/services/bmp-verification.service';
+import { ImageUploaderService } from '@app/services/image-uploader.service';
 @Component({
     selector: 'app-image-area',
     templateUrl: './image-area.component.html',
@@ -50,8 +50,9 @@ export class ImageAreaComponent implements OnChanges {
         if (target.files != null && target.files.length > 0) {
             this.file = target.files[0];
             if (this.bmpVerificationService.verifyImage(this.file)) {
+                this.imageUploaderService.setImage(this.file);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                this.imageUploaderService.upload(this.file).subscribe((e: any) => {
+                this.imageUploaderService.upload().subscribe((e: any) => {
                     if (typeof e === 'object') {
                         this.shortLink = e.link;
                     }
