@@ -13,6 +13,10 @@ export class BmpVerificationService {
         const bytesPerPixel = bitDepth / BPP;
 
         const expectedSize = headerSize + width * height * bytesPerPixel;
+        if (!(size === expectedSize)) {
+            alert("L'image ne respecte pas le format 24-bit bmp.");
+            return false;
+        }
         return size === expectedSize;
     }
 }

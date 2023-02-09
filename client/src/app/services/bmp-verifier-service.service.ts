@@ -11,7 +11,14 @@ export class BmpVerifierService {
             reader.onloadend = () => {
                 const bmpArray = new Uint8Array(reader.result as ArrayBuffer);
                 const bitDepth = bmpArray[30] + (bmpArray[31] << 8);
-                resolve(bitDepth === 24);
+                if (bitDepth === 24) {
+                    resolve(true);
+                } else {
+                    alert("Cette image n'est pas un bmp 24-bit");
+                    // eslint-disable-next-line no-console
+                    console.log('allo');
+                    resolve(false);
+                }
             };
             reader.onerror = (error) => {
                 reject(error);

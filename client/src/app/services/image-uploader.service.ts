@@ -7,7 +7,7 @@ import { Observable, EMPTY } from 'rxjs';
 })
 export class ImageUploaderService {
     // API url
-    baseApiUrl = 'http://localhost:4200/';
+    baseApiUrl = 'http://localhost:3000/';
     fileName: string;
     constructor(private http: HttpClient) {}
 
@@ -17,7 +17,7 @@ export class ImageUploaderService {
             this.fileName = file.name;
             const formData = new FormData();
             formData.append('file', file, file.name);
-            return this.http.post('http://file.io', formData);
+            return this.http.post('http://localhost:3000/images/upload', formData);
         }
         return EMPTY;
     }
