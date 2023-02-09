@@ -9,6 +9,9 @@ export class ImageDto {
     @ApiProperty({ required: true })
     sheetId: string;
 
+    // @ApiProperty()
+    // original: boolean;
+
     @ApiProperty({ required: false })
     path: string;
 }
