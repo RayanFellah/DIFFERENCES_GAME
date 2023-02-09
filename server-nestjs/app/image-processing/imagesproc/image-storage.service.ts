@@ -25,9 +25,8 @@ export class ImageStorageService {
         await this.writeToJsonFile(images);
     }
 
-    async uploadImage(image: Buffer, sheetToAdd: string, filename: string): Promise<void> {
+    async uploadImage(image: Buffer, sheetToAdd: string, filename: string): Promise<ImageDto> {
         console.log('uploadImage');
-        console.log(image);
         try {
             const imageName = `${filename}`;
             const imagePath = `${this.uploadPath}${imageName}`;
@@ -42,6 +41,7 @@ export class ImageStorageService {
                 path: imagePath,
             };
             await this.addImage(imageDto);
+            return imageDto;
         } catch (error) {
             throw new Error('could not read the file');
         }

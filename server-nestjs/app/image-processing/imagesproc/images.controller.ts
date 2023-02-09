@@ -1,14 +1,21 @@
 import { generateRandomId } from '@app/services/randomID/random-id';
-import { Controller, Delete, Get, HttpStatus, NotFoundException, Param, Post, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, NotFoundException, Param, Post, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBadRequestResponse, ApiBody, ApiConsumes, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ImageStorageService } from './image-storage.service';
 import { ImageDto } from './interfaces/image.dto';
+import { DifferenceDetector } from '@app/services/differences-detector/differences-detector.service';
+import { GameLogicService } from '@app/game-logic/game-logic.service';
+import { SheetService } from '@app/model/database/Sheets/sheet.service';
 @ApiTags('Images')
 @Controller('images')
 export class ImagesController {
-    constructor(private readonly imageStorage: ImageStorageService) {}
+    constructor(
+        private readonly imageStorage: ImageStorageService,
+        private readonly logicService: GameLogicService,
+        private readonly sheetService: SheetService,
+    ) {}
 
     @Get('test')
     async test(): Promise<string> {
@@ -43,16 +50,20 @@ export class ImagesController {
             { name: 'modified', maxCount: 1 },
         ]),
     )
-    async uploadFile(@UploadedFiles() files: { original: Express.Multer.File[]; modified: Express.Multer.File[] }, @Res() res: Response) {
-        console.log(files.original[0]);
+    async uploadFile(
+        @Body() body: any,
+        @UploadedFiles() files: { original: Express.Multer.File[]; modified: Express.Multer.File[] },
+        @Res() res: Response,
+    ) {
         try {
             const sheetId = generateRandomId();
-            await this.imageStorage.uploadImage(files.original[0].buffer, sheetId, files.original[0].originalname);
-            await this.imageStorage.uploadImage(files.modified[0].buffer, sheetId, files.modified[0].originalname);
+            const original = await this.imageStorage.uploadImage(files.original[0].buffer, sheetId, files.original[0].originalname);
+            const modified = await this.imageStorage.uploadImage(files.modified[0].buffer, sheetId, files.modified[0].originalname);
+            const sheet = await this.sheetService.createSheet('name', sheetId, original.path, modified.path, 1);
+            const diffs = await this.logicService.getAllDifferences(sheet);
 
-            return res.status(HttpStatus.CREATED).send({ message: 'files have been uploaded' });
+            return res.status(HttpStatus.CREATED).send({ message: 'files have been uploaded', differences: diffs.length });
         } catch (error) {
-            console.error(error);
             res.status(HttpStatus.BAD_REQUEST).send('Could not upload dem files');
         }
     }

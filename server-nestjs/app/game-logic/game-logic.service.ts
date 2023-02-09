@@ -1,7 +1,7 @@
 import { DifferenceDetector } from '@app/services/differences-detector/differences-detector.service';
 import { ImageService } from '@app/services/Image-service/Image.service';
 import { Injectable } from '@nestjs/common';
-import { Sheet } from '@app/model/database/Sheets/schemas/sheet';
+import { Sheet } from '@app/model/database/Sheets/schemas/Sheet';
 import { Difference } from '@app/services/difference/difference.service';
 
 @Injectable()

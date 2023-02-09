@@ -34,7 +34,7 @@ export class GameLogicController {
         return undefined;
     }
     @Patch('game/finish/:sheetId')
-    async finishGame(id: string, @Body data) {
+    async finishGame(id: string, @Body() data) {
         const sheet: Sheet = await this.sheetService.getSheetById(id);
         if (data.bestScore > sheet.bestScore) {
             this.sheetService.updateSheet(id, {

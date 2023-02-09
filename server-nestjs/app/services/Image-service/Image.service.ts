@@ -2,24 +2,24 @@ import { Injectable } from '@nestjs/common';
 const Jimp = require('jimp');
 Injectable();
 export class ImageService {
-    base64Image: String;
+    path: string;
     image;
 
-    constructor(base64Image: String) {
-        this.base64Image = base64Image;
+    constructor(pathImage: string) {
+        this.path = pathImage;
     }
 
     async loadImage() {
-        this.image = await Jimp.read(Buffer.from(this.base64Image, 'base64'));
+        this.image = await Jimp.read(this.path);
         return await this.image;
     }
     async imageToMatrix() {
         try {
             // Loading the image
-            this.loadImage();
+            await this.loadImage();
 
             // Initializing the matrix
-            let matrix: Array<Array<Array<number>>> = new Array(this.image.getHeight());
+            const matrix: Array<Array<Array<number>>> = new Array(this.image.getHeight());
 
             // Filling the matrix with the pixel values
             for (let y = 0; y < this.image.getHeight(); y++) {

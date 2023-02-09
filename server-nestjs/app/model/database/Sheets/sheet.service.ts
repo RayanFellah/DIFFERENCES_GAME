@@ -15,16 +15,16 @@ export class SheetService {
         return this.sheetRepository.findMany({});
     }
 
-    async createSheet(name: string, difficulty: string) {
+    async createSheet(nam: string, sheet: string, original: string, modified: string, rad: number) {
         return this.sheetRepository.createOne({
-            sheetId: generateRandomId(),
-            name,
+            sheetId: sheet,
+            name: nam,
             bestScore: '',
-            difficulty,
+            difficulty: '',
             topPlayer: '',
-            originalImagePath: '',
-            modifiedImagePath: '',
-            radius: 3,
+            originalImagePath: original,
+            modifiedImagePath: modified,
+            radius: rad,
         });
     }
 
