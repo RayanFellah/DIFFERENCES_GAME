@@ -5,22 +5,32 @@
     align-items: center;
 }
 #foreground {
-    position: absolute;
-    left: 0;
-    top: 0;
     z-index: 1;
+    border: solid 1px #3F51B5;
 }
 
 #background {
-    position: absolute;
-    border: 1px solid black;
-    left: 0;
-    top: 0;
+    border: solid 1px #3F51B5;
     z-index: 0;
 }
 
 .canvas {
     position: relative;
-    height: 480px;
-    width: 640px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
 }
+.file-input {
+    display: none;
+  }
+canvas {
+    max-width: 640px;
+    max-height: 480px;
+    position: relative;
+    grid-row-start: 1;
+    grid-column-start: 1;
+}
+
+button[mat-mini-fab] {
+    transform: scale(0.7) !important;
+   }

@@ -1,15 +1,30 @@
-<app-header></app-header>
-<main>
-    <section>
-        <h1 id="sectionHeader">Images de jeu</h1>
-        <article class="OGImg">
-            <h2>Image originale :</h2>
-            <app-image-area></app-image-area>
-        </article>
-        <article class="newbieImg">
-            <h2>Image avec différences :</h2>
-            <app-image-area></app-image-area>
-        </article>
-    </section>
-</main>
-<footer></footer>
+<div class="flex-box">
+    <app-header></app-header>
+    <main>
+        <form class="input-field">
+            <label for="fname">Titre du Jeu:</label><br>
+            <input type="text" id="tile" name="tile"><br>
+        </form>
+        <section>
+            <article class="OGImg indigo-pink-theme">
+                <h3>Image originale :</h3>
+                <app-image-area [parentFile]="childFile"></app-image-area>
+            </article>
+            <article class="newbieImg">
+                <h3>Image avec différences :</h3>
+                <app-image-area [parentFile]="childFile"></app-image-area>
+            </article>
+        </section>
+        <input type="file" class="file-input" (change)="uploadImage($event)" accept=".bmp" #fileUpload>
+        <button mat-stroked-button color="primary" class="file-upload" (click)="fileUpload.click()">
+            {{fileName || "Téléverser dans les deux zones"}}
+
+                <button mat-mini-fab color="primary" class="upload-btn" [ngStyle]="{transform: 'scale(0.7)'}">
+                    <mat-icon>attach_file</mat-icon>
+                </button>
+        </button>
+    </main>
+    <footer>
+        <p>Projet 2 équipe 209 Hiver 2023 à PolyMtl.</p>
+    </footer>
+</div>

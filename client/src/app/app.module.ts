@@ -31,6 +31,7 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
 @NgModule({
     declarations: [
         AppComponent,
+        GamePageComponent,
         MainPageComponent,
         MaterialPageComponent,
         PlayAreaComponent,
@@ -46,6 +47,8 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
         ImageAreaComponent,
         GameCreationPageComponent,
         GameCardButtonsComponent,
+        ImageAreaComponent,
+        GameCreationPageComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
     providers: [],
