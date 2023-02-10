@@ -5,7 +5,7 @@ import { Module } from '@nestjs/common/decorators';
 import { GameLogicController } from './game-logic.controller';
 import { GameLogicService } from './game-logic.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { sheetSchema, Sheet } from '@app/model/database/Sheets/schemas/sheet';
+import { sheetSchema, Sheet } from '@app/model/database/Sheets/schemas/Sheet';
 
 @Module({
     imports: [SheetModule, MongooseModule.forFeature([{ name: Sheet.name, schema: sheetSchema }])],

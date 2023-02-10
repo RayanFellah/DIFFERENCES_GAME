@@ -1,9 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { createWriteStream, promises, createReadStream, readFileSync } from 'fs';
 import { generateRandomId } from '@app/services/randomID/random-id';
+import { Injectable } from '@nestjs/common';
+import { createWriteStream, promises } from 'fs';
 import { ImageDto } from './interfaces/image.dto';
-import { Express } from 'express';
-import { SheetService } from '@app/model/database/Sheets/sheet.service';
 
 @Injectable()
 export class ImageStorageService {
@@ -27,7 +25,8 @@ export class ImageStorageService {
         await this.writeToJsonFile(images);
     }
 
-    async uploadImage(image: Buffer, sheetToAdd: string, filename: string): Promise<void> {
+    async uploadImage(image: Buffer, sheetToAdd: string, filename: string): Promise<ImageDto> {
+        console.log('uploadImage');
         try {
             const imageName = `${filename}`;
             const imagePath = `${this.uploadPath}${imageName}`;
@@ -42,9 +41,41 @@ export class ImageStorageService {
                 path: imagePath,
             };
             await this.addImage(imageDto);
+            return imageDto;
         } catch (error) {
             throw new Error('could not read the file');
         }
+    }
+
+    async sendImagesFromSheetId(sheetId: string) {
+        const files = [];
+        const images = await this.findImagePairs(sheetId);
+
+        try {
+            for (const img of images) {
+                files.push(promises.readFile(img.path));
+            }
+            return files;
+        } catch (error) {
+            throw new Error('error while reading files from path');
+        }
+    }
+
+    async findImagePairs(sheetId: string) {
+        const pairOfPaths = [];
+
+        const images = await this.getAllImages();
+
+        // for (const img of images) {
+        //     if (img.sheetId === sheetId) {
+        //         if (img.original) {
+        //             pairOfPaths.push({ original: img.path });
+        //         } else {
+        //             pairOfPaths.push({ modified: img.path });
+        //         }
+        //     }
+        // }
+        return pairOfPaths;
     }
 
     async deleteImage(id: string): Promise<void> {

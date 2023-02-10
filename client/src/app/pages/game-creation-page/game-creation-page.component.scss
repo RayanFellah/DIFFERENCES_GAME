@@ -1,5 +1,15 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+.flex-box {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 #sectionHeader {
     grid-area: hd;
+    font-weight: bold;
 }
 
 .OGImg {
@@ -17,14 +27,45 @@
 }
 
 section {
+    padding: 10px;
     display: grid;
     grid-template-columns: auto;
     grid-template-rows: auto;
+    grid-column-gap: 10px;
     grid-template-areas:
-        'hd hd hd hd'
         'OG OG newbie newbie';
 }
 
 h1 {
     font-weight: bolder;
+}
+h3 {
+    margin: 0;
+    color: #3F51B5;
+    font-weight: bold;
+}
+h2 {
+    color: #FF4081;
+}
+header {
+    flex: 0 1 auto;
+}
+main {
+    flex: 1 1 auto;
+    flex-grow: 2;
+}
+footer {
+    flex: 0 1 40px;
+}
+
+.file-input {
+    display: none;
+  }
+
+form {
+    color: #3F51B5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
 }

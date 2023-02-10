@@ -7,9 +7,9 @@ const Jimp = require('jimp');
 
 @Injectable()
 export class DifferenceDetector {
-    public image1: ImageService;
-    public image2: ImageService;
-    public differences: Array<Difference> = [];
+    image1: ImageService;
+    image2: ImageService;
+    differences: Difference[] = [];
 
     /** L'objet DifferenceDetector prend deux Images en parametre
      *
@@ -24,6 +24,7 @@ export class DifferenceDetector {
     /**
      * Cette fonction sert a chercher tous les packets de coordonnees associes a une difference
      * entre deux images et le mettre dans la liste des differences
+     *
      * @param rayon : rayon d'elargissement pris en compte
      */
 
@@ -49,14 +50,14 @@ export class DifferenceDetector {
      * montrant les pixels differents
      */
 
-    private getCluster(matrix: Array<Array<number>>, i: number, j: number): Difference {
-        let queue = [[i, j]];
-        const coordList: Array<Coord> = [];
+    private getCluster(matrix: number[][], i: number, j: number): Difference {
+        const queue = [[i, j]];
+        const coordList: Coord[] = [];
 
         while (queue.length) {
-            let [x, y] = queue.shift();
+            const [x, y] = queue.shift();
             if (x < 0 || x >= matrix.length || y < 0 || y >= matrix[x].length || matrix[x][y] != 1) continue;
-            coordList.push({ posX: x, posY: y });
+            coordList.push({ posX: y, posY: x });
             matrix[x][y] = -1;
             queue.push([x + 1, y]);
             queue.push([x - 1, y]);
@@ -73,11 +74,12 @@ export class DifferenceDetector {
     /**
      * Cette fonction prend deux images et retourne un matrice nous donnant les pixels differents
      * entres celles-ci
+     *
      * @param img1 objet Image
      * @param img2 objet Image
      * @returns la matrice binaire montrant les pixels differents
      */
-    private async compareImages(img1: ImageService, img2: ImageService): Promise<Array<Array<number>>> {
+    private async compareImages(img1: ImageService, img2: ImageService): Promise<number[][]> {
         try {
             // Loading both images
             const imgMatrix1 = await img1.imageToMatrix();
@@ -93,7 +95,7 @@ export class DifferenceDetector {
             }
 
             // Initializing the matrix of differences
-            let matrixOfPixels = new Array(imgMatrix1.length);
+            const matrixOfPixels = new Array(imgMatrix1.length);
 
             // Filling the matrix with zeros
             for (let i = 0; i < imgMatrix1.length; i++) {
@@ -113,7 +115,7 @@ export class DifferenceDetector {
             console.log(err);
         }
     }
-    private calculateDifficulty(matrix: Array<Array<number>>) {
+    private calculateDifficulty(matrix: number[][]) {
         const newMatrix = matrix.flat(1);
         const noOfOnes = newMatrix.filter((num) => {
             return num === 1;

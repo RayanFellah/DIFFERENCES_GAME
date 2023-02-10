@@ -8,12 +8,7 @@ const bootstrap = async () => {
     app.setGlobalPrefix('api');
     app.useGlobalPipes(new ValidationPipe());
     app.enableCors();
-    const config = new DocumentBuilder()
-        .setTitle('IMPERATOR')
-        .setDescription('Serviteur dévoué')
-        .setVersion('1.2.1')
-        .setBasePath('imperator')
-        .build();
+    const config = new DocumentBuilder().setTitle('IMPERATOR').setDescription('Serviteur dévoué').setVersion('1.2.1').build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, document);
     SwaggerModule.setup('', app, document);

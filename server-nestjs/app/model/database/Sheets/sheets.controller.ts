@@ -60,9 +60,9 @@ export class SheetController {
         description: 'Could not create a sheet',
     })
     @Post()
-    async createSheet(@Body() createSheetDto: CreateSheetDto, @Res() response: Response): Promise<Sheet> {
+    async createSheet(@Body() sheet: Partial<Sheet>, @Res() response: Response): Promise<Sheet> {
         try {
-            return this.sheetService.createSheet(createSheetDto.name, createSheetDto.difficulty);
+            return this.sheetService.createSheet(sheet.name, sheet.sheetId, sheet.originalImagePath, sheet.modifiedImagePath, sheet.radius);
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }

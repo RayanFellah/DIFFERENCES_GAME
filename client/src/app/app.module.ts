@@ -18,11 +18,11 @@ import { GameConstantsComponent } from './components/game-constants/game-constan
 import { GameScoreComponent } from './components/game-score/game-score.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ImageAreaComponent } from './components/image-area/image-area.component';
+import { DialogPalyerNameComponent } from './dialog-palyer-name/dialog-palyer-name.component';
 import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
 import { GameCreationPageComponent } from './pages/game-creation-page/game-creation-page.component';
 import { GamePageComponent } from './pages/game-page/game-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
-import { DialogPalyerNameComponent } from './dialog-palyer-name/dialog-palyer-name.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -32,6 +32,7 @@ import { DialogPalyerNameComponent } from './dialog-palyer-name/dialog-palyer-na
 @NgModule({
     declarations: [
         AppComponent,
+        GamePageComponent,
         MainPageComponent,
         MaterialPageComponent,
         PlayAreaComponent,
@@ -48,6 +49,8 @@ import { DialogPalyerNameComponent } from './dialog-palyer-name/dialog-palyer-na
         GameCreationPageComponent,
         GameCardButtonsComponent,
         DialogPalyerNameComponent,
+        ImageAreaComponent,
+        GameCreationPageComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
     providers: [],
