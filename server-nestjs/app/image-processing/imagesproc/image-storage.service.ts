@@ -2,6 +2,7 @@ import { generateRandomId } from '@app/services/randomID/random-id';
 import { Injectable } from '@nestjs/common';
 import { createWriteStream, promises } from 'fs';
 import { ImageDto } from './interfaces/image.dto';
+import * as path from 'path';
 
 @Injectable()
 export class ImageStorageService {
@@ -25,57 +26,40 @@ export class ImageStorageService {
         await this.writeToJsonFile(images);
     }
 
-    async uploadImage(image: Buffer, sheetToAdd: string, filename: string): Promise<ImageDto> {
+    async uploadImage(image: Buffer, sheetToAdd: string, filename: string, isOriginal: boolean): Promise<ImageDto> {
         console.log('uploadImage');
         try {
             const imageName = `${filename}`;
-            const imagePath = `${this.uploadPath}${imageName}`;
+            const imagePath = path.join(__dirname.replace('/out', '').replace('/server-nestjs', ''), 'uploads', filename);
+            console.log(imagePath);
             const imageStream = createWriteStream(imagePath);
             imageStream.write(image);
             imageStream.end();
+            console.log('written');
 
             const imageDto: ImageDto = {
                 id: generateRandomId(),
                 name: imageName,
                 sheetId: sheetToAdd,
                 path: imagePath,
+                original: isOriginal,
             };
             await this.addImage(imageDto);
+            console.log('written');
+
             return imageDto;
         } catch (error) {
             throw new Error('could not read the file');
         }
     }
 
-    async sendImagesFromSheetId(sheetId: string) {
-        const files = [];
-        const images = await this.findImagePairs(sheetId);
-
-        try {
-            for (const img of images) {
-                files.push(promises.readFile(img.path));
+    async getImagePath(sheetId: string, isOriginal: boolean) {
+        for (const img of await this.getAllImages()) {
+            if (img.sheetId === sheetId && isOriginal === img.original) {
+                return img.path;
             }
-            return files;
-        } catch (error) {
-            throw new Error('error while reading files from path');
         }
-    }
-
-    async findImagePairs(sheetId: string) {
-        const pairOfPaths = [];
-
-        const images = await this.getAllImages();
-
-        // for (const img of images) {
-        //     if (img.sheetId === sheetId) {
-        //         if (img.original) {
-        //             pairOfPaths.push({ original: img.path });
-        //         } else {
-        //             pairOfPaths.push({ modified: img.path });
-        //         }
-        //     }
-        // }
-        return pairOfPaths;
+        return undefined;
     }
 
     async deleteImage(id: string): Promise<void> {
