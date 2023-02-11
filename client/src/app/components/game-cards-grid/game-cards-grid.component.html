@@ -32,7 +32,11 @@
             </div>
         </mat-card-content>
         <mat-grid-tile-footer>
-            <app-game-card-buttons (deleteGame)="deleteGame($event)" [isConfigPage]="isConfigPage"></app-game-card-buttons>
+            <app-game-card-buttons
+                [selectedGame]="selectedGame"
+                (deleteGame)="deleteGame($event)"
+                [isConfigPage]="isConfigPage"
+            ></app-game-card-buttons>
         </mat-grid-tile-footer>
     </mat-grid-tile>
 </mat-grid-list>

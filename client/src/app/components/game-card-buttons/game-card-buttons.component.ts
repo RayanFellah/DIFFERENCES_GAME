@@ -10,6 +10,7 @@ import { DialogPalyerNameComponent } from '@app/dialog-palyer-name/dialog-palyer
 export class GameCardButtonsComponent implements OnInit {
     @Input() isConfigPage: boolean;
     @Input() gameIndex: number;
+    @Input() selectedGame: string;
 
     @Output() deleteGame = new EventEmitter();
     @Output() playGame = new EventEmitter();
@@ -34,6 +35,7 @@ export class GameCardButtonsComponent implements OnInit {
 
     callPlayGame() {
         this.playGame.emit();
+        console.log(this.selectedGame);
     }
 
     callCreateMultiGame() {

@@ -12,6 +12,7 @@ export class GameCardsGridComponent implements OnInit {
     public gridGames = games;
     public gridIndexStart = 0;
     public gridIndexEnd = 4;
+    public selectedGame: string;
 
     constructor() {}
 
@@ -46,4 +47,8 @@ export class GameCardsGridComponent implements OnInit {
     }
 
     resetScores() {}
+
+    selectGame(game: any) {
+        this.selectedGame = game.name;
+    }
 }

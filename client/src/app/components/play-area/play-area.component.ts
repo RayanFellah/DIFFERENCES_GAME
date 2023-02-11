@@ -23,7 +23,9 @@ export enum MouseButton {
 export class PlayAreaComponent implements AfterViewInit {
     @ViewChild('gridCanvas', { static: false }) private canvas!: ElementRef<HTMLCanvasElement>;
 
-    mousePosition: Vec2 = { x: 0, y: 0 };
+    mousePositionOriginal: Vec2 = { x: 0, y: 0 };
+    mousePositionModified: Vec2 = { x: 0, y: 0 };
+
     buttonPressed = '';
 
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
@@ -50,9 +52,15 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     // TODO : déplacer ceci dans un service de gestion de la souris!
-    mouseHitDetect(event: MouseEvent) {
+    mouseHitDetectOrigin(event: MouseEvent) {
         if (event.button === MouseButton.Left) {
-            this.mousePosition = { x: event.offsetX, y: event.offsetY };
+            this.mousePositionOriginal = { x: event.offsetX, y: event.offsetY };
+        }
+    }
+
+    mouseHitDetectModified(event: MouseEvent) {
+        if (event.button === MouseButton.Left) {
+            this.mousePositionModified = { x: event.offsetX, y: event.offsetY };
         }
     }
 }

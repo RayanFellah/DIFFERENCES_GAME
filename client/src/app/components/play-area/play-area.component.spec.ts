@@ -23,28 +23,50 @@ describe('PlayAreaComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('mouseHitDetect should assign the mouse position to mousePosition variable', () => {
+    it('mouseHitDetectOrigin should assign the mouse position to mousePosition variable', () => {
         const expectedPosition: Vec2 = { x: 100, y: 200 };
         mouseEvent = {
             offsetX: expectedPosition.x,
             offsetY: expectedPosition.y,
             button: 0,
         } as MouseEvent;
-        component.mouseHitDetect(mouseEvent);
-        expect(component.mousePosition).toEqual(expectedPosition);
+        component.mouseHitDetectOrigin(mouseEvent);
+        expect(component.mousePositionOriginal).toEqual(expectedPosition);
+    });
+    it('mouseHitDetectModified should assign the mouse position to mousePosition variable', () => {
+        const expectedPosition: Vec2 = { x: 100, y: 200 };
+        mouseEvent = {
+            offsetX: expectedPosition.x,
+            offsetY: expectedPosition.y,
+            button: 0,
+        } as MouseEvent;
+        component.mouseHitDetectModified(mouseEvent);
+        expect(component.mousePositionModified).toEqual(expectedPosition);
     });
 
     /* eslint-disable @typescript-eslint/no-magic-numbers -- Add reason */
-    it('mouseHitDetect should not change the mouse position if it is not a left click', () => {
+    it('mouseHitDetectModified should not change the mouse position if it is not a left click', () => {
         const expectedPosition: Vec2 = { x: 0, y: 0 };
         mouseEvent = {
             offsetX: expectedPosition.x + 10,
             offsetY: expectedPosition.y + 10,
             button: 1,
         } as MouseEvent;
-        component.mouseHitDetect(mouseEvent);
-        expect(component.mousePosition).not.toEqual({ x: mouseEvent.offsetX, y: mouseEvent.offsetY });
-        expect(component.mousePosition).toEqual(expectedPosition);
+        component.mouseHitDetectModified(mouseEvent);
+        expect(component.mousePositionModified).not.toEqual({ x: mouseEvent.offsetX, y: mouseEvent.offsetY });
+        expect(component.mousePositionModified).toEqual(expectedPosition);
+    });
+
+    it('mouseHitDetectOrigin should not change the mouse position if it is not a left click', () => {
+        const expectedPosition: Vec2 = { x: 0, y: 0 };
+        mouseEvent = {
+            offsetX: expectedPosition.x + 10,
+            offsetY: expectedPosition.y + 10,
+            button: 1,
+        } as MouseEvent;
+        component.mouseHitDetectOrigin(mouseEvent);
+        expect(component.mousePositionOriginal).not.toEqual({ x: mouseEvent.offsetX, y: mouseEvent.offsetY });
+        expect(component.mousePositionOriginal).toEqual(expectedPosition);
     });
 
     it('buttonDetect should modify the buttonPressed variable', () => {
