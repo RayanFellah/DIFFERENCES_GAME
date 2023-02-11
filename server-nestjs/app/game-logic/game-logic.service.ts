@@ -7,12 +7,13 @@ import { Difference } from '@app/services/difference/difference.service';
 @Injectable()
 export class GameLogicService {
     differences: Difference[];
-    getDifferenceDetector(gameSheet: Sheet) {
+    getDifferenceDetector(gameSheet: Partial<Sheet>) {
         const image1 = new ImageService(gameSheet.originalImagePath);
         const image2 = new ImageService(gameSheet.modifiedImagePath);
         return new DifferenceDetector(image1, image2);
     }
-    async getAllDifferences(gameSheet: Sheet) {
+
+    async getAllDifferences(gameSheet: Partial<Sheet>) {
         const diffDetector = this.getDifferenceDetector(gameSheet);
         return await diffDetector.getAllClusters(gameSheet.radius);
     }

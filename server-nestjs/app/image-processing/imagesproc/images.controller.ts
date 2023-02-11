@@ -20,7 +20,7 @@ import { ImageStorageService } from './image-storage.service';
 import { ImageDto } from './interfaces/image.dto';
 import { GameLogicService } from '@app/game-logic/game-logic.service';
 import { SheetService } from '@app/model/database/Sheets/sheet.service';
-import * as path from 'path';
+import { Sheet } from '@app/model/database/Sheets/schemas/sheet';
 @ApiTags('Images')
 @Controller('images')
 export class ImagesController {
@@ -35,28 +35,7 @@ export class ImagesController {
         return 'ServerIsClean';
     }
 
-    @ApiCreatedResponse({
-        description: 'uploaded files successfully',
-    })
-    @ApiBadRequestResponse({
-        description: 'Cant upload these files',
-    })
     @Post('upload')
-    @ApiConsumes('multipart/form-data')
-    @ApiBody({
-        schema: {
-            type: 'object',
-            properties: {
-                files: {
-                    type: 'array', // 👈  array of files
-                    items: {
-                        type: 'string',
-                        format: 'binary',
-                    },
-                },
-            },
-        },
-    })
     @UseInterceptors(
         FileFieldsInterceptor([
             { name: 'original', maxCount: 1 },
@@ -64,18 +43,37 @@ export class ImagesController {
         ]),
     )
     async uploadFile(
-        @Body() body: unknown,
         @UploadedFiles() files: { original: Express.Multer.File[]; modified: Express.Multer.File[] },
         @Res() res: Response,
+        @Query('valid') valid: string,
+        @Query('radius') radius: string,
     ) {
         try {
             const sheetId = generateRandomId();
             const original = await this.imageStorage.uploadImage(files.original[0].buffer, sheetId, files.original[0].originalname, true);
             const modified = await this.imageStorage.uploadImage(files.modified[0].buffer, sheetId, files.modified[0].originalname, false);
-            const sheet = await this.sheetService.createSheet('name', sheetId, original.path, modified.path, 1);
-            const diffs = await this.logicService.getAllDifferences(sheet);
+            if (valid === 'true') {
+                await this.sheetService.createSheet('name', sheetId, original.path, modified.path, parseInt(radius, 10));
+            }
+            const partial: Partial<Sheet> = {
+                originalImagePath: original.path,
+                modifiedImagePath: modified.path,
+                radius: parseInt(radius, 10),
+            };
+            const diffs = await this.logicService.getAllDifferences(partial);
+            let validated = true;
+            const diffMax = 9;
+            const diffMin = 3;
+            if (diffs.length < diffMin && diffs.length > diffMax) {
+                validated = false;
+            }
 
-            return res.status(HttpStatus.CREATED).send({ message: 'files have been uploaded', differences: diffs.length });
+            return res.status(HttpStatus.CREATED).send({
+                message: 'files have been uploaded',
+                differences: diffs.length,
+                isValid: validated,
+                gameId: validated ? sheetId : 'not defined',
+            });
         } catch (error) {
             res.status(HttpStatus.BAD_REQUEST).send('Could not upload dem files');
         }

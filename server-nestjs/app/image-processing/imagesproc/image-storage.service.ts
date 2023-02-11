@@ -8,6 +8,7 @@ import * as path from 'path';
 export class ImageStorageService {
     dataPath: string = './app/image-processing/imagesproc/data/images.json';
     uploadPath: string = './app/image-processing/imagesproc/uploads/';
+    validationPath: string = './app/image-processing/imagesproc/data/validate.json';
 
     async getAllImages() {
         return await this.readFromJsonFile();
@@ -27,15 +28,12 @@ export class ImageStorageService {
     }
 
     async uploadImage(image: Buffer, sheetToAdd: string, filename: string, isOriginal: boolean): Promise<ImageDto> {
-        console.log('uploadImage');
         try {
             const imageName = `${filename}`;
             const imagePath = path.join(__dirname.replace('/out', '').replace('/server-nestjs', ''), 'uploads', filename);
-            console.log(imagePath);
             const imageStream = createWriteStream(imagePath);
             imageStream.write(image);
             imageStream.end();
-            console.log('written');
 
             const imageDto: ImageDto = {
                 id: generateRandomId(),
@@ -45,7 +43,6 @@ export class ImageStorageService {
                 original: isOriginal,
             };
             await this.addImage(imageDto);
-            console.log('written');
 
             return imageDto;
         } catch (error) {
@@ -88,7 +85,7 @@ export class ImageStorageService {
     }
 
     private async writeToJsonFile(images: ImageDto[]): Promise<void> {
-        await promises.writeFile(this.dataPath, JSON.stringify(images)).catch((err) => console.error(err));
+        await promises.writeFile(this.dataPath, JSON.stringify(images));
     }
 
     private async addImage(image: ImageDto): Promise<void> {

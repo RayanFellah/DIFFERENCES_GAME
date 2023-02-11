@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common/decorators';
-import { UpdateSheetDto } from './dto/update-sheet.dto';
 import { Sheet } from './schemas/Sheet';
 import { SheetsRepository } from './sheet.repos';
-import { generateRandomId } from '@app/services/randomID/random-id';
 @Injectable()
 export class SheetService {
     constructor(private readonly sheetRepository: SheetsRepository) {}

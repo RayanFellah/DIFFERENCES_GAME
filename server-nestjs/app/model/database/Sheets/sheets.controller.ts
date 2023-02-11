@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Query, Param, Patch, Post } from '@nestjs/common';
+import { NotFoundError } from 'rxjs';
 import { CreateSheetDto } from './dto/create-sheet.dto';
 import { UpdateSheetDto } from './dto/update-sheet.dto';
 import { Sheet } from './schemas/Sheet';
