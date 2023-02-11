@@ -29,4 +29,11 @@ export class ImageUploaderService {
         console.log(this.files);
         return EMPTY;
     }
+
+    getImages(sheetId: string) {
+        return {
+            original: this.http.get(`${this.baseApiUrl}/${sheetId}/?original='true'`),
+            modified: this.http.get(`${this.baseApiUrl}/${sheetId}/?original='false'`),
+        };
+    }
 }
