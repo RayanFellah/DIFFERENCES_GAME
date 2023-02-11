@@ -58,7 +58,7 @@ describe('Differnces-detector tests', () => {
             expect(difference.coords[i].posY).toEqual(clusterPositions[i].posY);
         }
     });
-    it('calculateDifficulty should return Easy when ratio is greater than 0.15', async () => {
+    it('calculateDifficulty should return Hard when ratio is greater than 0.15', async () => {
         const matrixStub = [
             [1, 0, 0],
             [0, 0, 0],
@@ -67,7 +67,7 @@ describe('Differnces-detector tests', () => {
         const difficulty = await service['calculateDifficulty'](matrixStub);
         expect(difficulty).toEqual('Hard');
     });
-    it('calculateDifficulty should return Hard when ratio is lesser or equal than 0.15', async () => {
+    it('calculateDifficulty should return Easy when ratio is lesser or equal than 0.15', async () => {
         const matrixStub = [
             [1, 1, 1],
             [0, 1, 1],
