@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common/decorators';
-import { UpdateSheetDto } from './dto/update-sheet.dto';
-import { Sheet } from './schemas/sheet';
+import { Sheet } from './schemas/Sheet';
 import { SheetsRepository } from './sheet.repos';
-import { generateRandomId } from '@app/services/randomID/random-id';
 @Injectable()
 export class SheetService {
     constructor(private readonly sheetRepository: SheetsRepository) {}
@@ -15,20 +13,20 @@ export class SheetService {
         return this.sheetRepository.findMany({});
     }
 
-    async createSheet(nam: string, sheet: string, original: string, modified: string, rad: number) {
+    async createSheet(name: string, sheetId: string, originalImagePath: string, modifiedImagePath: string, radius: number) {
         return this.sheetRepository.createOne({
-            sheetId: sheet,
-            name: nam,
+            sheetId,
+            name,
             bestScore: '',
             difficulty: '',
             topPlayer: '',
-            originalImagePath: original,
-            modifiedImagePath: modified,
-            radius: rad,
+            originalImagePath,
+            modifiedImagePath,
+            radius,
         });
     }
 
-    async updateSheet(sheetId: string, sheetUpdates: Partial<UpdateSheetDto>): Promise<Sheet> {
+    async updateSheet(sheetId: string, sheetUpdates: Partial<Sheet>): Promise<Sheet> {
         return this.sheetRepository.findOneAndUpdate({ sheetId }, sheetUpdates);
     }
 }

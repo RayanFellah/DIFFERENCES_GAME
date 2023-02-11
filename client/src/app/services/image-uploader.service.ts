@@ -26,7 +26,13 @@ export class ImageUploaderService {
             console.log(formData.get('original'));
             return this.http.post('http://localhost:3000/api/images/upload', formData);
         }
-        console.log(this.files);
         return EMPTY;
+    }
+
+    getImages(sheetId: string) {
+        return {
+            original: this.http.get(`${this.baseApiUrl}/${sheetId}/?original='true'`),
+            modified: this.http.get(`${this.baseApiUrl}/${sheetId}/?original='false'`),
+        };
     }
 }

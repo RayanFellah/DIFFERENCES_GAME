@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
-import { DrawService } from '@app/services/draw.service';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 export const DEFAULT_WIDTH = 500;
@@ -29,7 +28,7 @@ export class PlayAreaComponent implements AfterViewInit {
     buttonPressed = '';
 
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
-    constructor(private readonly drawService: DrawService) {}
+    constructor() {}
 
     get width(): number {
         return this.canvasSize.x;
@@ -45,10 +44,10 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.drawService.context = this.canvas.nativeElement.getContext('2d') as CanvasRenderingContext2D;
-        this.drawService.drawGrid();
-        this.drawService.drawWord('Différence');
-        this.canvas.nativeElement.focus();
+        // this.drawService.context = this.canvas.nativeElement.getContext('2d') as CanvasRenderingContext2D;
+        // this.drawService.drawGrid();
+        // this.drawService.drawWord('Différence');
+        // this.canvas.nativeElement.focus();
     }
 
     // TODO : déplacer ceci dans un service de gestion de la souris!

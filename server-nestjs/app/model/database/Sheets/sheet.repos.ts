@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { Sheet, SheetDocument } from './schemas/sheet';
+import { Sheet, SheetDocument } from './schemas/Sheet';
 
 Injectable();
 export class SheetsRepository {

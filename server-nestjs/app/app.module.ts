@@ -3,9 +3,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ImageProcessingModule } from './image-processing/image-processing.module';
 import { GameLogicModule } from './game-logic/game-logic.module';
 
-const dbUri = 'mongodb+srv://skander:hannachi@test.n9gekl1.mongodb.net/Projet2?retryWrites=true&w=majority';
+const DB_URI = 'mongodb+srv://Ekip:209@sheets.pccmn2w.mongodb.net/test';
 @Module({
-    imports: [MongooseModule.forRoot(dbUri), ImageProcessingModule, GameLogicModule],
+    imports: [MongooseModule.forRoot(DB_URI), ImageProcessingModule, GameLogicModule],
     controllers: [],
     providers: [Logger],
 })
