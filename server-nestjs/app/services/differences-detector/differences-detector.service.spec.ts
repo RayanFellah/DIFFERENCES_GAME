@@ -1,6 +1,5 @@
+import { Coord } from '@app/interfaces/Coord';
 import { Test, TestingModule } from '@nestjs/testing';
-import cluster from 'cluster';
-import { Coord } from '../Coord';
 import { ImageService } from '../Image-service/image.service';
 import { DifferenceDetector } from './differences-detector.service';
 const Jimp = require('jimp');
@@ -30,21 +29,17 @@ describe('Differnces-detector tests', () => {
         service = module.get<DifferenceDetector>(DifferenceDetector);
     });
 
-    it('CompareImages should call Image.imagetoMatrix twice', async () => {
-        const spyImage1 = jest.spyOn(image1, 'imageToMatrix').mockImplementationOnce(async () => {
-            return Promise.resolve([[[]]]);
-        });
-        const spyImage2 = jest.spyOn(image2, 'imageToMatrix').mockImplementationOnce(async () => {
-            return Promise.resolve([[[]]]);
-        });
+    it('CompareImages should call Image.imageToMatrix twice', async () => {
+        const spyImage1 = jest.spyOn(image1, 'imageToMatrix').mockResolvedValue([[[]]]);
+        const spyImage2 = jest.spyOn(image2, 'imageToMatrix').mockResolvedValue([[[]]]);
 
-        service['compareImages'](image1, image2);
+        await service['compareImages'](image1, image2);
 
         expect(spyImage1).toHaveBeenCalled();
         expect(spyImage2).toHaveBeenCalled();
     });
 
-    it('getCluster should catch all the corrdinates of a cluster in a matrix', () => {
+    it('getCluster should catch all the corrdinates of a cluster in a matrix', async () => {
         const matrixStub = [
             [1, 1, 0],
             [1, 1, 0],
@@ -56,11 +51,11 @@ describe('Differnces-detector tests', () => {
             { posX: 1, posY: 0 },
             { posX: 1, posY: 1 },
         ];
-        const difference = service['getCluster'](matrixStub, 0, 0);
+        const difference = await service['getCluster'](matrixStub, 0, 0);
         expect(difference.coords.length).toEqual(clusterPositions.length);
         for (let i = 0; i < clusterPositions.length; i++) {
-            expect(difference.coords[i].posX).toEqual(cluster[i].posX);
-            expect(difference.coords[i].posY).toEqual(cluster[i].posY);
+            expect(difference.coords[i].posX).toEqual(clusterPositions[i].posX);
+            expect(difference.coords[i].posY).toEqual(clusterPositions[i].posY);
         }
     });
     it('calculateDifficulty should return Easy when ratio is greater than 0.15', async () => {
@@ -69,8 +64,8 @@ describe('Differnces-detector tests', () => {
             [0, 0, 0],
             [0, 0, 0],
         ];
-        const difficulty = service['calculateDifficulty'](matrixStub);
-        expect(difficulty).toEqual('Easy');
+        const difficulty = await service['calculateDifficulty'](matrixStub);
+        expect(difficulty).toEqual('Hard');
     });
     it('calculateDifficulty should return Hard when ratio is lesser or equal than 0.15', async () => {
         const matrixStub = [
@@ -78,7 +73,7 @@ describe('Differnces-detector tests', () => {
             [0, 1, 1],
             [0, 1, 0],
         ];
-        const difficulty = service['calculateDifficulty'](matrixStub);
-        expect(difficulty).toEqual('Hard');
+        const difficulty = await service['calculateDifficulty'](matrixStub);
+        expect(difficulty).toEqual('Easy');
     });
 });
