@@ -1,7 +1,12 @@
 export interface game {
-    id: number;
+    sheetId: number;
     name: string;
     difficulty: string;
+    bestScore: string;
+    topPlayer: string;
+    originalImagePath: string;
+    modifiedImagePath: string;
+    radius: number;
 }
 export const games = [
     { name: 'GAME 1', difficulty: 'easy' },

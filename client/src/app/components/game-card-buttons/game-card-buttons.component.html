@@ -1,4 +1,4 @@
-<button type="button" class="button" mat-raised-button *ngIf="!isConfigPage">Jouer</button>
+<button type="button" class="button" mat-raised-button *ngIf="!isConfigPage" (click)="openDialog()">Jouer</button>
 <button type="button" class="button" mat-raised-button *ngIf="!isConfigPage">Créer</button>
-<button type="button" class="button" mat-raised-button *ngIf="isConfigPage" (click)="callDeleteGame(gameIndex)">Supprimer</button>
-<button type="button" class="button" mat-raised-button *ngIf="isConfigPage">Réinitialiser</button>
+<button type="button" class="button" disabled *ngIf="isConfigPage" (click)="callDeleteGame(gameIndex)">Supprimer</button>
+<button type="button" class="button" disabled *ngIf="isConfigPage">Réinitialiser</button>

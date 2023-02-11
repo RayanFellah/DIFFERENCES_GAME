@@ -1,4 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogPalyerNameComponent } from '@app/dialog-palyer-name/dialog-palyer-name.component';
 
 @Component({
     selector: 'app-game-card-buttons',
@@ -14,9 +16,17 @@ export class GameCardButtonsComponent implements OnInit {
     @Output() createMultiGame = new EventEmitter();
     @Output() resetScores = new EventEmitter();
 
-    constructor() {}
+    constructor(public dialog: MatDialog) {}
 
     ngOnInit(): void {}
+
+    openDialog(): void {
+        this.dialog.open(DialogPalyerNameComponent, { data: { name: this.playGame } });
+    }
+
+    onNoClick(): void {
+        this.dialog.closeAll();
+    }
 
     callDeleteGame(index: number) {
         this.deleteGame.emit(index);

@@ -17,6 +17,7 @@ import { GameConstantsComponent } from './components/game-constants/game-constan
 import { GameScoreComponent } from './components/game-score/game-score.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ImageAreaComponent } from './components/image-area/image-area.component';
+import { DialogPalyerNameComponent } from './dialog-palyer-name/dialog-palyer-name.component';
 import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
 import { GameCreationPageComponent } from './pages/game-creation-page/game-creation-page.component';
 import { GamePageComponent } from './pages/game-page/game-page.component';
@@ -46,6 +47,7 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
         ImageAreaComponent,
         GameCreationPageComponent,
         GameCardButtonsComponent,
+        DialogPalyerNameComponent,
         ImageAreaComponent,
         GameCreationPageComponent,
     ],
