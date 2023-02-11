@@ -24,7 +24,7 @@ export class GameCardButtonsComponent implements OnInit {
         this.dialog.open(DialogPalyerNameComponent, { data: { name: this.playGame } });
     }
 
-    onNoClick(): void {
+    closeDialog(): void {
         this.dialog.closeAll();
     }
 

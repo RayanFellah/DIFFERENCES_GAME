@@ -7,5 +7,5 @@
 </div>
 <div mat-dialog-actions>
     <button mat-button (click)="onNoClick()"><mat-icon>exit_to_app</mat-icon></button>
-    <button mat-button [mat-dialog-close]="data.playerName" cdkFocusInitial routerLink="/game">Valider</button>
+    <button mat-button [mat-dialog-close]="data.playerName" cdkFocusInitial routerLink="/game"  (click)="validatePlayerName()">Valider</button>
 </div>

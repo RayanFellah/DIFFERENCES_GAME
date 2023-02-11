@@ -23,6 +23,7 @@ import { ConfigurationPageComponent } from './pages/configuration-page/configura
 import { GameCreationPageComponent } from './pages/game-creation-page/game-creation-page.component';
 import { GamePageComponent } from './pages/game-page/game-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
+import { TimerComponent } from './components/timer/timer.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -51,6 +52,7 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
         DialogPalyerNameComponent,
         ImageAreaComponent,
         GameCreationPageComponent,
+        TimerComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
     providers: [],

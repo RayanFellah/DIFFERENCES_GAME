@@ -13,3 +13,21 @@
     width: min-content;
     outline: none;
 }
+
+section {
+    padding: 20px;
+    margin-left: 200px;
+    display: grid;
+    grid-template-rows: auto;
+    grid-template-areas:
+        'OG OG newbie newbie';
+}
+
+h1{
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+article{
+    margin-right: 20px;
+}
