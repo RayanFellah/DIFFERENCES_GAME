@@ -26,7 +26,6 @@ export class ImageUploaderService {
             console.log(formData.get('original'));
             return this.http.post('http://localhost:3000/api/images/upload', formData);
         }
-        console.log(this.files);
         return EMPTY;
     }
 
