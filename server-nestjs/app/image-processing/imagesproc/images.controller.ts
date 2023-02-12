@@ -67,9 +67,16 @@ export class ImagesController {
     }
     @Get(':sheetId')
     async getImage(@Param('sheetId') sheetId: string, @Query() query, @Res() res: Response) {
+        console.log('inroute');
         try {
             const nature = query.original === 'true' ? true : false;
+            console.log(nature);
+            console.log('in');
+
             const imagePath = await this.imageStorage.getImagePath(sheetId, nature);
+            console.log('in');
+
+            console.log(imagePath);
             return res.sendFile(imagePath);
         } catch (error) {
             return res.status(HttpStatus.NOT_FOUND).send({ message: error.message });

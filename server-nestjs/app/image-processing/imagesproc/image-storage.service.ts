@@ -8,9 +8,9 @@ import { ImageDto } from './interfaces/image.dto';
 export class ImageStorageService {
     dataPath: string = './app/image-processing/imagesproc/data/images.json';
     uploadPath: string = './app/image-processing/imagesproc/uploads/';
-    validationPath: string = './app/image-processing/imagesproc/data/validate.json';
 
     async getAllImages() {
+        console.log('inii');
         return await this.readFromJsonFile();
     }
 
@@ -54,10 +54,13 @@ export class ImageStorageService {
 
     async getImagePath(sheetId: string, isOriginal: boolean) {
         for (const img of await this.getAllImages()) {
-            if (img.sheetId === sheetId && isOriginal === img.original) {
+            console.log(img.sheetId === sheetId);
+
+            if (isOriginal === img.original && img.sheetId === sheetId) {
                 return img.path;
             }
         }
+        console.log('out');
         return undefined;
     }
 
@@ -83,6 +86,7 @@ export class ImageStorageService {
 
     private async readFromJsonFile(): Promise<ImageDto[]> {
         const fileData = await promises.readFile(this.dataPath, 'utf-8').then((res) => JSON.parse(res));
+        console.log(fileData);
         return fileData;
     }
 
