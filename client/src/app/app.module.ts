@@ -1,6 +1,6 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -24,6 +24,7 @@ import { ConfigurationPageComponent } from './pages/configuration-page/configura
 import { GameCreationPageComponent } from './pages/game-creation-page/game-creation-page.component';
 import { GamePageComponent } from './pages/game-page/game-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
+import { SizerComponent } from './components/sizer/sizer.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -53,8 +54,18 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
         ImageAreaComponent,
         GameCreationPageComponent,
         TimerComponent,
+        SizerComponent,
     ],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
+    imports: [
+        AppMaterialModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        FormsModule,
+        HttpClientModule,
+        MatGridListModule,
+        ReactiveFormsModule,
+    ],
     providers: [],
     bootstrap: [AppComponent],
 })

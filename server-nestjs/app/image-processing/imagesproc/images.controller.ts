@@ -1,26 +1,12 @@
+import { GameLogicService } from '@app/game-logic/game-logic.service';
+import { Sheet } from '@app/model/database/Sheets/schemas/sheet';
+import { SheetService } from '@app/model/database/Sheets/sheet.service';
 import { generateRandomId } from '@app/services/randomID/random-id';
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    HttpStatus,
-    NotFoundException,
-    Param,
-    Query,
-    Post,
-    Res,
-    UploadedFiles,
-    UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, Post, Query, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { ApiBadRequestResponse, ApiBody, ApiConsumes, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ImageStorageService } from './image-storage.service';
-import { ImageDto } from './interfaces/image.dto';
-import { GameLogicService } from '@app/game-logic/game-logic.service';
-import { SheetService } from '@app/model/database/Sheets/sheet.service';
-import { Sheet } from '@app/model/database/Sheets/schemas/sheet';
 @ApiTags('Images')
 @Controller('images')
 export class ImagesController {
@@ -48,6 +34,7 @@ export class ImagesController {
         @Query('valid') valid: string,
         @Query('radius') radius: string,
     ) {
+        console.log('la');
         try {
             const sheetId = generateRandomId();
             const original = await this.imageStorage.uploadImage(files.original[0].buffer, sheetId, files.original[0].originalname, true);

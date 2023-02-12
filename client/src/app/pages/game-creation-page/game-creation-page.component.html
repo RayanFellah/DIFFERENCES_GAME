@@ -1,10 +1,8 @@
 <div class="flex-box">
     <app-header></app-header>
     <main>
-        <form class="input-field">
-            <label for="fname">Titre du Jeu:</label><br>
-            <input type="text" id="tile" name="tile"><br>
-        </form>
+        <form class="input-field"><input type="text" id="tile" name="tile" value="Manas Chhabra" /><br /></form>
+
         <section>
             <article class="OGImg indigo-pink-theme">
                 <h3>Image originale :</h3>
@@ -15,14 +13,34 @@
                 <app-image-area [parentFile]="childFile"></app-image-area>
             </article>
         </section>
-        <input type="file" class="file-input" (change)="uploadImage($event)" accept=".bmp" #fileUpload>
-        <button mat-stroked-button color="primary" class="file-upload" (click)="fileUpload.click()">
-            {{fileName || "Téléverser dans les deux zones"}}
+        <div class="options">
+            <input type="file" class="file-input" (change)="uploadImage($event)" accept=".bmp" #fileUpload />
+            <button mat-stroked-button color="primary" class="file-upload" (click)="fileUpload.click()">
+                {{ fileName || 'Téléverser dans les deux zones' }}
 
-                <button mat-mini-fab color="primary" class="upload-btn" [ngStyle]="{transform: 'scale(0.7)'}">
+                <button mat-mini-fab color="primary" class="upload-btn" [ngStyle]="{ transform: 'scale(0.7)' }">
                     <mat-icon>attach_file</mat-icon>
                 </button>
-        </button>
+            </button>
+            <button mat-stroked-button color="primary" (click)="verifyDifferences()">
+                {{ fileName || 'Vérifier les différences' }}
+
+                <button mat-mini-fab color="primary" [ngStyle]="{ transform: 'scale(0.7)' }">
+                    <mat-icon>compare_arrows</mat-icon>
+                </button>
+            </button>
+            <button mat-stroked-button color="primary" (click)="createGame()">
+                {{ fileName || 'Créer la partie' }}
+
+                <button mat-mini-fab color="primary" [ngStyle]="{ transform: 'scale(0.7)' }">
+                    <mat-icon>done_outline</mat-icon>
+                </button>
+            </button>
+            <div class="radius">
+                <app-sizer [(size)]="fontSizePx"></app-sizer>
+                <span class="dot" [style.width.px]="2 * fontSizePx" [style.height.px]="2 * fontSizePx"></span>
+            </div>
+        </div>
     </main>
     <footer>
         <p>Projet 2 équipe 209 Hiver 2023 à PolyMtl.</p>

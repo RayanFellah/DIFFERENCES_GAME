@@ -32,8 +32,7 @@ section {
     grid-template-columns: auto;
     grid-template-rows: auto;
     grid-column-gap: 10px;
-    grid-template-areas:
-        'OG OG newbie newbie';
+    grid-template-areas: 'OG OG newbie newbie';
 }
 
 h1 {
@@ -41,11 +40,11 @@ h1 {
 }
 h3 {
     margin: 0;
-    color: #3F51B5;
+    color: #3f51b5;
     font-weight: bold;
 }
 h2 {
-    color: #FF4081;
+    color: #ff4081;
 }
 header {
     flex: 0 1 auto;
@@ -60,12 +59,31 @@ footer {
 
 .file-input {
     display: none;
-  }
+}
 
 form {
-    color: #3F51B5;
+    color: #3f51b5;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+}
+.dot {
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.radius {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.options {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
 }

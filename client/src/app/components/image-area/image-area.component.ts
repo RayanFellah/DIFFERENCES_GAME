@@ -15,7 +15,6 @@ export class ImageAreaComponent implements OnChanges {
     fileName: string = '';
     file: File; // Variable to store file
     img = new Image();
-    shortLink: string = '';
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
 
     constructor(private imageUploaderService: ImageUploaderService, private bmpVerificationService: BmpVerificationService) {}
@@ -52,11 +51,6 @@ export class ImageAreaComponent implements OnChanges {
             if (this.bmpVerificationService.verifyImage(this.file)) {
                 this.imageUploaderService.setImage(this.file);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                this.imageUploaderService.upload().subscribe((e: any) => {
-                    if (typeof e === 'object') {
-                        this.shortLink = e.link;
-                    }
-                });
                 this.readImage(target.files[0]);
             }
             target.value = '';

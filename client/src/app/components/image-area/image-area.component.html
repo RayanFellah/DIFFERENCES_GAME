@@ -3,13 +3,13 @@
         <canvas id="foreground" #foregroundCanvas [attr.width]="width" [attr.height]="height"> </canvas>
         <canvas id="background" #backgroundCanvas [attr.width]="width" [attr.height]="height"> </canvas>
     </div>
-    <input type="file" class="file-input" accept=".bmp" (change)="fileChange($event)" #fileUpload>
+    <input type="file" class="file-input" accept=".bmp" (change)="fileChange($event)" #fileUpload />
     <div class="file-upload">
-        {{fileName || "Aucun fichier"}}
-        <button mat-mini-fab color="primary" class="upload-btn" [ngStyle]="{transform: 'scale(0.8)'}" (click)="fileUpload.click()">
+        {{ fileName || 'Aucun fichier' }}
+        <button mat-mini-fab color="primary" class="upload-btn" [ngStyle]="{ transform: 'scale(0.8)' }" (click)="fileUpload.click()">
             <mat-icon>attach_file</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" class="upload-btn" [ngStyle]="{transform: 'scale(0.7)'}" (click)="clearCanvas()">
+        <button mat-mini-fab color="primary" class="upload-btn" [ngStyle]="{ transform: 'scale(0.7)' }" (click)="clearCanvas()">
             <mat-icon>delete_forever</mat-icon>
         </button>
     </div>
