@@ -2,8 +2,10 @@ import { Body, Controller, Get, Param, Patch, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { Sheet } from './schemas/Sheet';
 import { SheetService } from './sheet.service';
+import { Response } from 'express';
 @Controller('sheets')
 export class SheetController {
+    current: Sheet;
     current: Sheet;
     constructor(private readonly sheetService: SheetService) {}
 
@@ -37,14 +39,18 @@ export class SheetController {
     @Get()
     async getAllSheets(): Promise<Sheet[]> {
         return await this.sheetService.getSheets();
+        return await this.sheetService.getSheets();
     }
 
     @Post()
     async createSheet(@Body() sheet: Partial<Sheet>): Promise<Sheet> {
         return await this.sheetService.createSheet(sheet.name, sheet.sheetId, sheet.originalImagePath, sheet.modifiedImagePath, sheet.radius);
+        return await this.sheetService.createSheet(sheet.name, sheet.sheetId, sheet.originalImagePath, sheet.modifiedImagePath, sheet.radius);
     }
 
     @Patch(':sheetId')
+    async updateSheet(@Param('sheetId') sheetId: string, @Body() updateSheetDto: Partial<Sheet>): Promise<Sheet> {
+        return await this.sheetService.updateSheet(sheetId, updateSheetDto);
     async updateSheet(@Param('sheetId') sheetId: string, @Body() updateSheetDto: Partial<Sheet>): Promise<Sheet> {
         return await this.sheetService.updateSheet(sheetId, updateSheetDto);
     }

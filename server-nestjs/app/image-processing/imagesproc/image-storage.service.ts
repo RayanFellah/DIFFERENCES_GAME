@@ -10,7 +10,6 @@ export class ImageStorageService {
     uploadPath: string = './app/image-processing/imagesproc/uploads/';
 
     async getAllImages() {
-        console.log('inii');
         return await this.readFromJsonFile();
     }
 
@@ -28,11 +27,9 @@ export class ImageStorageService {
     }
 
     async uploadImage(image: Buffer, sheetToAdd: string, filename: string, isOriginal: boolean): Promise<ImageDto> {
-        console.log('ici');
         try {
             const imageName = `${filename}`;
             const imagePath = path.join(__dirname.replace('out', '').replace('server-nestjs', ''), 'uploads', filename);
-            console.log(imagePath);
             const imageStream = createWriteStream(imagePath);
             imageStream.write(image);
             imageStream.end();
@@ -54,13 +51,10 @@ export class ImageStorageService {
 
     async getImagePath(sheetId: string, isOriginal: boolean) {
         for (const img of await this.getAllImages()) {
-            console.log(img.sheetId === sheetId);
-
-            if (isOriginal === img.original && img.sheetId === sheetId) {
+            if (img.sheetId === sheetId && img.original === isOriginal) {
                 return img.path;
             }
         }
-        console.log('out');
         return undefined;
     }
 
@@ -86,7 +80,6 @@ export class ImageStorageService {
 
     private async readFromJsonFile(): Promise<ImageDto[]> {
         const fileData = await promises.readFile(this.dataPath, 'utf-8').then((res) => JSON.parse(res));
-        console.log(fileData);
         return fileData;
     }
 

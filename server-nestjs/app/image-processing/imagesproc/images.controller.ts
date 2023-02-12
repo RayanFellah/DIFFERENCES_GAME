@@ -1,5 +1,5 @@
 import { GameLogicService } from '@app/game-logic/game-logic.service';
-import { Sheet } from '@app/model/database/Sheets/schemas/sheet';
+import { Sheet } from '@app/services/differences-detector/interfaces/sheet';
 import { SheetService } from '@app/model/database/Sheets/sheet.service';
 import { generateRandomId } from '@app/services/randomID/random-id';
 import { Controller, Get, HttpStatus, Param, Post, Query, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
@@ -36,9 +36,11 @@ export class ImagesController {
     ) {
         console.log('la');
         try {
+            console.log('dans le try');
             const sheetId = generateRandomId();
             const original = await this.imageStorage.uploadImage(files.original[0].buffer, sheetId, files.original[0].originalname, true);
             const modified = await this.imageStorage.uploadImage(files.modified[0].buffer, sheetId, files.modified[0].originalname, false);
+            console.log('apres le upload')
             if (valid === 'true') {
                 await this.sheetService.createSheet('name', sheetId, original.path, modified.path, parseInt(radius, 10));
             }
@@ -67,17 +69,14 @@ export class ImagesController {
     }
     @Get(':sheetId')
     async getImage(@Param('sheetId') sheetId: string, @Query() query, @Res() res: Response) {
-        console.log('inroute');
         try {
             const nature = query.original === 'true' ? true : false;
-            console.log(nature);
-            console.log('in');
 
             const imagePath = await this.imageStorage.getImagePath(sheetId, nature);
-            console.log('in');
-
             console.log(imagePath);
-            return res.sendFile(imagePath);
+            if (imagePath) {
+                return res.sendFile(imagePath);
+            } else return;
         } catch (error) {
             return res.status(HttpStatus.NOT_FOUND).send({ message: error.message });
         }

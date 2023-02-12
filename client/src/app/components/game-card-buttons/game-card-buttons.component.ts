@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogPalyerNameComponent } from '@app/dialog-palyer-name/dialog-palyer-name.component';
-
+// import { HttpService } from '@app/services/http.service';
 @Component({
     selector: 'app-game-card-buttons',
     templateUrl: './game-card-buttons.component.html',
@@ -9,13 +9,14 @@ import { DialogPalyerNameComponent } from '@app/dialog-palyer-name/dialog-palyer
 })
 export class GameCardButtonsComponent implements OnInit {
     @Input() isConfigPage: boolean;
-    @Input() idx: number;
 
     @Output() deleteGame = new EventEmitter();
     @Output() selectGame = new EventEmitter();
     @Output() playGame = new EventEmitter();
     @Output() createMultiGame = new EventEmitter();
     @Output() resetScores = new EventEmitter();
+
+    @Input() idx: number;
     @Output() sendIdx = new EventEmitter<{ id: number; message: string }>();
 
     constructor(public dialog: MatDialog) {}

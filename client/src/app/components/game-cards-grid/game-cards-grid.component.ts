@@ -9,14 +9,15 @@ import { games } from '../../../../../common/game';
     styleUrls: ['./game-cards-grid.component.scss'],
 })
 export class GameCardsGridComponent implements OnInit {
-    @Input() public isConfigPage: boolean;
-    public games = games;
-    public gridGames = games;
-    public gridIndexStart = 0;
-    public gridIndexEnd = 4;
-    public gameSheets: Sheet[] = [];
-    public sheetsImage: [{ sheetToAdd: Partial<Sheet>; image: string }] = [{ sheetToAdd: { name: 'test' }, image: '' }];
-    public gridGameSheets = this.gameSheets;
+    @Input() isConfigPage: boolean;
+    games = games;
+    gridGames = games;
+    gridIndexStart = 0;
+    gridIndexEnd = 4;
+    selectedGame: string;
+    gameSheets: Sheet[] = [];
+    sheetsImage: string[];
+    gridGameSheets = this.gameSheets;
 
     constructor(private readonly http: HttpService) {}
 

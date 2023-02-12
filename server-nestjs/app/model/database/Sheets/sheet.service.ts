@@ -6,7 +6,11 @@ export class SheetService {
     constructor(private readonly sheetRepository: SheetsRepository) {}
 
     async getSheetById(sheetId: string): Promise<Sheet> {
-        return this.sheetRepository.findOne({ sheetId });
+        const found = await this.sheetRepository.findOne({ sheetId });
+        if (found) {
+            return found;
+        }
+        return undefined;
     }
 
     async getSheets(): Promise<Sheet[]> {
