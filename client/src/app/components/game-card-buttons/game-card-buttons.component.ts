@@ -9,15 +9,14 @@ import { DialogPalyerNameComponent } from '@app/dialog-palyer-name/dialog-palyer
 })
 export class GameCardButtonsComponent implements OnInit {
     @Input() isConfigPage: boolean;
-    @Input() gameIndex: number;
-    @Input() selectedGame: string;
-    @Output() deleteGame = new EventEmitter();
+    @Input() idx: number;
 
     @Output() deleteGame = new EventEmitter();
     @Output() selectGame = new EventEmitter();
     @Output() playGame = new EventEmitter();
     @Output() createMultiGame = new EventEmitter();
     @Output() resetScores = new EventEmitter();
+    @Output() sendIdx = new EventEmitter<{ id: number; message: string }>();
 
     constructor(public dialog: MatDialog) {}
 
@@ -37,7 +36,6 @@ export class GameCardButtonsComponent implements OnInit {
 
     callPlayGame() {
         this.playGame.emit();
-        console.log(this.selectedGame);
     }
 
     callCreateMultiGame() {
@@ -50,5 +48,10 @@ export class GameCardButtonsComponent implements OnInit {
 
     callSelectGame(index: number) {
         this.selectGame.emit(index);
+    }
+
+    sendIndex() {
+        this.sendIdx.emit({ id: this.idx, message: 'I Have been clicked' });
+        this.openDialog();
     }
 }
