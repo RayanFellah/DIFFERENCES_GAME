@@ -1,26 +1,12 @@
+import { GameLogicService } from '@app/game-logic/game-logic.service';
+import { Sheet } from '@app/model/database/Sheets/schemas/sheet';
+import { SheetService } from '@app/model/database/Sheets/sheet.service';
 import { generateRandomId } from '@app/services/randomID/random-id';
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    HttpStatus,
-    NotFoundException,
-    Param,
-    Query,
-    Post,
-    Res,
-    UploadedFiles,
-    UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, Post, Query, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { ApiBadRequestResponse, ApiBody, ApiConsumes, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ImageStorageService } from './image-storage.service';
-import { ImageDto } from './interfaces/image.dto';
-import { GameLogicService } from '@app/game-logic/game-logic.service';
-import { SheetService } from '@app/model/database/Sheets/sheet.service';
-import { Sheet } from '@app/model/database/Sheets/schemas/sheet';
 @ApiTags('Images')
 @Controller('images')
 export class ImagesController {
@@ -80,9 +66,16 @@ export class ImagesController {
     }
     @Get(':sheetId')
     async getImage(@Param('sheetId') sheetId: string, @Query() query, @Res() res: Response) {
+        console.log('inroute');
         try {
             const nature = query.original === 'true' ? true : false;
+            console.log(nature);
+            console.log('in');
+
             const imagePath = await this.imageStorage.getImagePath(sheetId, nature);
+            console.log('in');
+
+            console.log(imagePath);
             return res.sendFile(imagePath);
         } catch (error) {
             return res.status(HttpStatus.NOT_FOUND).send({ message: error.message });

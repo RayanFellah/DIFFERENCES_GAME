@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Coord } from '@app/interfaces/coord';
 import { Sheet } from '@app/interfaces/sheet';
 import { Observable } from 'rxjs';
-import { Coord } from '@app/interfaces/coord';
 @Injectable({
     providedIn: 'root',
 })
@@ -11,19 +11,19 @@ export class HttpService {
 
     constructor(private readonly http: HttpClient) {}
 
-    getAllSheets() {
-        return this.http.get(this.apiUrl + 'sheets/');
+    getAllSheets(): Observable<Sheet[]> {
+        return this.http.get<Sheet[]>(this.apiUrl + 'sheets/');
     }
 
     setSheet(sheetId: string, playerName: string) {
-        return this.http.post<string>(`${this.apiUrl}/select/:${sheetId}/?player=${playerName}`, {});
+        return this.http.post<string>(`${this.apiUrl}select/:${sheetId}/?player=${playerName}`, {});
     }
 
     getImage(sheetId: string, original: boolean): Observable<File> {
-        return this.http.get<File>(`${this.apiUrl}/${sheetId}/?original=${original}`);
+        return this.http.get<File>(`${this.apiUrl}images/${sheetId}/?original=${original}`);
     }
 
-    getImages(sheetId: string): { original: Observable<File>; modified: Observable<File> } {
+    getImages(sheetId: string): { original: Observable<File>; modified: Observable<Blob> } {
         return {
             original: this.getImage(sheetId, true),
             modified: this.getImage(sheetId, false),
