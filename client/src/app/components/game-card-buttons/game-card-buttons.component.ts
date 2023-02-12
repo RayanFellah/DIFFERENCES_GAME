@@ -11,6 +11,7 @@ export class GameCardButtonsComponent implements OnInit {
     @Input() isConfigPage: boolean;
     @Input() gameIndex: number;
     @Input() selectedGame: string;
+    @Output() deleteGame = new EventEmitter();
 
     @Output() deleteGame = new EventEmitter();
     @Output() selectGame = new EventEmitter();
