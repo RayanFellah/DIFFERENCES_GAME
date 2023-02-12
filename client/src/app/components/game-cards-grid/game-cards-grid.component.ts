@@ -48,7 +48,7 @@ export class GameCardsGridComponent implements OnInit {
 
     resetScores() {}
 
-    selectGame(game: any) {
-        this.selectedGame = game.name;
+    selectGame(index: number) {
+        this.selectedGame = this.games[index].name;
     }
 }

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostListener } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 
 // TODO : Avoir un fichier séparé pour les constantes!
@@ -20,7 +20,7 @@ export enum MouseButton {
     styleUrls: ['./play-area.component.scss'],
 })
 export class PlayAreaComponent implements AfterViewInit {
-    @ViewChild('gridCanvas', { static: false }) private canvas!: ElementRef<HTMLCanvasElement>;
+    //  @ViewChild('gridCanvas', { static: false }) private canvas!: ElementRef<HTMLCanvasElement>;
 
     mousePositionOriginal: Vec2 = { x: 0, y: 0 };
     mousePositionModified: Vec2 = { x: 0, y: 0 };
