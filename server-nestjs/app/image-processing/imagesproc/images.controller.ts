@@ -39,8 +39,6 @@ export class ImagesController {
             const sheetId = generateRandomId();
             console.log(files.original[0].buffer);
             const original = await this.imageStorage.uploadImage(files.original[0].buffer, sheetId, files.original[0].originalname, true);
-            console.log('____________________________________________________________________________________________');
-            console.log(files.original[0].originalname);
             const modified = await this.imageStorage.uploadImage(files.modified[0].buffer, sheetId, files.modified[0].originalname, false);
             console.log('modified');
             console.log('apres le upload');
@@ -78,7 +76,6 @@ export class ImagesController {
             const nature = query.original === 'true' ? true : false;
 
             const imagePath = await this.imageStorage.getImagePath(sheetId, nature);
-            console.log(imagePath);
             if (imagePath) {
                 return res.sendFile(imagePath);
             } else return;

@@ -1,15 +1,23 @@
+import { GameLogicService } from '@app/game-logic/game-logic.service';
 import { Body, Controller, Get, Param, Patch, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { Sheet } from './schemas/Sheet';
 import { SheetService } from './sheet.service';
-import { Response } from 'express';
 @Controller('sheets')
 export class SheetController {
     current: Sheet;
-    constructor(private readonly sheetService: SheetService) {}
+    constructor(private readonly sheetService: SheetService, private gameLogic: GameLogicService) {}
 
     @Get(':sheetId')
     async getSheet(@Param('sheetId') sheetId: string): Promise<Sheet> {
         return await this.sheetService.getSheetById(sheetId);
+    }
+
+    @Get('game/current/differences')
+    async getDifferences() {
+        const temp = await this.sheetService.getSheetById(this.current.sheetId);
+        const differences = await this.gameLogic.getAllDifferences(temp);
+        return { numberDifferences: differences.length, difficulty: this.gameLogic.getDifficulty(temp) };
     }
 
     @Post('game/current/:sheetId')

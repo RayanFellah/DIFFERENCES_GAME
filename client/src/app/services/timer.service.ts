@@ -11,8 +11,8 @@ export class TimerService {
         this.timer = setInterval(() => {
             const currentTime = new Date().getTime();
             this.elapsedTime = (currentTime - startTime) / 1000;
-            const minutes = Math.floor(this.elapsedTime / 60);
-            const seconds = Math.floor(this.elapsedTime % 60);
+            // const minutes = Math.floor(this.elapsedTime / 60);
+            // const seconds = Math.floor(this.elapsedTime % 60);
             // console.log(minutes + ' minutes and ' + seconds + ' seconds have passed.');
         }, 1000);
     }

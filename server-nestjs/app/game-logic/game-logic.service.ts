@@ -1,8 +1,8 @@
+import { Sheet } from '@app/model/database/Sheets/schemas/Sheet';
+import { Difference } from '@app/services/difference/difference.service';
 import { DifferenceDetector } from '@app/services/differences-detector/differences-detector.service';
 import { ImageService } from '@app/services/Image-service/Image.service';
 import { Injectable } from '@nestjs/common';
-import { Sheet } from '@app/model/database/Sheets/schemas/Sheet';
-import { Difference } from '@app/services/difference/difference.service';
 
 @Injectable()
 export class GameLogicService {
@@ -23,11 +23,13 @@ export class GameLogicService {
         return diffDetector.getDifficultyLevel();
     }
 
-    async findDifference(gameSheet: Sheet, x, y) {
+    async findDifference(gameSheet: Sheet, x: number, y: number) {
         this.differences = await this.getAllDifferences(gameSheet);
         for (let i = 0; i < this.differences.length; i++) {
             const diff = this.differences[i];
-            const found = diff.coords.find((coord) => coord.posX === x && coord.posY === y);
+            const found = diff.coords.find((coord) => {
+                return coord.posX == x && coord.posY == y; // on est conscient de prob de type
+            });
             if (found) {
                 this.differences.splice(i, 1);
                 return diff;

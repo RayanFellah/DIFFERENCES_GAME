@@ -1,7 +1,6 @@
-import { Coord } from '@app/interfaces/Coord';
 import { Sheet } from '@app/model/database/Sheets/schemas/Sheet';
 import { SheetService } from '@app/model/database/Sheets/sheet.service';
-import { Controller, Get, Put, Query, Param, NotFoundException, Body, Post, Patch } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
 import { GameLogicService } from './game-logic.service';
 @Controller('game')
 export class GameLogicController {
@@ -42,14 +41,12 @@ export class GameLogicController {
     }
     @Get(':sheetId')
     async playerClick(@Query('x') posX: number, @Query('y') posY: number, @Param('sheetId') id: string) {
+        console.log('playerClicked');
         const sheet = await this.sheetService.getSheetById(id);
         const difference = await this.gameLogicService.findDifference(sheet, posX, posY);
         if (difference) {
             return difference.coords;
-        }
-        return {
-            message: 'non',
-        };
+        } else return undefined;
     }
     @Patch('finish/:sheetId')
     async finishGame(id: string, @Body() data) {

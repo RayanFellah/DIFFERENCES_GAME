@@ -1,92 +1,81 @@
 import { Injectable } from '@angular/core';
+import { SafeUrl } from '@angular/platform-browser';
 import { Coord } from '@app/interfaces/coord';
 import { Sheet } from '@app/interfaces/sheet';
 import { AudioService } from './Audio/audio.service';
 import { CanvasTestHelper } from './canvas-test-helper';
 import { HttpService } from './http.service';
 import { TimerService } from './timer.service';
+
 @Injectable({
     providedIn: 'root',
 })
 export class GameLogicService {
-    // private differences = Promise.resolve(getAllClusters(0, path1, path2));
     differencesFound: number = 0;
-    differences: number;
+    numberDifferences: number;
     timer: TimerService;
     audio: AudioService;
     diff: Coord[];
-    originalImage: string;
-    modifiedImage: string;
+    originalImage: SafeUrl;
+    modifiedImage: SafeUrl;
     sheet: Sheet;
-
-    constructor(private canvas1: CanvasTestHelper, private canvas2: CanvasTestHelper, private readonly http: HttpService) {
-        // this.differences.then((res) => {
-        //     this.differencesLeft = res.length
-        // });
+    difficulty: string;
+    constructor(private leftCanvas: CanvasTestHelper, private rightCanvas: CanvasTestHelper, private readonly http: HttpService) {
         this.timer = new TimerService();
         this.audio = new AudioService();
-        this.http.start().subscribe((res) => {
-            this.sheet = res.gameSheet;
-            this.differences = res.numberOfdiffs;
+        this.http.getCurrentGame().subscribe((res) => {
+            this.sheet = res;
+            this.start();
         });
     }
 
-    setCanvasHelper1(canvas: CanvasTestHelper) {
-        this.canvas1 = canvas;
-    }
-
-    setCanvasHelper2(canvas: CanvasTestHelper) {
-        this.canvas2 = canvas;
-    }
     start() {
-        this.http.getImages(this.sheet.sheetId).original.subscribe((res) => {
-            this.originalImage = res;
+        this.http.getImage(this.sheet, true).subscribe((res) => {
+            const blob = new Blob([res], { type: 'image/bmp' });
+            this.leftCanvas.drawImageOnCanvas(blob);
         });
-
-        this.canvas1.drawImageOnCanvas(this.originalImage);
-        this.canvas2.drawImageOnCanvas(this.modifiedImage);
+        this.http.getImage(this.sheet, false).subscribe((res) => {
+            const blob = new Blob([res], { type: 'image/bmp' });
+            this.rightCanvas.drawImageOnCanvas(blob);
+        });
+        this.http.getDifferences().subscribe((res) => {
+            this.numberDifferences = res.numberDifferences;
+            this.difficulty = res.difficulty;
+        });
         this.timer.start();
     }
-
-    async handleClick(event: MouseEvent) {
-        // const diff = hasFound( { posX: event.offsetX, posY: event.offsetY } , await this.differences);
-        // Waiting for the http return value
-        const canvasClicked = event.target as HTMLCanvasElement;
-        const canvas: CanvasTestHelper = canvasClicked === this.canvas.canvasRef ? this.canvas : this.canvas2;
+    async sendCLick(event: MouseEvent) {
         this.http.playerClick(this.sheet.sheetId, event.offsetX, event.offsetY).subscribe((res) => {
             this.diff = res;
+            this.handleClick(event, this.diff);
         });
-        if (this.diff) {
-            this.canvas1.updateImage(this.diff);
-            this.canvas2.updateImage(this.diff);
-            this.audio.playSuccessSound();
-            this.differences++;
-            if (this.differencesFound === this.differences) {
+    }
+    async handleClick(event: MouseEvent, diff: Coord[]) {
+        const canvasClicked = event.target as HTMLCanvasElement;
+        const canvas: CanvasTestHelper = canvasClicked === this.leftCanvas.canvasRef ? this.leftCanvas : this.rightCanvas;
+        console.log(diff);
+        if (diff) {
+            console.log('oui');
+            this.leftCanvas.updateImage(diff);
+            this.rightCanvas.updateImage(diff);
+            // this.audio.playSuccessSound();
+            this.differencesFound++;
+            if (this.differencesFound === this.numberDifferences) {
                 this.timer.stop();
                 console.log('Vous avez fini le jeu en: ' + this.timer.getMinutes() + ':' + this.timer.getSeconds());
                 // this.timer.reset();
             }
-            return this.diff;
+            return diff;
         } else {
-            this.audio.playFailSound();
-            const temp: ImageData | undefined = canvas.context?.getImageData(0, 0, this.canvas.width, this.canvas.height);
-            canvas.context?.fillText('ERROR', event.offsetX, event.offsetY);
+            // this.audio.playFailSound();
+            const temp: ImageData | undefined = canvas.get()?.getImageData(0, 0, canvas.width, canvas.height);
+            canvas.get()?.fillText('ERROR', event.offsetX, event.offsetY);
             setTimeout(() => {
                 if (temp) {
-                    canvas.context?.putImageData(temp, 0, 0);
+                    canvas.get()?.putImageData(temp, 0, 0);
                 }
             }, 1000);
             return undefined;
         }
-    }
-
-    async game() {
-        this.start();
-        this.canvas1.canvasRef.addEventListener('mousedown', async (event) => {
-            await this.handleClick(event);
-        });
-        this.canvas2.canvasRef.addEventListener('mousedown', async (event) => {
-            await this.handleClick(event);
-        });
     }
 }

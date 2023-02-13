@@ -14,6 +14,7 @@ export class GameCardsGridComponent implements OnInit {
     gridGames = games;
     gridIndexStart = 0;
     gridIndexEnd = 4;
+    length = 0;
     selectedGame: string;
     gameSheets: Sheet[] = [];
     sheetsImage: string[];
@@ -32,11 +33,13 @@ export class GameCardsGridComponent implements OnInit {
                     this.imagePaths.push(this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(blob)) as SafeUrl);
                 });
             }
+            this.length = this.gameSheets.length;
         });
     }
 
     nextGrid() {
-        if (this.gridIndexEnd < 30) {
+        console.log(this.gameSheets.length);
+        if (this.gridIndexEnd - 4 < this.length) {
             this.gridIndexStart += 4;
             this.gridIndexEnd += 4;
             this.gridGameSheets = this.gameSheets.slice(this.gridIndexStart, this.gridIndexEnd);

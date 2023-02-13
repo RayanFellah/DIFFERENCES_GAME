@@ -19,6 +19,10 @@ export class HttpService {
         return this.http.get<Sheet[]>(this.apiUrl + '/sheets/');
     }
 
+    getDifferences() {
+        return this.http.get<{ numberDifferences: number; difficulty: string }>(`${this.apiUrl}/sheets/game/current/differences`);
+    }
+
     setSheet(sheetId: string, playerName: string) {
         return this.http.post<string>(`${this.apiUrl}select/:${sheetId}/?player=${playerName}`, {});
     }
@@ -27,12 +31,6 @@ export class HttpService {
         console.log('getImages');
         return this.http.get(`${this.apiUrl}/images/${sheet.sheetId}/?original=${original}`, { responseType: 'blob' });
     }
-    // getImages(sheetId: string) {
-    //     return {
-    //         original: this.getImage(sheetId, true),
-    //         modified: this.getImage(sheetId, false),
-    //     };
-    // }
 
     getCurrentGame() {
         return this.http.get<Sheet>(`${this.apiUrl}/sheets/game/current/`);
@@ -41,10 +39,6 @@ export class HttpService {
     sendPlaySheet(sheet: Sheet) {
         console.log('done');
         return this.http.post(`${this.apiUrl}/sheets/game/current/${sheet.sheetId}`, {});
-    }
-
-    start() {
-        return this.http.get<{ numberOfdiffs: number; gameSheet: Sheet }>(`${this.apiUrl}/game/start`);
     }
 
     uploadImages(original: File, modified: File, valid: boolean, radius: number, title: string) {
