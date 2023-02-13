@@ -18,6 +18,8 @@ export class SheetService {
     }
 
     async createSheet(name: string, sheetId: string, originalImagePath: string, modifiedImagePath: string, radius: number) {
+        console.log('create sheet');
+        console.log(originalImagePath);
         return this.sheetRepository.createOne({
             sheetId,
             name,

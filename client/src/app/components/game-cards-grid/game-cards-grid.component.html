@@ -15,7 +15,7 @@
                     <div *ngIf="sheet.difficulty === 'hard'" class="difficulty-bar hard"></div>
                 </div>
             </div>
-            <img src="" alt="game image" />
+            <img [src]="imagePaths[gameIndex]" />
 
             <div class="scores-container">
                 <h2>TOP 3</h2>

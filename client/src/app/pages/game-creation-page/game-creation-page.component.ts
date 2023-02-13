@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { ImageUploaderService } from '@app/services/image-uploader.service';
 @Component({
     selector: 'app-game-creation-page',
@@ -8,8 +9,8 @@ import { ImageUploaderService } from '@app/services/image-uploader.service';
 export class GameCreationPageComponent {
     file: File;
     fileName = '';
-    shortLink: string = '';
     fontSizePx = 3;
+    gameTitle = new FormControl('');
     constructor(private readonly imageUploader: ImageUploaderService) {}
     get childFile() {
         return this.file;
@@ -18,24 +19,23 @@ export class GameCreationPageComponent {
         const target = event.target as HTMLInputElement;
         if (target.files != null && target.files.length > 0) {
             this.file = target.files[0];
-            // eslint-disable-next-line no-console
-            console.log(this.file);
         }
     }
     verifyDifferences() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.imageUploader.upload(this.fontSizePx, false).subscribe((e: any) => {
+        this.imageUploader.upload('', this.fontSizePx, false).subscribe((e: any) => {
             if (typeof e === 'object') {
                 alert(e.differences);
             }
         });
     }
     createGame() {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.imageUploader.upload(this.fontSizePx, true).subscribe((e: any) => {
-            if (typeof e === 'object') {
-                alert(e.differences);
-            }
-        });
+        if (this.gameTitle.value)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            this.imageUploader.upload(this.gameTitle.value, this.fontSizePx, true).subscribe((e: any) => {
+                if (typeof e === 'object') {
+                    alert(e.differences);
+                }
+            });
     }
 }

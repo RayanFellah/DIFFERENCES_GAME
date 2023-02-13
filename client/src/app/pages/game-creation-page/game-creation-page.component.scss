@@ -35,6 +35,10 @@ section {
     grid-template-areas: 'OG OG newbie newbie';
 }
 
+.input-field {
+    border: 1px solid #3f51b5;
+    margin: 5px;
+}
 h1 {
     font-weight: bolder;
 }
@@ -62,14 +66,16 @@ footer {
 }
 
 form {
+    padding: 10px;
     color: #3f51b5;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    border: 1px solid #3f51b5;
 }
 .dot {
-    background-color: #bbb;
+    background-color: #3f51b5;
     border-radius: 50%;
     display: inline-block;
 }

@@ -1,7 +1,13 @@
 <div class="flex-box">
     <app-header></app-header>
     <main>
-        <form class="input-field"><input type="text" id="tile" name="tile" value="Manas Chhabra" /><br /></form>
+        <form>
+            <input class="input-field" type="text" id="tile" name="tile" placeholder="Titre du jeu" [formControl]="gameTitle" required />
+            <div class="radius">
+                <app-sizer [(size)]="fontSizePx"></app-sizer>
+                <span class="dot" [style.width.px]="2 * fontSizePx" [style.height.px]="2 * fontSizePx"></span>
+            </div>
+        </form>
 
         <section>
             <article class="OGImg indigo-pink-theme">
@@ -36,10 +42,6 @@
                     <mat-icon>done_outline</mat-icon>
                 </button>
             </button>
-            <div class="radius">
-                <app-sizer [(size)]="fontSizePx"></app-sizer>
-                <span class="dot" [style.width.px]="2 * fontSizePx" [style.height.px]="2 * fontSizePx"></span>
-            </div>
         </div>
     </main>
     <footer>

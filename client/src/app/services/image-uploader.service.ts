@@ -16,13 +16,13 @@ export class ImageUploaderService {
         this.files.push(file);
     }
     // Returns an observable
-    upload(radius: number, bool: boolean): Observable<unknown> {
+    upload(title: string, radius: number, bool: boolean): Observable<unknown> {
+        const file0 = this.files[0];
+        const file1 = this.files[1];
+        console.log(this.files.length);
         if (this.files.length === 2) {
-            const formData = new FormData();
-            // eslint-disable-next-line @typescript-eslint/prefer-for-of
-            formData.append('original', this.files[0]);
-            formData.append('modified', this.files[1]);
-            return this.http2.uploadImages(this.files[0], this.files[1], bool, radius);
+            // this.files.length = 0;
+            return this.http2.uploadImages(file0, file1, bool, radius, title);
         }
         return EMPTY;
     }
@@ -32,5 +32,9 @@ export class ImageUploaderService {
             original: this.http.get(`${this.baseApiUrl}/${sheetId}/?original='true'`),
             modified: this.http.get(`${this.baseApiUrl}/${sheetId}/?original='false'`),
         };
+    }
+
+    removeFile(f: File) {
+        this.files = this.files.filter((file) => f !== file);
     }
 }

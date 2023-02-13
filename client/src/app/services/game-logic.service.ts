@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { CanvasTestHelper } from './canvas-test-helper';
-import { Sheet } from '@app/interfaces/sheet';
 import { Coord } from '@app/interfaces/coord';
+import { Sheet } from '@app/interfaces/sheet';
 import { AudioService } from './Audio/audio.service';
+import { CanvasTestHelper } from './canvas-test-helper';
 import { HttpService } from './http.service';
 import { TimerService } from './timer.service';
 @Injectable({
@@ -39,11 +39,11 @@ export class GameLogicService {
         this.canvas2 = canvas;
     }
     start() {
-        this.http.getImage(this.sheet.sheetId, true);
-        this.originalImage = this.http.imagePath;
+        // this.http.getImage(this.sheet.sheetId, true);
+        // this.originalImage = this.http.imagePath;
 
-        this.http.getImage(this.sheet.sheetId, false);
-        this.modifiedImage = this.http.imagePath;
+        // this.http.getImage(this.sheet.sheetId, false);
+        // this.modifiedImage = this.http.imagePath;
 
         this.http.imagePath = '';
 

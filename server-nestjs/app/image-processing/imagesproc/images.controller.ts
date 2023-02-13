@@ -1,6 +1,6 @@
 import { GameLogicService } from '@app/game-logic/game-logic.service';
-import { Sheet } from '@app/services/differences-detector/interfaces/sheet';
 import { SheetService } from '@app/model/database/Sheets/sheet.service';
+import { Sheet } from '@app/services/differences-detector/interfaces/sheet';
 import { generateRandomId } from '@app/services/randomID/random-id';
 import { Controller, Get, HttpStatus, Param, Post, Query, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -33,16 +33,21 @@ export class ImagesController {
         @Res() res: Response,
         @Query('valid') valid: string,
         @Query('radius') radius: string,
+        @Query('title') title: string,
     ) {
-        console.log('la');
         try {
-            console.log('dans le try');
             const sheetId = generateRandomId();
+            console.log(files.original[0].buffer);
             const original = await this.imageStorage.uploadImage(files.original[0].buffer, sheetId, files.original[0].originalname, true);
+            console.log('____________________________________________________________________________________________');
+            console.log(files.original[0].originalname);
             const modified = await this.imageStorage.uploadImage(files.modified[0].buffer, sheetId, files.modified[0].originalname, false);
-            console.log('apres le upload')
+            console.log('modified');
+            console.log('apres le upload');
             if (valid === 'true') {
-                await this.sheetService.createSheet('name', sheetId, original.path, modified.path, parseInt(radius, 10));
+                console.log(title);
+                console.log('aaa');
+                await this.sheetService.createSheet(title, sheetId, original.path, modified.path, parseInt(radius, 10));
             }
             const partial: Partial<Sheet> = {
                 originalImagePath: original.path,

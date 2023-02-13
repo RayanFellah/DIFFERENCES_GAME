@@ -40,6 +40,7 @@ export class ImageAreaComponent implements OnChanges {
             const image = changes.parentFile.currentValue;
             if (this.bmpVerificationService.verifyImage(image)) {
                 this.readImage(image);
+                this.imageUploaderService.setImage(this.file);
             }
         }
     }
@@ -76,6 +77,7 @@ export class ImageAreaComponent implements OnChanges {
     clearCanvas() {
         this.getBackgroundContext().clearRect(0, 0, this.canvasSize.x, this.canvasSize.y);
         this.fileName = '';
+        this.imageUploaderService.removeFile(this.file);
         // eslint-disable-next-line no-console
         console.log('called');
     }
