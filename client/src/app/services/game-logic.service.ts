@@ -15,10 +15,11 @@ export class GameLogicService {
     timer: TimerService;
     audio: AudioService;
     diff: Coord[];
-    originalImage: File;
-    modifiedImage: File;
+    originalImage: string;
+    modifiedImage: string;
     sheet: Sheet;
-    constructor(private canvas: CanvasTestHelper, private canvas2: CanvasTestHelper, private http: HttpService) {
+
+    constructor(private canvas1: CanvasTestHelper, private canvas2: CanvasTestHelper, private readonly http: HttpService) {
         // this.differences.then((res) => {
         //     this.differencesLeft = res.length
         // });
@@ -29,15 +30,24 @@ export class GameLogicService {
             this.differences = res.numberOfdiffs;
         });
     }
-    start() {
-        this.http.getImages(this.sheet.sheetId).original.subscribe((res) => {
-            this.originalImage = res;
-        });
 
-        this.http.getImages(this.sheet.sheetId).modified.subscribe((res) => {
-            this.modifiedImage = res;
-        });
-        this.canvas.drawImageOnCanvas(this.originalImage);
+    setCanvasHelper1(canvas: CanvasTestHelper) {
+        this.canvas1 = canvas;
+    }
+
+    setCanvasHelper2(canvas: CanvasTestHelper) {
+        this.canvas2 = canvas;
+    }
+    start() {
+        this.http.getImage(this.sheet.sheetId, true);
+        this.originalImage = this.http.imagePath;
+
+        this.http.getImage(this.sheet.sheetId, false);
+        this.modifiedImage = this.http.imagePath;
+
+        this.http.imagePath = '';
+
+        this.canvas1.drawImageOnCanvas(this.originalImage);
         this.canvas2.drawImageOnCanvas(this.modifiedImage);
         this.timer.start();
     }
@@ -46,34 +56,37 @@ export class GameLogicService {
         // const diff = hasFound( { posX: event.offsetX, posY: event.offsetY } , await this.differences);
         // Waiting for the http return value
         const canvasClicked = event.target as HTMLCanvasElement;
-        const canvas: CanvasTestHelper = canvasClicked === this.canvas.canvasRef ? this.canvas : this.canvas2;
-        this.http.playerClick('RiTu6ICz8b', event.offsetX, event.offsetY).subscribe((res) => {
+        const canvas: CanvasTestHelper = canvasClicked === this.canvas1.canvasRef ? this.canvas1 : this.canvas2;
+        this.http.playerClick(this.sheet.sheetId, event.offsetX, event.offsetY).subscribe((res) => {
             this.diff = res;
         });
         if (this.diff) {
-            this.canvas.updateImage(this.diff);
+            this.canvas1.updateImage(this.diff);
             this.canvas2.updateImage(this.diff);
             this.audio.playSuccessSound();
             this.differences++;
             if (this.differencesFound === this.differences) {
                 this.timer.stop();
                 console.log('Vous avez fini le jeu en: ' + this.timer.getMinutes() + ':' + this.timer.getSeconds());
-                this.timer.reset();
+                // this.timer.reset();
             }
             return this.diff;
         } else {
             this.audio.playFailSound();
-            const temp: ImageData = canvas.context?.getImageData(0, 0, this.canvas.width, this.canvas.height);
-            canvas.context?.fillText('ERROR', event.offsetX, event.offsetY);
-            setTimeout(() => {
-                canvas.context?.putImageData(temp, 0, 0);
-            }, 1000);
+            const temp: ImageData | undefined = canvas.context?.getImageData(0, 0, this.canvas1.width, this.canvas1.height);
+            if (temp) {
+                canvas.context?.fillText('ERROR', event.offsetX, event.offsetY);
+                setTimeout(() => {
+                    canvas.context?.putImageData(temp, 0, 0);
+                }, 1000);
+            }
+            return undefined;
         }
     }
 
     async game() {
         this.start();
-        this.canvas.canvasRef.addEventListener('mousedown', async (event) => {
+        this.canvas1.canvasRef.addEventListener('mousedown', async (event) => {
             await this.handleClick(event);
         });
         this.canvas2.canvasRef.addEventListener('mousedown', async (event) => {

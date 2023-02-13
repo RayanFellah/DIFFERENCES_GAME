@@ -66,7 +66,7 @@ import { SizerComponent } from './components/sizer/sizer.component';
         MatGridListModule,
         ReactiveFormsModule,
     ],
-    providers: [],
+    providers: [HTMLCanvasElement],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

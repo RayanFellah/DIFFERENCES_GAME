@@ -7,7 +7,7 @@ import { ActivatedRoute } from '@angular/router';
     styleUrls: ['./game-page.component.scss'],
 })
 export class GamePageComponent implements OnInit {
-    public playerName: string;
+    playerName: string;
 
     constructor(private activatedRoute: ActivatedRoute) {}
 

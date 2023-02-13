@@ -24,18 +24,19 @@ export class CanvasTestHelper {
         return canvas;
     }
 
-    drawImageOnCanvas(file: File) {
-        const imageURL = URL.createObjectURL(file);
+    drawImageOnCanvas(path: string) {
         const image = new Image();
-        image.src = imageURL; // recupere limage
+        image.src = path; // recupere limage
         image.onload = () => {
             this.context?.drawImage(image, 0, 0); // dessine limage sur le canvas
         };
     }
     updateImage(coords: Coord[]) {
-        const imageData = this.context?.getImageData(0, 0, this.width, this.height);
-        this.changeColor(coords, imageData.data);
-        this.context?.putImageData(imageData, 0, 0);
+        const imageData: ImageData | undefined = this.context?.getImageData(0, 0, this.width, this.height);
+        if (imageData) {
+            this.changeColor(coords, imageData.data);
+            this.context?.putImageData(imageData, 0, 0);
+        }
     }
 
     changeColor(coords: Coord[], data: Uint8ClampedArray) {
