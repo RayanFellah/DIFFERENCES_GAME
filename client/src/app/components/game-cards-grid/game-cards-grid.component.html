@@ -15,7 +15,7 @@
                     <div *ngIf="sheet.difficulty === 'hard'" class="difficulty-bar hard"></div>
                 </div>
             </div>
-            <!-- <img [src]="sheet.image" alt="game image" /> -->
+            <img src="" alt="game image" />
 
             <div class="scores-container">
                 <h2>TOP 3</h2>
@@ -33,16 +33,16 @@
         </mat-card-content>
         <mat-grid-tile-footer>
             <app-game-card-buttons
-                [selectedGame]="selectedGame"
+                [idx]="gameIndex"
+                (sendIdx)="sendSheet($event)"
                 (deleteGame)="deleteGame($event)"
-                (selectGame)="selectGame($event)"
                 [isConfigPage]="isConfigPage"
             ></app-game-card-buttons>
         </mat-grid-tile-footer>
     </mat-grid-tile>
 </mat-grid-list>
 <div class="button-navigator">
-    <button mat-fab color="primary" [ngClass]="{ hidden: gridIndexStart == 0 }" matTooltip="Prev" (click)="prevGrid()">
+    <button mat-fab color="primary" [ngClass]="{ hidden: gridIndexStart === 0 }" matTooltip="Prev" (click)="prevGrid()">
         <mat-icon>chevron_left</mat-icon>
     </button>
     <button mat-fab color="primary" [ngClass]="{ hidden: gridIndexStart + 4 >= games.length }" matTooltip="Next" (click)="nextGrid()">

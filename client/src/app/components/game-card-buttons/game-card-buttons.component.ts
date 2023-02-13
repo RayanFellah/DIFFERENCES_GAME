@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogPalyerNameComponent } from '@app/dialog-palyer-name/dialog-palyer-name.component';
-
+// import { HttpService } from '@app/services/http.service';
 @Component({
     selector: 'app-game-card-buttons',
     templateUrl: './game-card-buttons.component.html',
@@ -11,11 +11,15 @@ export class GameCardButtonsComponent implements OnInit {
     @Input() isConfigPage: boolean;
     @Input() gameIndex: number;
     @Input() selectedGame: string;
+
     @Output() deleteGame = new EventEmitter();
     @Output() selectGame = new EventEmitter();
     @Output() playGame = new EventEmitter();
     @Output() createMultiGame = new EventEmitter();
     @Output() resetScores = new EventEmitter();
+
+    @Input() idx: number;
+    @Output() sendIdx = new EventEmitter<{ id: number; message: string }>();
 
     constructor(public dialog: MatDialog) {}
 
@@ -35,7 +39,6 @@ export class GameCardButtonsComponent implements OnInit {
 
     callPlayGame() {
         this.playGame.emit();
-        console.log(this.selectedGame);
     }
 
     callCreateMultiGame() {
@@ -48,5 +51,10 @@ export class GameCardButtonsComponent implements OnInit {
 
     callSelectGame(index: number) {
         this.selectGame.emit(index);
+    }
+
+    sendIndex() {
+        this.sendIdx.emit({ id: this.idx, message: 'I Have been clicked' });
+        this.openDialog();
     }
 }

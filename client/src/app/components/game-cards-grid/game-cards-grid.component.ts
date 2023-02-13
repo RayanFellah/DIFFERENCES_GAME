@@ -9,15 +9,15 @@ import { games } from '../../../../../common/game';
     styleUrls: ['./game-cards-grid.component.scss'],
 })
 export class GameCardsGridComponent implements OnInit {
-    @Input() public isConfigPage: boolean;
-    public games = games;
-    public gridGames = games;
-    public gridIndexStart = 0;
-    public gridIndexEnd = 4;
-    public selectedGame: string;
-    public gameSheets: Sheet[] = [];
-    public sheetsImage: [{ sheetToAdd: Partial<Sheet>; image: string }] = [{ sheetToAdd: { name: 'test' }, image: '' }];
-    public gridGameSheets = this.gameSheets;
+    @Input() isConfigPage: boolean;
+    games = games;
+    gridGames = games;
+    gridIndexStart = 0;
+    gridIndexEnd = 4;
+    selectedGame: string;
+    gameSheets: Sheet[] = [];
+    sheetsImage: string[];
+    gridGameSheets = this.gameSheets;
 
     constructor(private readonly http: HttpService) {}
 
@@ -25,23 +25,7 @@ export class GameCardsGridComponent implements OnInit {
         this.gridGameSheets = this.gameSheets.slice(this.gridIndexStart, this.gridIndexEnd);
         this.http.getAllSheets().subscribe((res) => {
             this.gameSheets = res;
-            for (let sheet of this.gameSheets) {
-                console.log('inthe For');
-                this.http.getImage(sheet.sheetId, true).subscribe((res) => {
-                    let blob = new Blob([res], { type: 'image/bmp' });
-                    this.sheetsImage.push({ sheetToAdd: sheet, image: URL.createObjectURL(blob) });
-                });
-            }
         });
-        console.log('avant');
-        // for (let sheet of this.gameSheets) {
-        //     console.log('inthe For');
-        //     this.http.getImage(sheet.sheetId, true).subscribe((res) => {
-        //         this.sheetsImage.push({ sheetToAdd: sheet, image: URL.createObjectURL(res) });
-        //     });
-        // }
-        console.log(this.sheetsImage.length);
-        console.log('apres');
     }
 
     nextGrid() {
@@ -72,7 +56,9 @@ export class GameCardsGridComponent implements OnInit {
 
     resetScores() {}
 
-    selectGame(index: number) {
-        this.selectedGame = this.gameSheets[index].name;
+    sendSheet(event: any) {
+        console.log(this.gameSheets[event.id]);
+        console.log(event.id);
+        this.http.sendPlaySheet(this.gameSheets[event.id]).subscribe((res) => console.log(res));
     }
 }
