@@ -39,13 +39,10 @@ export class GameLogicService {
         this.canvas2 = canvas;
     }
     start() {
-        // this.http.getImage(this.sheet.sheetId, true);
-        // this.originalImage = this.http.imagePath;
-
-        // this.http.getImage(this.sheet.sheetId, false);
-        // this.modifiedImage = this.http.imagePath;
-
-        this.http.imagePath = '';
+        console.log('ici');
+        this.http.getImages(this.sheet.sheetId).original.subscribe((res) => {
+            this.originalImage = res;
+        });
 
         this.canvas1.drawImageOnCanvas(this.originalImage);
         this.canvas2.drawImageOnCanvas(this.modifiedImage);
@@ -56,7 +53,7 @@ export class GameLogicService {
         // const diff = hasFound( { posX: event.offsetX, posY: event.offsetY } , await this.differences);
         // Waiting for the http return value
         const canvasClicked = event.target as HTMLCanvasElement;
-        const canvas: CanvasTestHelper = canvasClicked === this.canvas1.canvasRef ? this.canvas1 : this.canvas2;
+        const canvas: CanvasTestHelper = canvasClicked === this.canvas.canvasRef ? this.canvas : this.canvas2;
         this.http.playerClick(this.sheet.sheetId, event.offsetX, event.offsetY).subscribe((res) => {
             this.diff = res;
         });
@@ -73,13 +70,13 @@ export class GameLogicService {
             return this.diff;
         } else {
             this.audio.playFailSound();
-            const temp: ImageData | undefined = canvas.context?.getImageData(0, 0, this.canvas1.width, this.canvas1.height);
-            if (temp) {
-                canvas.context?.fillText('ERROR', event.offsetX, event.offsetY);
-                setTimeout(() => {
+            const temp: ImageData | undefined = canvas.context?.getImageData(0, 0, this.canvas.width, this.canvas.height);
+            canvas.context?.fillText('ERROR', event.offsetX, event.offsetY);
+            setTimeout(() => {
+                if (temp) {
                     canvas.context?.putImageData(temp, 0, 0);
-                }, 1000);
-            }
+                }
+            }, 1000);
             return undefined;
         }
     }

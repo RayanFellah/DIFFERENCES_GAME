@@ -1,22 +1,22 @@
 <div id="play-area-container">
     <section>
         <article class="original">
-            <canvas name="canvas1" id="canvas" (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
-            <div id="mouse-position-display">
+            <canvas #canvas1 id="canvas" (click)="mouseHitDetectOrigin($event)" [attr.width]="width" [attr.height]="height"></canvas>
+            <!-- <div id="mouse-position-display">
                 <h3>Image Originale</h3>
                 <!-- <p *ngIf="mousePositionOriginal.x !== 0">X : {{ mousePositionOriginal.x }}</p>
                 <p *ngIf="mousePositionOriginal.y !== 0">Y : {{ mousePositionOriginal.y }}</p> -->
                 <hr />
-            </div>
+            </div> -->
         </article>
         <article class="modified">
-            <canvas name="canvas2" id="canvas" (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
-            <div id="mouse-position-display">
+            <canvas #canvas2 id="canvas" (click)="mouseHitDetectModified($event)" [attr.width]="width" [attr.height]="height"></canvas>
+            <!-- <div id="mouse-position-display">
                 <h3>Image Modifiée</h3>
                 <!-- <p *ngIf="mousePositionModified.x !== 0">X : {{ mousePositionModified.x }}</p>
                 <p *ngIf="mousePositionModified.y !== 0">Y : {{ mousePositionModified.y }}</p> -->
                 <hr />
-            </div>
+            </div> -->
         </article>
     </section>
 </div>
