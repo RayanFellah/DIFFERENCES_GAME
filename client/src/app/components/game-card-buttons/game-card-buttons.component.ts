@@ -12,8 +12,6 @@ export class GameCardButtonsComponent implements OnInit {
     @Input() gameIndex: number;
     @Input() selectedGame: string;
     @Output() deleteGame = new EventEmitter();
-
-    @Output() deleteGame = new EventEmitter();
     @Output() selectGame = new EventEmitter();
     @Output() playGame = new EventEmitter();
     @Output() createMultiGame = new EventEmitter();
