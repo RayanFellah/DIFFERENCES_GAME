@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
+import { CanvasTestHelper } from '@app/services/canvas-test-helper';
 import { GameLogicService } from '@app/services/game-logic.service';
+import { HttpService } from '@app/services/http.service';
 // import { HttpService } from '@app/services/http.service';
 
 // TODO : Avoir un fichier séparé pour les constantes!
@@ -22,17 +24,15 @@ export enum MouseButton {
     styleUrls: ['./play-area.component.scss'],
 })
 export class PlayAreaComponent implements OnInit {
-    // @ViewChild('canvas1', { static: false }) private canvas1: ElementRef<HTMLCanvasElement>;
-    // @ViewChild('canvas2', { static: false }) private canvas2: ElementRef<HTMLCanvasElement>;
+    @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
     mousePositionOriginal: Vec2 = { x: 0, y: 0 };
     mousePositionModified: Vec2 = { x: 0, y: 0 };
 
     // buttonPressed = '';
-    @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
-    @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
 
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
-    constructor(private logic: GameLogicService) {}
+    constructor(private logic: GameLogicService, private http: HttpService) {}
 
     get width(): number {
         return this.canvasSize.x;
@@ -52,12 +52,12 @@ export class PlayAreaComponent implements OnInit {
         // this.drawService.drawGrid();
         // this.drawService.drawWord('Différence');
         // this.canvas.nativeElement.focus();
-        // this.logic = new GameLogicService(
-        //     new CanvasTestHelper(this.canvas1.nativeElement.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D),
-        //     new CanvasTestHelper(this.canvas2.nativeElement.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D),
-        //     this.http,
-        // );
-        // this.logic.start();
+        this.logic = new GameLogicService(
+            new CanvasTestHelper(this.canvas1.nativeElement.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D),
+            new CanvasTestHelper(this.canvas2.nativeElement.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D),
+            this.http,
+        );
+        this.logic.start();
     }
 
     async handleClick(event: MouseEvent) {

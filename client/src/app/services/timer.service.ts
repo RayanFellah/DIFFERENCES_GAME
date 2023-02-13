@@ -13,7 +13,7 @@ export class TimerService {
             this.elapsedTime = (currentTime - startTime) / 1000;
             const minutes = Math.floor(this.elapsedTime / 60);
             const seconds = Math.floor(this.elapsedTime % 60);
-            console.log(minutes + ' minutes and ' + seconds + ' seconds have passed.');
+            // console.log(minutes + ' minutes and ' + seconds + ' seconds have passed.');
         }, 1000);
     }
 

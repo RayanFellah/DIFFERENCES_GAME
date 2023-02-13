@@ -18,9 +18,7 @@ export class CanvasTestHelper {
         // this.canvasRef = canvasRef;
         this.width = 640;
         this.height = 480;
-        console.log(context);
         if (this.context) this.tempImageData = this.context.getImageData(0, 0, this.width, this.height);
-        console.log('ici');
     }
 
     createCanvas(width: number, height: number): HTMLCanvasElement {

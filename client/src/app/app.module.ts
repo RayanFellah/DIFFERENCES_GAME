@@ -66,8 +66,6 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
         MatGridListModule,
         ReactiveFormsModule,
     ],
-    providers: [HTMLCanvasElement],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatGridListModule],
     providers: [HTMLCanvasElement, { provide: CanvasRenderingContext2D, useValue: CanvasRenderingContext2D }],
     bootstrap: [AppComponent],
 })

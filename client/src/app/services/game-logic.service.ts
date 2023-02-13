@@ -39,7 +39,6 @@ export class GameLogicService {
         this.canvas2 = canvas;
     }
     start() {
-        console.log('ici');
         this.http.getImages(this.sheet.sheetId).original.subscribe((res) => {
             this.originalImage = res;
         });
