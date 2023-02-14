@@ -31,7 +31,9 @@ export class GameLogicService {
                 return coord.posX == x && coord.posY == y; // on est conscient de prob de type
             });
             if (found) {
-                this.differences.splice(i, 1);
+                this.differences = this.differences.filter((res) => {
+                    res !== diff;
+                });
                 return diff;
             }
         }
