@@ -7,6 +7,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ImageStorageService } from './image-storage.service';
+import { join } from 'path';
 @ApiTags('Images')
 @Controller('images')
 export class ImagesController {
@@ -76,7 +77,9 @@ export class ImagesController {
             const nature = query.original === 'true' ? true : false;
 
             const imagePath = await this.imageStorage.getImagePath(sheetId, nature);
-            if (imagePath) {
+            const filePath = join(__dirname, '..', 'uploads', imagePath);
+            console.log(imagePath);
+            if (filePath) {
                 return res.sendFile(imagePath);
             } else return;
         } catch (error) {

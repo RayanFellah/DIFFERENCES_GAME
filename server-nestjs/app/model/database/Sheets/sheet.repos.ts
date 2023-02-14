@@ -23,4 +23,8 @@ export class SheetsRepository {
     async findOneAndUpdate(sheetFilterQuery: FilterQuery<Sheet>, sheet: Partial<Sheet>): Promise<Sheet> {
         return this.sheetModel.findOneAndUpdate(sheetFilterQuery, sheet);
     }
+
+    async deleteAllSheets(): Promise<void> {
+        await this.sheetModel.deleteMany();
+    }
 }
