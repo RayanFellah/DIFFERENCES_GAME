@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Injectable } from '@angular/core';
 import { SafeUrl } from '@angular/platform-browser';
 import { Coord } from '@app/interfaces/coord';
@@ -50,32 +51,55 @@ export class GameLogicService {
             this.handleClick(event, this.diff);
         });
     }
+
+    makeBlink(diff: Coord[]) {
+        if (this.leftCanvas.context) {
+            const tempImageData = this.leftCanvas.context.getImageData(0, 0, this.leftCanvas.width, this.leftCanvas.height);
+            const intervalId = setInterval(() => {
+                this.leftCanvas.updateImage(diff);
+                this.rightCanvas.updateImage(diff);
+            }, 50);
+
+            setTimeout(() => {
+                this.leftCanvas.context!.putImageData(tempImageData, 0, 0);
+                const imagedata2 = this.rightCanvas.context!.getImageData(0, 0, this.rightCanvas.width, this.rightCanvas.height);
+                for (const coord of diff) {
+                    const index = (coord.posX + coord.posY * this.rightCanvas.width) * 4; // calculer l'index du pixel à partir de ses coordonnées
+                    imagedata2.data[index + 0] = tempImageData.data[index + 0]; // R (rouge)
+                    imagedata2.data[index + 1] = tempImageData.data[index + 1]; // G (vert)
+                    imagedata2.data[index + 2] = tempImageData.data[index + 2]; // B (bleu)
+                    imagedata2.data[index + 3] = tempImageData.data[index + 3]; // A (alpha)
+                }
+                this.rightCanvas.context!.putImageData(imagedata2, 0, 0);
+                clearInterval(intervalId);
+            }, 1000);
+        }
+    }
+
     async handleClick(event: MouseEvent, diff: Coord[]) {
         const canvasClicked = event.target as HTMLCanvasElement;
-        const canvas: CanvasTestHelper = canvasClicked === this.leftCanvas.canvasRef ? this.leftCanvas : this.rightCanvas;
+        const canvas: CanvasTestHelper = canvasClicked === this.leftCanvas.get() ? this.leftCanvas : this.rightCanvas;
         console.log(diff);
         if (diff) {
             console.log('oui');
-            this.leftCanvas.updateImage(diff);
-            this.rightCanvas.updateImage(diff);
-            // this.audio.playSuccessSound();
+            this.makeBlink(diff);
+            this.audio.playSuccessSound();
             this.differencesFound++;
             if (this.differencesFound === this.numberDifferences) {
-                this.timer.stop();
+                this.endGame();
                 console.log('Vous avez fini le jeu en: ' + this.timer.getMinutes() + ':' + this.timer.getSeconds());
                 // this.timer.reset();
             }
             return diff;
         } else {
             // this.audio.playFailSound();
-            const temp: ImageData | undefined = canvas.get()?.getImageData(0, 0, canvas.width, canvas.height);
-            canvas.get()?.fillText('ERROR', event.offsetX, event.offsetY);
-            setTimeout(() => {
-                if (temp) {
-                    canvas.get()?.putImageData(temp, 0, 0);
-                }
-            }, 1000);
+            canvas.displayErrorMessage(event);
             return undefined;
         }
+    }
+
+    endGame() {
+        this.timer.stop();
+        this.timer.reset();
     }
 }

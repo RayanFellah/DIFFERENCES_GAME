@@ -42,6 +42,7 @@ export class GameCardsGridComponent implements OnInit {
         if (this.gridIndexEnd - 4 < this.length) {
             this.gridIndexStart += 4;
             this.gridIndexEnd += 4;
+            if (this.gridIndexEnd === 12) this.gridIndexEnd += 4;
             this.gridGameSheets = this.gameSheets.slice(this.gridIndexStart, this.gridIndexEnd);
         }
     }

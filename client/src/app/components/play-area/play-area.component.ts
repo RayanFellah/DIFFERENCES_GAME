@@ -28,8 +28,8 @@ export class PlayAreaComponent implements AfterViewInit {
 
     ngAfterViewInit(): void {
         this.logic = new GameLogicService(
-            new CanvasTestHelper(this.canvas1.nativeElement.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D),
-            new CanvasTestHelper(this.canvas2.nativeElement.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D),
+            new CanvasTestHelper(this.canvas1.nativeElement),
+            new CanvasTestHelper(this.canvas2.nativeElement),
             this.http,
         );
     }
