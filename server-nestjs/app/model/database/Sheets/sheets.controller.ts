@@ -1,5 +1,6 @@
 import { GameLogicService } from '@app/game-logic/game-logic.service';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { Sheet } from './schemas/Sheet';
 import { SheetService } from './sheet.service';
 @Controller('sheets')
@@ -24,9 +25,11 @@ export class SheetController {
         try {
             console.log('got it');
             this.current = await this.sheetService.getSheetById(sheetId);
+<<<<<<< Updated upstream
             console.log(this.current);
+=======
+>>>>>>> Stashed changes
         } catch (error) {
-            console.error(error);
             return new Error(error);
         }
     }
