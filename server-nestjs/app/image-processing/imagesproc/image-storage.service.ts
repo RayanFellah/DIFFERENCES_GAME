@@ -1,7 +1,6 @@
 import { generateRandomId } from '@app/services/randomID/random-id';
 import { Injectable } from '@nestjs/common';
 import { createWriteStream, promises } from 'fs';
-import * as path from 'path';
 import { ImageDto } from './interfaces/image.dto';
 
 @Injectable()
@@ -29,7 +28,7 @@ export class ImageStorageService {
     async uploadImage(image: Buffer, sheetToAdd: string, filename: string, isOriginal: boolean): Promise<ImageDto> {
         try {
             const imageName = `${filename}`;
-            const imagePath = path.join(__dirname.replace('out', '').replace('server-nestjs', ''), 'uploads', filename);
+            const imagePath = `${this.uploadPath}/${imageName}`;
             const imageStream = createWriteStream(imagePath);
             imageStream.write(image);
             imageStream.end();
@@ -52,7 +51,7 @@ export class ImageStorageService {
     async getImagePath(sheetId: string, isOriginal: boolean) {
         for (const img of await this.getAllImages()) {
             if (img.sheetId === sheetId && img.original === isOriginal) {
-                return img.path;
+                return img.name;
             }
         }
         return undefined;
