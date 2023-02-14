@@ -25,10 +25,7 @@ export class SheetController {
         try {
             console.log('got it');
             this.current = await this.sheetService.getSheetById(sheetId);
-<<<<<<< Updated upstream
             console.log(this.current);
-=======
->>>>>>> Stashed changes
         } catch (error) {
             return new Error(error);
         }
