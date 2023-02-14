@@ -2,7 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Sheet } from '@app/interfaces/sheet';
 import { HttpService } from '@app/services/http.service';
-import { games } from '../../../../../common/game';
 @Component({
     selector: 'app-game-cards-grid',
     templateUrl: './game-cards-grid.component.html',
@@ -10,8 +9,7 @@ import { games } from '../../../../../common/game';
 })
 export class GameCardsGridComponent implements OnInit {
     @Input() isConfigPage: boolean;
-    games = games;
-    gridGames = games;
+
     gridIndexStart = 0;
     gridIndexEnd = 4;
     length = 0;

@@ -45,7 +45,7 @@
     <button mat-fab color="primary" [ngClass]="{ hidden: gridIndexStart === 0 }" matTooltip="Prev" (click)="prevGrid()">
         <mat-icon>chevron_left</mat-icon>
     </button>
-    <button mat-fab color="primary" [ngClass]="{ hidden: gridIndexStart + 4 >= games.length }" matTooltip="Next" (click)="nextGrid()">
+    <button mat-fab color="primary" [ngClass]="{ hidden: gridIndexStart + 4 >= gameSheets.length }" matTooltip="Next" (click)="nextGrid()">
         <mat-icon>chevron_right</mat-icon>
     </button>
 </div>

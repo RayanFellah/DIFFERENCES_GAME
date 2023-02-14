@@ -20,9 +20,8 @@ describe('GameCardButtonsComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should have default values for isConfigPage and gameIndex', () => {
+    it('should have default values for isConfigPage', () => {
         expect(component.isConfigPage).toBeUndefined();
-        expect(component.gameIndex).toBeUndefined();
     });
 
     it('"callDeleteGame" should emit deleteGame event ', () => {

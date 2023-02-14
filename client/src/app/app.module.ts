@@ -11,6 +11,7 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { ConfigButtonsComponent } from './components/config-buttons/config-buttons.component';
+import { DifferencesFoundComponent } from './components/differences-found/differences-found.component';
 import { GameCardButtonsComponent } from './components/game-card-buttons/game-card-buttons.component';
 import { GameCardsGridComponent } from './components/game-cards-grid/game-cards-grid.component';
 import { GameConstantsComponent } from './components/game-constants/game-constants.component';
@@ -55,6 +56,7 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
         GameCreationPageComponent,
         TimerComponent,
         SizerComponent,
+        DifferencesFoundComponent,
     ],
     imports: [
         AppMaterialModule,
