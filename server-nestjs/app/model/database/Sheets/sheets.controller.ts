@@ -1,3 +1,4 @@
+import { GameLogicService } from '@app/game-logic/game-logic.service';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Res } from '@nestjs/common';
 import { Sheet } from './schemas/Sheet';
 import { SheetService } from './sheet.service';
@@ -24,7 +25,6 @@ export class SheetController {
             console.log('got it');
             this.current = await this.sheetService.getSheetById(sheetId);
             console.log(this.current);
-            return res.send({ message: 'ok' });
         } catch (error) {
             console.error(error);
             return new Error(error);
