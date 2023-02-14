@@ -1,7 +1,4 @@
 <div class="differences-container">
-    <button mat-fab color="primary" matTooltip="find" (click)="differenceIsFound(nextDifferenceIndex)">
-        <mat-icon>pan_tool</mat-icon>
-    </button>
     <div class="found" *ngFor="let difference of differences">
         <mat-icon [ngClass]="{ 'found-lightbulb': difference.isFound, 'not-found-lightbulb': !difference.isFound }"> lightbulb_outline </mat-icon>
     </div>
