@@ -1,6 +1,4 @@
-import { GameLogicService } from '@app/game-logic/game-logic.service';
-import { Body, Controller, Get, Param, Patch, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Res } from '@nestjs/common';
 import { Sheet } from './schemas/Sheet';
 import { SheetService } from './sheet.service';
 @Controller('sheets')
@@ -55,5 +53,10 @@ export class SheetController {
     @Patch(':sheetId')
     async updateSheet(@Param('sheetId') sheetId: string, @Body() updateSheetDto: Partial<Sheet>): Promise<Sheet> {
         return await this.sheetService.updateSheet(sheetId, updateSheetDto);
+    }
+
+    @Delete()
+    async deleteAllSheets() {
+        await this.sheetService.deleteAllSheets();
     }
 }

@@ -35,4 +35,8 @@ export class SheetService {
     async updateSheet(sheetId: string, sheetUpdates: Partial<Sheet>): Promise<Sheet> {
         return this.sheetRepository.findOneAndUpdate({ sheetId }, sheetUpdates);
     }
+
+    async deleteAllSheets() {
+        return this.sheetRepository.deleteAllSheets();
+    }
 }
