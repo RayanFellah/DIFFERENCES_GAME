@@ -15,6 +15,7 @@ export class PlayAreaComponent implements AfterViewInit {
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
     logic: GameLogicService;
+    clickEnabled = true;
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
     constructor(private http: HttpService) {}
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable, OnDestroy } from '@angular/core';
 import { Coord } from '@app/interfaces/coord';
 @Injectable({
@@ -5,16 +6,14 @@ import { Coord } from '@app/interfaces/coord';
 })
 export class CanvasTestHelper implements OnDestroy {
     context: CanvasRenderingContext2D | null;
-    // canvasRef: HTMLCanvasElement;
     width: number;
     height: number;
     isOpaque: boolean = false;
     tempImageData: ImageData;
+    url: string;
     private COLOR: number[] = [0, 0, 255, 255];
     private FONT_STYLE = 'Arial 20px';
-    url: string;
     constructor(private canvasRef: HTMLCanvasElement) {
-        // customElements.define('canvasElement', HTMLCanvasElement);
         this.context = canvasRef.getContext('2d');
         this.width = 640;
         this.height = 480;
@@ -27,18 +26,10 @@ export class CanvasTestHelper implements OnDestroy {
     get() {
         return this.canvasRef;
     }
-    createCanvas(width: number, height: number): HTMLCanvasElement {
-        const canvas: HTMLCanvasElement = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        return canvas;
-    }
 
     drawImageOnCanvas(blob: Blob) {
         this.url = URL.createObjectURL(blob);
         const image = new Image();
-
-        console.log(this.url);
         image.src = this.url; // recupere limage
         image.onload = () => {
             if (this.context) {
@@ -57,11 +48,8 @@ export class CanvasTestHelper implements OnDestroy {
 
     changeColor(coords: Coord[], data: Uint8ClampedArray) {
         for (const coord of coords) {
-            const index = (coord.posX + coord.posY * this.width) * 4; // calculer l'index du pixel à partir de ses coordonnées (100, 100)
-            // data[index + 0] = 0; // R (rouge)
-            // data[index + 1] = 0; // G (vert)
-            // data[index + 2] = 255; // B (bleu)
-            if (this.tempImageData) data[index + 3] = this.isOpaque ? this.COLOR[3] : this.tempImageData.data[index + 3]; // A (alpha)
+            const index = (coord.posX + coord.posY * this.width) * 4;
+            if (this.tempImageData) data[index + 3] = this.isOpaque ? this.COLOR[3] : this.tempImageData.data[index + 3];
         }
         this.isOpaque = !this.isOpaque;
         return undefined;

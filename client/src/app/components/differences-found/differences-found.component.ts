@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-
 @Component({
     selector: 'app-differences-found',
     templateUrl: './differences-found.component.html',
     styleUrls: ['./differences-found.component.scss'],
 })
 export class DifferencesFoundComponent implements OnInit {
-    public differences = [
+    differences = [
         { coord: '10', isFound: false },
         { coord: '12', isFound: false },
         { coord: '30', isFound: false },
@@ -15,9 +14,10 @@ export class DifferencesFoundComponent implements OnInit {
         { coord: '30', isFound: false },
         { coord: '30', isFound: false },
     ];
-
-    public allDifferencesFound = false;
-    public nextDifferenceIndex = 0;
+    allDifferencesFound = false;
+    nextDifferenceIndex = 0;
+    // diffFound = this.logic.differencesFound;
+    // constructor(private logic: GameLogicService) {}
 
     ngOnInit() {}
 

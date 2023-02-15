@@ -8,6 +8,6 @@ import { SheetController } from './sheets.controller';
 @Module({
     imports: [MongooseModule.forFeature([{ name: Sheet.name, schema: sheetSchema }])],
     controllers: [SheetController],
-    providers: [SheetService, SheetsRepository, GameLogicService],
+    providers: [SheetService, SheetsRepository, GameLogicService, Sheet],
 })
 export class SheetModule {}

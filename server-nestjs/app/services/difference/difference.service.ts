@@ -4,10 +4,12 @@ import { Injectable } from '@nestjs/common';
 export class Difference {
     listEdges: Array<Coord> = [];
     coords: Array<Coord> = [];
+    found: boolean = false;
 
     constructor(coords: Array<Coord>) {
         this.coords = coords;
     }
+
     findEdges() {
         for (let coord of this.coords) {
             if (

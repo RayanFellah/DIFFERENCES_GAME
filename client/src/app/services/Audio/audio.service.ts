@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-const FAIL_SOUND_URL = './error-audio.wav';
-const SUCCESS_SOUND_URL = './success-audio';
+const FAIL_SOUND_URL = './assets/error-audio.wav';
+const SUCCESS_SOUND_URL = './assets/success-audio.wav';
 @Injectable({
     providedIn: 'root',
 })

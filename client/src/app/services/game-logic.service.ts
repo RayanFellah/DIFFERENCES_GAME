@@ -21,6 +21,8 @@ export class GameLogicService {
     modifiedImage: SafeUrl;
     sheet: Sheet;
     difficulty: string;
+    clickEnabled = true;
+    foundDifferences: Coord[][] = [];
     constructor(private leftCanvas: CanvasTestHelper, private rightCanvas: CanvasTestHelper, private readonly http: HttpService) {
         this.timer = new TimerService();
         this.audio = new AudioService();
@@ -47,24 +49,25 @@ export class GameLogicService {
     }
     async sendCLick(event: MouseEvent) {
         this.http.playerClick(this.sheet.sheetId, event.offsetX, event.offsetY).subscribe((res) => {
+            if (this.foundDifferences.find((diff) => JSON.stringify(diff) === JSON.stringify(res))) return;
             this.diff = res;
+            this.foundDifferences.push(res);
             this.handleClick(event, this.diff);
         });
     }
-
     makeBlink(diff: Coord[]) {
         if (this.leftCanvas.context) {
             const tempImageData = this.leftCanvas.context.getImageData(0, 0, this.leftCanvas.width, this.leftCanvas.height);
             const intervalId = setInterval(() => {
                 this.leftCanvas.updateImage(diff);
                 this.rightCanvas.updateImage(diff);
-            }, 50);
+            }, 30);
 
             setTimeout(() => {
                 this.leftCanvas.context!.putImageData(tempImageData, 0, 0);
                 const imagedata2 = this.rightCanvas.context!.getImageData(0, 0, this.rightCanvas.width, this.rightCanvas.height);
                 for (const coord of diff) {
-                    const index = (coord.posX + coord.posY * this.rightCanvas.width) * 4; // calculer l'index du pixel à partir de ses coordonnées
+                    const index = (coord.posX + coord.posY * this.rightCanvas.width) * 4;
                     imagedata2.data[index + 0] = tempImageData.data[index + 0]; // R (rouge)
                     imagedata2.data[index + 1] = tempImageData.data[index + 1]; // G (vert)
                     imagedata2.data[index + 2] = tempImageData.data[index + 2]; // B (bleu)
@@ -72,33 +75,39 @@ export class GameLogicService {
                 }
                 this.rightCanvas.context!.putImageData(imagedata2, 0, 0);
                 clearInterval(intervalId);
-            }, 1000);
+            }, 800);
         }
     }
 
     async handleClick(event: MouseEvent, diff: Coord[]) {
+        if (!this.clickEnabled) {
+            return;
+        }
         const canvasClicked = event.target as HTMLCanvasElement;
         const canvas: CanvasTestHelper = canvasClicked === this.leftCanvas.get() ? this.leftCanvas : this.rightCanvas;
-        console.log(diff);
         if (diff) {
-            console.log('oui');
             this.makeBlink(diff);
             this.audio.playSuccessSound();
             this.differencesFound++;
             if (this.differencesFound === this.numberDifferences) {
                 this.endGame();
                 console.log('Vous avez fini le jeu en: ' + this.timer.getMinutes() + ':' + this.timer.getSeconds());
-                // this.timer.reset();
             }
             return diff;
         } else {
-            // this.audio.playFailSound();
+            this.clickEnabled = false;
+            this.audio.playFailSound();
             canvas.displayErrorMessage(event);
+            setTimeout(() => {
+                this.clickEnabled = true;
+            }, 1000);
             return undefined;
         }
     }
 
     endGame() {
+        this.clickEnabled = false;
+        this.differencesFound = 0;
         this.timer.stop();
         this.timer.reset();
     }
