@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { of } from 'rxjs';
+import { GameCardButtonsComponent } from '@app/components/game-card-buttons/game-card-buttons.component';
 import { DialogPalyerNameComponent } from '@app/dialog-palyer-name/dialog-palyer-name.component';
-import { GameCardButtonsComponent } from './game-card-buttons.component';
+import { of } from 'rxjs';
 
 describe('GameCardButtonsComponent', () => {
     let component: GameCardButtonsComponent;

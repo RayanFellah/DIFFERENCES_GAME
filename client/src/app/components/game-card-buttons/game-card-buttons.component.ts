@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogPalyerNameComponent } from '@app/dialog-palyer-name/dialog-palyer-name.component';
 // import { HttpService } from '@app/services/http.service';
@@ -7,7 +7,7 @@ import { DialogPalyerNameComponent } from '@app/dialog-palyer-name/dialog-palyer
     templateUrl: './game-card-buttons.component.html',
     styleUrls: ['./game-card-buttons.component.scss'],
 })
-export class GameCardButtonsComponent implements OnInit {
+export class GameCardButtonsComponent {
     @Input() isConfigPage: boolean;
     @Input() gameIndex: number;
     @Input() selectedGame: string;
@@ -22,8 +22,6 @@ export class GameCardButtonsComponent implements OnInit {
     @Output() sendIdx = new EventEmitter<{ id: number; message: string }>();
 
     constructor(public dialog: MatDialog) {}
-
-    ngOnInit(): void {}
 
     openDialog(): void {
         this.dialog.open(DialogPalyerNameComponent, { data: { name: this.playGame } });
