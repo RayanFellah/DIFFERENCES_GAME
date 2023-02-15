@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { SafeUrl } from '@angular/platform-browser';
+import { DialaogGameOverComponent } from '@app/components/dialaog-game-over/dialaog-game-over.component';
 import { Coord } from '@app/interfaces/coord';
 import { Sheet } from '@app/interfaces/sheet';
 import { AudioService } from './Audio/audio.service';
@@ -23,7 +25,12 @@ export class GameLogicService {
     difficulty: string;
     clickEnabled = true;
     foundDifferences: Coord[][] = [];
-    constructor(private leftCanvas: CanvasTestHelper, private rightCanvas: CanvasTestHelper, private readonly http: HttpService) {
+    constructor(
+        private leftCanvas: CanvasTestHelper,
+        private rightCanvas: CanvasTestHelper,
+        private readonly http: HttpService,
+        private dialog: MatDialog,
+    ) {
         this.timer = new TimerService();
         this.audio = new AudioService();
         this.http.getCurrentGame().subscribe((res) => {
@@ -105,10 +112,17 @@ export class GameLogicService {
         }
     }
 
+    private showDialog() {
+        const dialogRef = this.dialog.open(DialaogGameOverComponent);
+
+        dialogRef.afterClosed().subscribe(() => {});
+    }
+
     endGame() {
         this.clickEnabled = false;
         this.differencesFound = 0;
         this.timer.stop();
         this.timer.reset();
+        this.showDialog();
     }
 }

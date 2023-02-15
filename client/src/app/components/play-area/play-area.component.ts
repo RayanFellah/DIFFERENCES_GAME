@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { CanvasTestHelper } from '@app/services/canvas-test-helper';
 import { GameLogicService } from '@app/services/game-logic.service';
 import { HttpService } from '@app/services/http.service';
@@ -17,7 +18,7 @@ export class PlayAreaComponent implements AfterViewInit {
     logic: GameLogicService;
     clickEnabled = true;
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
-    constructor(private http: HttpService) {}
+    constructor(private http: HttpService, private dialog: MatDialog) {}
 
     get width(): number {
         return this.canvasSize.x;
@@ -32,6 +33,7 @@ export class PlayAreaComponent implements AfterViewInit {
             new CanvasTestHelper(this.canvas1.nativeElement),
             new CanvasTestHelper(this.canvas2.nativeElement),
             this.http,
+            this.dialog,
         );
     }
 
