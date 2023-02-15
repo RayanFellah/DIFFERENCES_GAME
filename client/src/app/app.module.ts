@@ -12,6 +12,7 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { ConfigButtonsComponent } from './components/config-buttons/config-buttons.component';
+import { DialaogGameOverComponent } from './components/dialaog-game-over/dialaog-game-over.component';
 import { DifferencesFoundComponent } from './components/differences-found/differences-found.component';
 import { GameCardButtonsComponent } from './components/game-card-buttons/game-card-buttons.component';
 import { GameCardsGridComponent } from './components/game-cards-grid/game-cards-grid.component';
@@ -27,7 +28,6 @@ import { ConfigurationPageComponent } from './pages/configuration-page/configura
 import { GameCreationPageComponent } from './pages/game-creation-page/game-creation-page.component';
 import { GamePageComponent } from './pages/game-page/game-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
-import { DialaogGameOverComponent } from './components/dialaog-game-over/dialaog-game-over.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
