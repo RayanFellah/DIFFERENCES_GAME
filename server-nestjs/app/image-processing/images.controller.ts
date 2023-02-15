@@ -79,7 +79,8 @@ export class ImagesController {
             const nature = query.original === 'true' ? true : false;
 
             const imagePath = await this.imageStorage.getImagePath(sheetId, nature);
-            const filePath = join(__dirname.replace('out', '').replace('server-nestjs', ''), 'uploads', imagePath);
+            const filePath = join(__dirname.replace('out', '').replace('server-nestjs', ''), 'imagesproc/uploads', imagePath);
+            console.log(filePath);
             if (imagePath) {
                 return res.sendFile(filePath);
             } else return;

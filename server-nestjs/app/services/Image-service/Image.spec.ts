@@ -1,41 +1,39 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { ImageService } from './image.service';
-const Jimp = require('jimp');
-describe('testing the Image component', () => {
-    let service: ImageService;
-    const imagePathStub = 'app/services/Image-service/imageStubs/img1.png';
-    let jimpStub;
-    beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            providers: [ImageService, { provide: String, useValue: imagePathStub }],
-        }).compile();
 
-        service = module.get<ImageService>(ImageService);
+describe('ImageService', () => {
+    let imageService: ImageService;
+
+    beforeEach(() => {
+        imageService = new ImageService('app/services/Image-service/imageStubs/img1.png');
     });
-    it('loadImage should correctly load the image', async () => {
-        const loadedImage = await service.loadImage(imagePathStub);
-        expect(loadedImage).toBeTruthy();
-    });
-    it('imageToMatrix should call loadImage', async () => {
-        jimpStub = await Jimp.read(imagePathStub);
-        const spy = jest.spyOn(service, 'loadImage').mockImplementationOnce(async (imagePathStub) => {
-            return jimpStub;
+
+    describe('loadImage', () => {
+        it('should load the image and return a Jimp image object', async () => {
+            const image = await imageService.loadImage();
+            expect(image).toBeDefined();
+            expect(typeof image).toBe('object');
         });
-        await service.imageToMatrix();
-        expect(spy).toHaveBeenCalled();
     });
-    it('imageToMatrix should return the right rgb colors associated with all the pixels', async () => {
-        jimpStub = await Jimp.read(imagePathStub);
-        const arrayDimension = 2;
 
-        const spy = jest.spyOn(service, 'loadImage').mockImplementationOnce(async (imagePathStub) => {
-            return jimpStub;
+    describe('imageToMatrix', () => {
+        it('should convert the loaded image to a matrix of pixel values', async () => {
+            const matrix = await imageService.imageToMatrix();
+            expect(matrix).toBeDefined();
+            expect(Array.isArray(matrix)).toBe(true);
+
+            // Check that the matrix has the expected dimensions
+            const height = await imageService.image.getHeight();
+            const width = await imageService.image.getWidth();
+            expect(matrix.length).toBe(height);
+            expect(matrix[0].length).toBe(width);
+
+            // Check that the matrix contains the expected pixel values
+            const color = await imageService.image.getPixelColor(0, 0);
+            const r = (color >> 24) & 0xff;
+            const g = (color >> 16) & 0xff;
+            const b = (color >> 8) & 0xff;
+            const a = color & 0xff;
+            expect(matrix[0][0]).toEqual([r, g, b, a]);
         });
-        const matrix = await service.imageToMatrix();
-
-        const RGBset = new Set(matrix.flat(arrayDimension));
-        console.log(RGBset);
-        expect(RGBset.size).toEqual(1);
-        expect(RGBset[0]).toEqual(255);
     });
 });

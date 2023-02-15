@@ -6,12 +6,12 @@ import { SheetsRepository } from '@app/model/database/Sheets/sheet.repos';
 import { SheetService } from '@app/model/database/Sheets/sheet.service';
 import { Module } from '@nestjs/common/decorators';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ImageStorageService } from './imagesproc/image-storage.service';
-import { ImagesController } from './imagesproc/images.controller';
+import { ImageStorageService } from './image-storage.service';
+import { ImagesController } from './images.controller';
 
 @Module({
     imports: [SheetModule, MongooseModule.forFeature([{ name: Sheet.name, schema: sheetSchema }])],
     controllers: [GameLogicController, ImagesController],
-    providers: [GameLogicService, SheetService, SheetsRepository, ImageStorageService],
+    providers: [GameLogicService, SheetService, SheetsRepository, ImageStorageService, Sheet],
 })
 export class ImageProcessingModule {}

@@ -1,0 +1,331 @@
+[
+    {
+        "id": "caRK0OU4Wx",
+        "name": "image_empty.bmp",
+        "sheetId": "wvctCIW6l1",
+        "path": "/Users/skander/Documents/Poly/Projet2/LOG2990-209/server-nestjs/app/image-processing/imagesproc/uploads/image_empty.bmp",
+        "original": true
+    },
+    {
+        "id": "lOM6sumWIY",
+        "name": "image_2_diff (1).bmp",
+        "sheetId": "wvctCIW6l1",
+        "path": "/Users/skander/Documents/Poly/Projet2/LOG2990-209/server-nestjs/app/image-processing/imagesproc/uploads/image_2_diff (1).bmp",
+        "original": false
+    },
+    {
+        "id": "sunX0wj7nj",
+        "name": "newname.jpg",
+        "sheetId": "RiTu6ICz8b",
+        "path": "/Users/skander/Documents/Poly/Projet2/LOG2990-209/server-nestjs/app/image-processing/imagesproc/uploads/image_empty.bmp",
+        "original": true
+    },
+    {
+        "id": "5CO3YxjWOq",
+        "name": "image_12_diff.bmp",
+        "sheetId": "f0vyOSDHxx",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_12_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "qZYASYx8Rv",
+        "name": "image_2_diff.bmp",
+        "sheetId": "f0vyOSDHxx",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "cbhu3kvXYR",
+        "name": "image_12_diff.bmp",
+        "sheetId": "Q8x7TMDczc",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_12_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "c1mAgxijQ3",
+        "name": "image_2_diff.bmp",
+        "sheetId": "Q8x7TMDczc",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "1X4mqPwSdq",
+        "name": "image_2_diff.bmp",
+        "sheetId": "DazhrRYKBm",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "UdSAaLeXPg",
+        "name": "image_12_diff.bmp",
+        "sheetId": "DazhrRYKBm",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_12_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "KHd4KmzGMP",
+        "name": "image_7_diff.bmp",
+        "sheetId": "oHgRLDT53t",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_7_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "AXBJWUJ5TI",
+        "name": "image_12_diff.bmp",
+        "sheetId": "oHgRLDT53t",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_12_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "a8EhaNgZqF",
+        "name": "image_2_diff.bmp",
+        "sheetId": "aY6fgQBfeK",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "MOFS5eTuZQ",
+        "name": "image_2_diff.bmp",
+        "sheetId": "aY6fgQBfeK",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "WFBSWTeoaD",
+        "name": "image_7_diff.bmp",
+        "sheetId": "bbmlziDdGd",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_7_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "URdpdxZSNL",
+        "name": "image_12_diff.bmp",
+        "sheetId": "bbmlziDdGd",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_12_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "0ZaroC8hOl",
+        "name": "image_2_diff.bmp",
+        "sheetId": "luWebDjPXo",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "r0s2V76O11",
+        "name": "image_7_diff.bmp",
+        "sheetId": "luWebDjPXo",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_7_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "D2EDtenfPl",
+        "name": "image_2_diff.bmp",
+        "sheetId": "2eK6g7teSo",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "tlnzhntOTZ",
+        "name": "image_7_diff.bmp",
+        "sheetId": "2eK6g7teSo",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_7_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "nZNbKKuGku",
+        "name": "image_7_diff.bmp",
+        "sheetId": "FvZfvCs0wT",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_7_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "D1CUQJfRQd",
+        "name": "image_12_diff.bmp",
+        "sheetId": "FvZfvCs0wT",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_12_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "yKcVqD8zmA",
+        "name": "image_2_diff.bmp",
+        "sheetId": "FMVqVKT33P",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "JMo0iEpZx3",
+        "name": "image_3_diff_radius.bmp",
+        "sheetId": "FMVqVKT33P",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_3_diff_radius.bmp",
+        "original": false
+    },
+    {
+        "id": "y9RXUELuLd",
+        "name": "image_3_diff_radius.bmp",
+        "sheetId": "v6TDtM6FLS",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_3_diff_radius.bmp",
+        "original": true
+    },
+    {
+        "id": "kVrtCDuaMJ",
+        "name": "image_12_diff.bmp",
+        "sheetId": "v6TDtM6FLS",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_12_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "ALUEwk0nnz",
+        "name": "image_3_diff_radius.bmp",
+        "sheetId": "PTs9VSST5F",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_3_diff_radius.bmp",
+        "original": true
+    },
+    {
+        "id": "AEcYBWkGsR",
+        "name": "image_12_diff.bmp",
+        "sheetId": "PTs9VSST5F",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_12_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "BDIwGKF5F0",
+        "name": "image_3_diff_radius.bmp",
+        "sheetId": "HTMF9RbPEL",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_3_diff_radius.bmp",
+        "original": true
+    },
+    {
+        "id": "W0zAQikGS8",
+        "name": "image_12_diff.bmp",
+        "sheetId": "HTMF9RbPEL",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_12_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "G3GnvrR7Y9",
+        "name": "image_empty (1).bmp",
+        "sheetId": "nQmowKxqD9",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_empty (1).bmp",
+        "original": true
+    },
+    {
+        "id": "E75y6ZZElF",
+        "name": "image_2_diff.bmp",
+        "sheetId": "nQmowKxqD9",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "QJreyUosT3",
+        "name": "image_empty.bmp",
+        "sheetId": "I3ObSwd82A",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_empty.bmp",
+        "original": true
+    },
+    {
+        "id": "2JPUYVVlxH",
+        "name": "image_2_diff.bmp",
+        "sheetId": "I3ObSwd82A",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "AqO8xqziYp",
+        "name": "image_empty.bmp",
+        "sheetId": "kyivkPrP47",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_empty.bmp",
+        "original": true
+    },
+    {
+        "id": "z47bbilnIf",
+        "name": "image_2_diff.bmp",
+        "sheetId": "kyivkPrP47",
+        "path": "C:\\Users\\aelsh\\PolyMtl\\LOG2990-209\\server-nestjs\\app\\image-processing\\imagesproc\\uploads\\image_2_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "HjH5iaN5PV",
+        "name": "image_7_diff.bmp",
+        "sheetId": "CPi81pzhzL",
+        "path": "./app/image-processing/imagesproc/uploads//image_7_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "RMTcON9zf0",
+        "name": "image_2_diff.bmp",
+        "sheetId": "CPi81pzhzL",
+        "path": "./app/image-processing/imagesproc/uploads//image_2_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "NtCQc1I1Ox",
+        "name": "image_7_diff.bmp",
+        "sheetId": "7TF2p8mnVg",
+        "path": "./app/image-processing/imagesproc/uploads//image_7_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "888y3XpYor",
+        "name": "image_2_diff.bmp",
+        "sheetId": "7TF2p8mnVg",
+        "path": "./app/image-processing/imagesproc/uploads//image_2_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "vSsU2If74V",
+        "name": "image_7_diff.bmp",
+        "sheetId": "aO72wUUbOy",
+        "path": "./app/image-processing/imagesproc/uploads//image_7_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "gkAgIf2rV0",
+        "name": "image_2_diff.bmp",
+        "sheetId": "aO72wUUbOy",
+        "path": "./app/image-processing/imagesproc/uploads//image_2_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "DtQT9wbWoo",
+        "name": "image_2_diff.bmp",
+        "sheetId": "NQP2dFc9QK",
+        "path": "./app/image-processing/imagesproc/uploads//image_2_diff.bmp",
+        "original": true
+    },
+    {
+        "id": "cKtnigr5y6",
+        "name": "image_12_diff.bmp",
+        "sheetId": "NQP2dFc9QK",
+        "path": "./app/image-processing/imagesproc/uploads//image_12_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "9IDfM4872D",
+        "name": "image_3_diff_radius.bmp",
+        "sheetId": "7N85yCcm48",
+        "path": "./app/image-processing/imagesproc/uploads//image_3_diff_radius.bmp",
+        "original": true
+    },
+    {
+        "id": "NwPJLuvebs",
+        "name": "image_2_diff.bmp",
+        "sheetId": "7N85yCcm48",
+        "path": "./app/image-processing/imagesproc/uploads//image_2_diff.bmp",
+        "original": false
+    },
+    {
+        "id": "sUSIbO1lzE",
+        "name": "image_3_diff_radius.bmp",
+        "sheetId": "of5dCedGWZ",
+        "path": "./app/image-processing/imagesproc/uploads//image_3_diff_radius.bmp",
+        "original": true
+    },
+    {
+        "id": "05GsjNw909",
+        "name": "image_2_diff.bmp",
+        "sheetId": "of5dCedGWZ",
+        "path": "./app/image-processing/imagesproc/uploads//image_2_diff.bmp",
+        "original": false
+    }
+]

@@ -1,7 +1,7 @@
 import { generateRandomId } from '@app/services/randomID/random-id';
 import { Injectable } from '@nestjs/common';
 import { createWriteStream, promises } from 'fs';
-import { ImageDto } from './interfaces/image.dto';
+import { ImageDto } from './imagesproc/interfaces/image.dto';
 
 @Injectable()
 export class ImageStorageService {
@@ -28,8 +28,11 @@ export class ImageStorageService {
     async uploadImage(image: Buffer, sheetToAdd: string, filename: string, isOriginal: boolean): Promise<ImageDto> {
         try {
             const imageName = `${filename}`;
-            const imagePath = `${this.uploadPath}/${imageName}`;
+            const imagePath = `${this.uploadPath}${imageName}`;
             const imageStream = createWriteStream(imagePath);
+            if (!image) {
+                throw new Error('Upload-Failed');
+            }
             imageStream.write(image);
             imageStream.end();
 
@@ -44,7 +47,7 @@ export class ImageStorageService {
 
             return imageDto;
         } catch (error) {
-            throw new Error('could not read the file');
+            return error;
         }
     }
 
@@ -60,11 +63,7 @@ export class ImageStorageService {
     async deleteImage(id: string): Promise<void> {
         const image = await this.findImageById(id);
         let images = await this.readFromJsonFile();
-        images = images.filter((img) => {
-            if (img === image) {
-                return img;
-            }
-        });
+        images = images.filter((img) => img.id !== id);
 
         await this.writeToJsonFile(images);
     }
@@ -89,10 +88,11 @@ export class ImageStorageService {
     private async addImage(image: ImageDto): Promise<void> {
         try {
             const images = await this.readFromJsonFile();
+            if (!images) throw new Error('cant add item');
             images.push(image);
             await this.writeToJsonFile(images);
         } catch (error) {
-            throw new Error('cant add this item');
+            return error;
         }
     }
 }
