@@ -27,6 +27,7 @@ import { ConfigurationPageComponent } from './pages/configuration-page/configura
 import { GameCreationPageComponent } from './pages/game-creation-page/game-creation-page.component';
 import { GamePageComponent } from './pages/game-page/game-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
+import { DialaogGameOverComponent } from './components/dialaog-game-over/dialaog-game-over.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -58,6 +59,7 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
         TimerComponent,
         SizerComponent,
         DifferencesFoundComponent,
+        DialaogGameOverComponent,
     ],
     imports: [
         AppMaterialModule,

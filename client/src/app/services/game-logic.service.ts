@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { SafeUrl } from '@angular/platform-browser';
+import { DialaogGameOverComponent } from '@app/components/dialaog-game-over/dialaog-game-over.component';
 import { Coord } from '@app/interfaces/coord';
 import { Sheet } from '@app/interfaces/sheet';
 import { AudioService } from './Audio/audio.service';
@@ -29,6 +31,7 @@ export class GameLogicService {
         private rightCanvas: CanvasTestHelper,
         private readonly http: HttpService,
         private differencesFoundService: DifferencesFoundService,
+        private dialog: MatDialog,
     ) {
         this.timer = new TimerService();
         this.audio = new AudioService();
@@ -100,7 +103,7 @@ export class GameLogicService {
             console.log('a' + this.numberDifferences);
             if (this.differencesFound === this.numberDifferences) {
                 this.endGame();
-                console.log('Vous avez fini le jeu en: ' + this.timer.getMinutes() + ':' + this.timer.getSeconds());
+                this.showDialog();
             }
             return diff;
         } else {
@@ -113,10 +116,16 @@ export class GameLogicService {
             return undefined;
         }
     }
+
     endGame() {
         this.clickEnabled = false;
         this.differencesFound = 0;
         this.timer.stop();
         this.timer.reset();
+    }
+    private showDialog() {
+        const dialogRef = this.dialog.open(DialaogGameOverComponent);
+
+        dialogRef.afterClosed().subscribe(() => {});
     }
 }

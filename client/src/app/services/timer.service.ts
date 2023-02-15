@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
     providedIn: 'root',
 })
 export class TimerService {
-    private timer: number;
+    private timer: ReturnType<typeof setInterval>;
     private elapsedTime: number;
     start() {
         // const startTime = new Date().getTime();
