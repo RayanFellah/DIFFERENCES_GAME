@@ -67,14 +67,27 @@ $indigo-pink-theme: mat.define-light-theme(
     @include mat.all-component-colors($purple-green-theme);
     @include material-page.theme($purple-green-theme);
 }
-
 /* You can add global styles to this file, and also import other style files */
 
-html,
-body {
+html {
     height: 100%;
 }
 body {
+    min-height: 100%;
     margin: 0;
     font-family: Roboto, 'Helvetica Neue', sans-serif;
+    
+}
+
+
+::-webkit-scrollbar
+{
+  width: 10px;
+  background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb
+{
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  background-color: #aeaeae;
 }

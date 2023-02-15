@@ -1,0 +1,36 @@
+.image-area-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+#foreground {
+    z-index: 1;
+    border: solid 1px #3F51B5;
+}
+
+#background {
+    border: solid 1px #3F51B5;
+    z-index: 0;
+}
+
+.canvas {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+}
+.file-input {
+    display: none;
+  }
+canvas {
+    max-width: 640px;
+    max-height: 480px;
+    position: relative;
+    grid-row-start: 1;
+    grid-column-start: 1;
+}
+
+button[mat-mini-fab] {
+    transform: scale(0.7) !important;
+   }
