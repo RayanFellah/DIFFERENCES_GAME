@@ -31,7 +31,6 @@ export class GameCardsGridComponent implements OnInit {
                     this.imagePaths.push(this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(blob)) as SafeUrl);
                 });
             }
-            this.length = this.gameSheets.length;
         });
     }
 

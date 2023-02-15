@@ -2,6 +2,7 @@ import { Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } fro
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '@app/classes/constants';
 import { BmpVerificationService } from '@app/services/bmp-verification.service';
 import { ImageUploaderService } from '@app/services/image-uploader.service';
+import { SnackBarService } from '@app/services/snack-bar.service';
 @Component({
     selector: 'app-image-area',
     templateUrl: './image-area.component.html',
@@ -17,7 +18,11 @@ export class ImageAreaComponent implements OnChanges {
     img = new Image();
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
 
-    constructor(private imageUploaderService: ImageUploaderService, private bmpVerificationService: BmpVerificationService) {}
+    constructor(
+        private imageUploaderService: ImageUploaderService,
+        private bmpVerificationService: BmpVerificationService,
+        private snackBar: SnackBarService,
+    ) {}
     get width(): number {
         return this.canvasSize.x;
     }
@@ -39,8 +44,12 @@ export class ImageAreaComponent implements OnChanges {
         if (changes.parentFile && changes.parentFile.currentValue) {
             const image = changes.parentFile.currentValue;
             if (this.bmpVerificationService.verifyImage(image)) {
+                this.clearCanvas();
+                this.file = this.parentFile;
                 this.readImage(image);
                 this.imageUploaderService.setImage(this.file);
+            } else {
+                this.snackBar.openSnackBar("L'image n'est pas 640 x 480px ou de format 24-bit bmp.", 'Fermer');
             }
         }
     }
@@ -53,6 +62,8 @@ export class ImageAreaComponent implements OnChanges {
                 this.imageUploaderService.setImage(this.file);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 this.readImage(target.files[0]);
+            } else {
+                this.snackBar.openSnackBar("L'image n'est pas 640 x 480px ou de format 24-bit bmp.", 'Fermer');
             }
             target.value = '';
         }
@@ -78,7 +89,5 @@ export class ImageAreaComponent implements OnChanges {
         this.getBackgroundContext().clearRect(0, 0, this.canvasSize.x, this.canvasSize.y);
         this.fileName = '';
         this.imageUploaderService.removeFile(this.file);
-        // eslint-disable-next-line no-console
-        console.log('called');
     }
 }

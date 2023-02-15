@@ -25,7 +25,6 @@ export class SheetController {
         try {
             console.log('got it');
             this.current = await this.sheetService.getSheetById(sheetId);
-            console.log(this.current);
         } catch (error) {
             return new Error(error);
         }

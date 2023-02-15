@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { CanvasTestHelper } from '@app/services/canvas-test-helper';
+import { DifferencesFoundService } from '@app/services/differences-found.service';
 import { GameLogicService } from '@app/services/game-logic.service';
 import { HttpService } from '@app/services/http.service';
 // TODO : Avoir un fichier séparé pour les constantes!
@@ -17,7 +18,7 @@ export class PlayAreaComponent implements AfterViewInit {
     logic: GameLogicService;
     clickEnabled = true;
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
-    constructor(private http: HttpService) {}
+    constructor(private http: HttpService, private differencesFound: DifferencesFoundService) {}
 
     get width(): number {
         return this.canvasSize.x;
@@ -32,6 +33,7 @@ export class PlayAreaComponent implements AfterViewInit {
             new CanvasTestHelper(this.canvas1.nativeElement),
             new CanvasTestHelper(this.canvas2.nativeElement),
             this.http,
+            this.differencesFound,
         );
     }
 

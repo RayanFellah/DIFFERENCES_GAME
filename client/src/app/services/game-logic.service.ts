@@ -44,6 +44,7 @@ export class GameLogicService {
         this.http.getDifferences().subscribe((res) => {
             this.numberDifferences = res.numberDifferences;
             this.difficulty = res.difficulty;
+            this.differencesFoundService.setNumberOfDifferences(this.numberDifferences);
         });
         this.timer.start();
     }
@@ -89,6 +90,8 @@ export class GameLogicService {
             this.makeBlink(diff);
             this.audio.playSuccessSound();
             this.differencesFound++;
+            this.differencesFoundService.setAttribute(this.differencesFound);
+            console.log('a' + this.numberDifferences);
             if (this.differencesFound === this.numberDifferences) {
                 this.endGame();
                 console.log('Vous avez fini le jeu en: ' + this.timer.getMinutes() + ':' + this.timer.getSeconds());
@@ -104,7 +107,6 @@ export class GameLogicService {
             return undefined;
         }
     }
-
     endGame() {
         this.clickEnabled = false;
         this.differencesFound = 0;

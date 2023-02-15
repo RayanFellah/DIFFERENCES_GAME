@@ -19,6 +19,7 @@
                 <app-image-area [parentFile]="childFile"></app-image-area>
             </article>
         </section>
+        <P class="image-info"> Seulement téléverser des images en format BMP 24-bit de taille 640x480.</P>
         <div class="options">
             <input type="file" class="file-input" (change)="uploadImage($event)" accept=".bmp" #fileUpload />
             <button mat-stroked-button color="primary" class="file-upload" (click)="fileUpload.click()">
@@ -42,6 +43,9 @@
                     <mat-icon>done_outline</mat-icon>
                 </button>
             </button>
+        </div>
+        <div class="retour">
+            <button class="button" mat-stroked-button color="accent" routerLink="/config">Retour</button>
         </div>
     </main>
     <footer>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DEFAULT_WIDTH, DEFAULT_HEIGHT, BPP } from '@app/classes/constants';
+import { BPP, DEFAULT_HEIGHT, DEFAULT_WIDTH } from '@app/classes/constants';
 @Injectable({
     providedIn: 'root',
 })
@@ -14,7 +14,6 @@ export class BmpVerificationService {
 
         const expectedSize = headerSize + width * height * bytesPerPixel;
         if (!(size === expectedSize)) {
-            alert("L'image ne respecte pas le format 24-bit bmp.");
             return false;
         }
         return size === expectedSize;

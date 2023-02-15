@@ -2,6 +2,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
@@ -67,6 +68,7 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
         HttpClientModule,
         MatGridListModule,
         ReactiveFormsModule,
+        MatSnackBarModule,
     ],
     providers: [HTMLCanvasElement, { provide: CanvasRenderingContext2D, useValue: CanvasRenderingContext2D }],
     bootstrap: [AppComponent],
