@@ -36,11 +36,9 @@ export class GameCardsGridComponent implements OnInit {
     }
 
     nextGrid() {
-        console.log(this.gameSheets.length);
-        if (this.gridIndexEnd - 4 < this.length) {
+        if (this.gridIndexEnd < this.gameSheets.length) {
             this.gridIndexStart += 4;
             this.gridIndexEnd += 4;
-            if (this.gridIndexEnd === 12) this.gridIndexEnd += 4;
             this.gridGameSheets = this.gameSheets.slice(this.gridIndexStart, this.gridIndexEnd);
         }
     }

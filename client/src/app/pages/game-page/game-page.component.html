@@ -1,7 +1,24 @@
 <app-header></app-header>
-<h1>
-    Bienvenue <span class="player-name"> {{ playerName }}</span>
-</h1>
+<button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
+    <mat-icon>exit_to_app</mat-icon>
+</button>
+<div class="info-container">
+    <h1>
+        Bienvenue <span class="player-name">{{ playerName }}</span>
+    </h1>
+    <app-timer></app-timer>
+</div>
 <app-differences-found></app-differences-found>
-<app-timer></app-timer>
-<app-play-area></app-play-area>
+<app-play-area class="play-area-container"></app-play-area>
+<div class="scores-container">
+    <table class="scores-table">
+        <tr>
+            <th>Solo</th>
+            <td><app-game-score></app-game-score></td>
+        </tr>
+        <tr>
+            <th>1 vs 1</th>
+            <td><app-game-score></app-game-score></td>
+        </tr>
+    </table>
+</div>
