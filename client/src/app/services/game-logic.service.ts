@@ -98,7 +98,7 @@ export class GameLogicService {
             this.differencesFound++;
             if (this.differencesFound === this.numberDifferences) {
                 this.endGame();
-                console.log('Vous avez fini le jeu en: ' + this.timer.getMinutes() + ':' + this.timer.getSeconds());
+                this.showDialog();
             }
             return diff;
         } else {
@@ -123,6 +123,5 @@ export class GameLogicService {
         this.differencesFound = 0;
         this.timer.stop();
         this.timer.reset();
-        this.showDialog();
     }
 }
