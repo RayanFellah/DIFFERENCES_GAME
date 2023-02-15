@@ -43,17 +43,19 @@ export class ImagesController {
             const modified = await this.imageStorage.uploadImage(files.modified[0].buffer, sheetId, files.modified[0].originalname, false);
             console.log('modified');
             console.log('apres le upload');
-            if (valid === 'true') {
-                console.log(title);
-                console.log('aaa');
-                await this.sheetService.createSheet(title, sheetId, original.path, modified.path, parseInt(radius, 10));
-            }
             const partial: Partial<Sheet> = {
                 originalImagePath: original.path,
                 modifiedImagePath: modified.path,
                 radius: parseInt(radius, 10),
             };
             const diffs = await this.logicService.getAllDifferences(partial);
+            const difficulty = await this.logicService.getDifficulty(partial, diffs.length);
+            if (valid === 'true') {
+                console.log(title);
+                console.log('aaa');
+                await this.sheetService.createSheet(title, sheetId, original.path, modified.path, parseInt(radius, 10), difficulty);
+            }
+
             let validated = true;
             const diffMax = 9;
             const diffMin = 3;

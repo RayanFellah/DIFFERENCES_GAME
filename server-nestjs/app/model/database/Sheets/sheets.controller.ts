@@ -17,7 +17,7 @@ export class SheetController {
     async getDifferences() {
         const temp = await this.sheetService.getSheetById(this.current.sheetId);
         const differences = await this.gameLogic.getAllDifferences(temp);
-        return { numberDifferences: differences.length, difficulty: this.gameLogic.getDifficulty(temp) };
+        return { numberDifferences: differences.length, difficulty: this.gameLogic.getDifficulty(temp, differences.length) };
     }
 
     @Post('game/current/:sheetId')
@@ -42,11 +42,6 @@ export class SheetController {
     @Get()
     async getAllSheets(): Promise<Sheet[]> {
         return await this.sheetService.getSheets();
-    }
-
-    @Post()
-    async createSheet(@Body() sheet: Partial<Sheet>): Promise<Sheet> {
-        return await this.sheetService.createSheet(sheet.name, sheet.sheetId, sheet.originalImagePath, sheet.modifiedImagePath, sheet.radius);
     }
 
     @Patch(':sheetId')

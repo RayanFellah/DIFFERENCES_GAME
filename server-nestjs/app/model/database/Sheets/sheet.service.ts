@@ -17,14 +17,14 @@ export class SheetService {
         return this.sheetRepository.findMany({});
     }
 
-    async createSheet(name: string, sheetId: string, originalImagePath: string, modifiedImagePath: string, radius: number) {
+    async createSheet(name: string, sheetId: string, originalImagePath: string, modifiedImagePath: string, radius: number, difficulty: string) {
         console.log('create sheet');
         console.log(originalImagePath);
         return this.sheetRepository.createOne({
             sheetId,
             name,
             bestScore: '',
-            difficulty: '',
+            difficulty: difficulty,
             topPlayer: '',
             originalImagePath,
             modifiedImagePath,

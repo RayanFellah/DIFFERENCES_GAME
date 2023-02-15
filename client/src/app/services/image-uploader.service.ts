@@ -59,4 +59,8 @@ export class ImageUploaderService {
             this.files.splice(index, 1);
         }
     }
+
+    clearFiles() {
+        this.files.length = 0;
+    }
 }

@@ -18,9 +18,9 @@ export class GameLogicService {
         return await diffDetector.getAllClusters(gameSheet.radius);
     }
 
-    async getDifficulty(gameSheet: Sheet) {
+    async getDifficulty(gameSheet: Partial<Sheet>, length: number) {
         const diffDetector = this.getDifferenceDetector(gameSheet);
-        return diffDetector.getDifficultyLevel();
+        return diffDetector.getDifficultyLevel(length);
     }
 
     async findDifference(gameSheet: Sheet, x: number, y: number) {

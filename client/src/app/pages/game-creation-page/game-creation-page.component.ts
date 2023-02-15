@@ -45,7 +45,7 @@ export class GameCreationPageComponent {
     async createGame() {
         if (this.gameTitle.value) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const result: any = await firstValueFrom(await this.imageUploader.createGame('ahmed3553', this.fontSizePx, true));
+            const result: any = await firstValueFrom(await this.imageUploader.createGame(this.gameTitle.value, this.fontSizePx, true));
             if (result.differences === undefined) {
                 this.snackBar.openSnackBar('il faut entre 3 et 9 différences', 'Fermer');
             } else {
@@ -55,5 +55,6 @@ export class GameCreationPageComponent {
         } else {
             this.snackBar.openSnackBar('Insérer un titre', 'Fermer');
         }
+        this.imageUploader.clearFiles();
     }
 }

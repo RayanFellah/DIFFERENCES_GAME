@@ -115,20 +115,21 @@ export class DifferenceDetector {
             console.log(err);
         }
     }
-    private calculateDifficulty(matrix: number[][]) {
+    private calculateDifficulty(matrix: number[][], length: number) {
         const newMatrix = matrix.flat(1);
         const noOfOnes = newMatrix.filter((num) => {
             return num === 1;
         }).length;
-
-        if (noOfOnes / newMatrix.length > 0.15) {
+        console.log(length + ' ' + noOfOnes + ' ' + newMatrix.length);
+        console.log(noOfOnes / newMatrix.length > 0.15);
+        if (noOfOnes / newMatrix.length > 0.15 && length < 7) {
             return 'Easy';
         } else {
             return 'Hard';
         }
     }
 
-    async getDifficultyLevel() {
-        return this.calculateDifficulty(await this.compareImages(this.image1, this.image2));
+    async getDifficultyLevel(length: number) {
+        return this.calculateDifficulty(await this.compareImages(this.image1, this.image2), length);
     }
 }

@@ -5,6 +5,7 @@ import { Coord } from '@app/interfaces/coord';
 import { Sheet } from '@app/interfaces/sheet';
 import { AudioService } from './Audio/audio.service';
 import { CanvasTestHelper } from './canvas-test-helper';
+import { DifferencesFoundService } from './differences-found.service';
 import { HttpService } from './http.service';
 import { TimerService } from './timer.service';
 
@@ -23,7 +24,12 @@ export class GameLogicService {
     difficulty: string;
     clickEnabled = true;
     foundDifferences: Coord[][] = [];
-    constructor(private leftCanvas: CanvasTestHelper, private rightCanvas: CanvasTestHelper, private readonly http: HttpService) {
+    constructor(
+        private leftCanvas: CanvasTestHelper,
+        private rightCanvas: CanvasTestHelper,
+        private readonly http: HttpService,
+        private differencesFoundService: DifferencesFoundService,
+    ) {
         this.timer = new TimerService();
         this.audio = new AudioService();
         this.http.getCurrentGame().subscribe((res) => {

@@ -28,7 +28,7 @@ export class GameLogicController {
             const sheet = this.games[0].sheet;
             const differences = await this.gameLogicService.getAllDifferences(sheet);
             this.sheetService.updateSheet(sheet.sheetId, {
-                difficulty: await this.gameLogicService.getDifficulty(sheet),
+                difficulty: await this.gameLogicService.getDifficulty(sheet, differences.length),
             });
             this.games.length = 1;
             return {
