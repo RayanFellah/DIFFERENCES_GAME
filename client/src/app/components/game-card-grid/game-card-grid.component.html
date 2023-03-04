@@ -1,0 +1,7 @@
+<div class="grid" *ngIf="sheets.length > 0">
+    <ng-container *ngFor="let sheet of getCurrentSheets()">
+        <app-game-card class="cell" [sheet]="sheet" [isConfig]="isConfig"></app-game-card>
+    </ng-container>
+</div>
+<button mat-mini-fab *ngIf="currentPage > 0" (click)="prevPage()" color="primary"><mat-icon>keyboard_arrow_left</mat-icon></button>
+<button mat-mini-fab *ngIf="currentPage < totalPages - 1" (click)="nextPage()" color="primary"><mat-icon>keyboard_arrow_right</mat-icon></button>

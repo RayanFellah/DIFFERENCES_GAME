@@ -1,0 +1,10 @@
+<input type="file" class="file-input" accept=".bmp" #fileUpload (change)="onFileChange($event)" />
+<div class="file-upload">
+    {{ fileName || 'Aucun fichier' }}
+    <button type="button" mat-mini-fab color="primary" class="upload-btn" [ngStyle]="{ transform: 'scale(0.8)' }" (click)="fileUpload.click()">
+        <mat-icon>attach_file</mat-icon>
+    </button>
+    <button type="button" mat-mini-fab color="primary" class="upload-btn" [ngStyle]="{ transform: 'scale(0.7)' }">
+        <mat-icon>delete_forever</mat-icon>
+    </button>
+</div>

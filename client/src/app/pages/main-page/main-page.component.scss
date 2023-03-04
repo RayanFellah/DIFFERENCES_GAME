@@ -1,49 +1,15 @@
 .container {
-    width: 100%;
     min-height: 100vh;
     height: auto;
 }
 
 .justified {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: auto;
-    grid-template-areas:
-        'header header . .'
-        'presentation presentation option option'
-        'footer footer footer footer';
-}
-
-.header-item {
-    grid-area: header;
-    height: fit-content;
-}
-
-.footer-item {
-    grid-area: footer;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    justify-content: flex-end;
 }
 
-#presentation {
-    padding: 10px;
-    grid-area: presentation;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
-}
-
-#option {
-    grid-area: option;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
-}
 .button {
     margin-top: 10px;
     text-align: center;
@@ -53,6 +19,11 @@
     margin-top: 0.25em;
     margin-bottom: 0.25em;
     color: green;
+}
+
+.header-item {
+    justify-content: center;
+    text-align: center;
 }
 
 .footer-item {

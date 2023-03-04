@@ -1,0 +1,16 @@
+<mat-card id="card">
+    <mat-card-header>
+        <mat-card-title>{{ sheet.title }}</mat-card-title>
+        <mat-card-subtitle>{{ sheet.difficulty }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content> <img [src]="trustedUrl" alt="Image" /> </mat-card-content>
+
+    <mat-card-actions>
+        <button mat-stroked-button color="primary">
+            {{ isConfig ? 'Réinitialiser' : 'Jouer' }}
+        </button>
+        <button mat-stroked-button color="accent">
+            {{ isConfig ? 'Supprimer' : 'Joindre' }}
+        </button>
+    </mat-card-actions>
+</mat-card>

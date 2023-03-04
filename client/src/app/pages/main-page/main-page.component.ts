@@ -2,8 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { CommunicationService } from '@app/services/communication.service';
 import { Message } from '@common/message';
-import { BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, map } from 'rxjs';
 
 @Component({
     selector: 'app-main-page',
@@ -33,7 +32,6 @@ export class MainPageComponent {
             },
         });
     }
-
     getMessagesFromServer(): void {
         this.communicationService
             .basicGet()

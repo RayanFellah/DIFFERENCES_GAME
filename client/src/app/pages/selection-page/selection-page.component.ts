@@ -1,4 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, Output } from '@angular/core';
+import { SheetHttpService } from '@app/services/sheet-http.service';
+import { Sheet } from '@common/sheet';
 
 @Component({
     selector: 'app-selection-page',
@@ -6,9 +9,18 @@ import { Component, Input, OnInit } from '@angular/core';
     styleUrls: ['./selection-page.component.scss'],
 })
 export class SelectionPageComponent implements OnInit {
-    @Input() isConfigPage = false;
+    @Output() sheets: Sheet[];
+    constructor(private readonly sheetHttpService: SheetHttpService) {}
 
-    constructor() {}
-
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.sheetHttpService.getAllSheets().subscribe({
+            next: (response) => {
+                this.sheets = response;
+            },
+            error: (err: HttpErrorResponse) => {
+                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
+                window.alert(responseString);
+            },
+        });
+    }
 }

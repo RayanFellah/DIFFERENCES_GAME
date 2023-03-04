@@ -1,13 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
     selector: 'app-configuration-page',
     templateUrl: './configuration-page.component.html',
     styleUrls: ['./configuration-page.component.scss'],
 })
-export class ConfigurationPageComponent implements OnInit {
-    @Input() isConfigPage = true;
-    constructor() {}
-
-    ngOnInit(): void {}
-}
+export class ConfigurationPageComponent {}
