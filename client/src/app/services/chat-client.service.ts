@@ -16,9 +16,9 @@ export class ClientChatService {
     playerName: string = 'skander';
     room: PlayRoom;
 
-    constructor(private localStorage: LocalStorageService) {}
+    constructor(public localStorage: LocalStorageService) {}
     connect() {
-        this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false });
+        this.socket = io(environment.socketServerUrl, { transports: ['websocket'], upgrade: false });
         this.handleResponses();
     }
 
@@ -26,7 +26,7 @@ export class ClientChatService {
         return this.socket.connected && this.socket;
     }
 
-    createRoom(playerName: string | null, sheet: Sheet | undefined, roomName: string | null = null) {
+    createRoom(playerName: string | undefined, sheet: Sheet | undefined, roomName: string | null = null) {
         this.socket.emit(ChatEvents.JoinRoom, { sheet, roomName, playerName });
     }
 
@@ -42,12 +42,6 @@ export class ClientChatService {
         this.socket.emit(ChatEvents.RoomMessage, { roomName, message });
     }
 
-    handleJoined() {
-        this.socket.on(ChatEvents.JoinedRoom, (roomReceived: PlayRoom) => {
-            this.room = roomReceived;
-        });
-    }
-
     handleResponses() {
         this.socket.on(ChatEvents.CongratMessage, (message: string) => {
             this.roomMessages.push({ content: message, type: 'game' });
@@ -57,8 +51,8 @@ export class ClientChatService {
             this.serverTime = time;
         });
 
-        this.socket.on(ChatEvents.JoinedRoom, (roomReceived: PlayRoom) => {
-            this.localStorage.setData('currentRoom', roomReceived);
+        this.socket.on(ChatEvents.JoinedRoom, (roomReceived) => {
+            this.localStorage.setData('currentRoom', roomReceived.playRoom);
         });
 
         this.socket.on(ChatEvents.RoomMessage, (message) => {

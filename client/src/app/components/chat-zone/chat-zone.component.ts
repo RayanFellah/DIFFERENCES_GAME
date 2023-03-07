@@ -3,6 +3,8 @@ import { ClientChatService } from '@app/services/chat-client.service';
 import { GameSelectorService } from '@app/services/game-selector.service';
 import { LocalStorageService } from '@app/services/local-storage.service';
 import { PlayRoom } from '@common/play-room';
+import { Storage } from '@ionic/storage';
+
 
 @Component({
     selector: 'app-chat-zone',
@@ -11,7 +13,7 @@ import { PlayRoom } from '@common/play-room';
     providers: [LocalStorageService],
 })
 export class ChatZoneComponent implements OnInit {
-    @Input() playerName: string | null;
+    @Input() playerName: string | undefined;
     newMessage: string = '';
     chatService: ClientChatService;
     currentRoom: PlayRoom | undefined;
@@ -20,13 +22,12 @@ export class ChatZoneComponent implements OnInit {
         this.chatService = new ClientChatService(new LocalStorageService(this.storage));
     }
 
-    ngOnInit(): void {
+    async ngOnInit(): Promise<void> {
         this.storeInfos();
         this.chatService.connect();
-        this.chatService.handleJoined();
         this.chatService.createRoom(this.playerName, this.gameSelector.currentGame, `${this.playerName}'s room`);
         if (!this.currentRoom) {
-            this.getRoom();
+            await this.getRoom();
         }
     }
 
@@ -36,18 +37,18 @@ export class ChatZoneComponent implements OnInit {
         }
     }
 
-    storeInfos() {
+    async storeInfos() {
         if (this.playerName) {
-            this.storage.setItem('currentPlayer', this.playerName);
+            this.chatService.localStorage.setData('currentPlayer', this.playerName);
         }
 
         if (!this.playerName) {
-            this.playerName = this.storage.getItem('currentPlayer');
+            this.playerName = await this.chatService.localStorage.getData('currentPlayer');
         }
     }
 
-    getRoom() {
-        const toParse = this.storage.getItem('currentRoom');
+    async getRoom() {
+        const toParse = await this.chatService.localStorage.getData('currentRoom');
         if (toParse) {
             this.currentRoom = JSON.parse(toParse);
         }

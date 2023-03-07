@@ -11,7 +11,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @WebSocketServer() private server: Server;
 
     private readonly room = PRIVATE_ROOM_ID;
-    private rooms: PlayRoom[];
+    private rooms: PlayRoom[] = [];
 
     constructor(private readonly logger: Logger) {}
 
@@ -28,27 +28,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage(ChatEvents.JoinRoom)
     joinRoom(socket: Socket, payload) {
         const room = this.rooms.find((roomJoined) => roomJoined.roomName === payload.roomName);
-        if (room.player1 && room.player2) {
+        if (room && room.player1 && room.player2) {
             return;
         }
         if (room) {
             if (!room.player1) {
-                room.player1.socketId = socket.id;
-                room.player1.name = payload.playerName;
+                room.player1 = { name: payload.playerName, socketId: socket.id };
             } else {
-                room.player2.socketId = socket.id;
-                room.player2.name = payload.playerName;
+                room.player2 = { name: payload.playerName, socketId: socket.id };
             }
+            socket.join(room.roomName);
+            this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: room });
         } else {
-            room.roomName = payload.roomName;
-            room.player1.name = payload.playerName;
-            room.player1.socketId = socket.id;
-            room.player2 = undefined;
-            room.sheet = payload.sheet;
-            this.rooms.push(room);
+            const newRoom: PlayRoom = {
+                roomName: payload.roomName,
+                player1: { name: payload.name, socketId: socket.id },
+                player2: undefined,
+                sheet: payload.sheet,
+            };
+            this.rooms.push(newRoom);
+            socket.join(newRoom.roomName);
+            this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: newRoom });
         }
-        socket.join(room.roomName);
-        this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, room);
     }
 
     @SubscribeMessage(ChatEvents.RoomMessage)

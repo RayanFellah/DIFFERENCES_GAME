@@ -1,5 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,6 +31,9 @@ import { ConfigurationPageComponent } from './pages/configuration-page/configura
 import { CreationPageComponent } from './pages/creation-page/creation-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 import { ChatZoneComponent } from './components/chat-zone/chat-zone.component';
+import { IonicStorageModule } from '@ionic/storage-angular';
+import { LocalStorageService } from './services/local-storage.service';
+import { Storage } from '@ionic/storage';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -74,8 +77,18 @@ import { ChatZoneComponent } from './components/chat-zone/chat-zone.component';
         MatSnackBarModule,
         MatDialogModule,
         MatSliderModule,
+        IonicStorageModule.forRoot(),
     ],
-    providers: [],
+    providers: [
+        { provide: Storage, useFactory: () => new Storage({}) },
+        LocalStorageService,
+        {
+            provide: APP_INITIALIZER,
+            useFactory: (storage: LocalStorageService) => async () => await storage.createStorage(),
+            deps: [LocalStorageService],
+            multi: true,
+        },
+    ],
     bootstrap: [AppComponent],
 })
 export class AppModule {}
