@@ -14,7 +14,8 @@ export class SheetService {
     }
 
     async getSheet(id: string): Promise<Sheet> {
-        return await this.sheetModel.findOne({ id });
+        const sheet = await this.sheetModel.findOne({ _id: id });
+        return sheet;
     }
 
     async addSheet(sheet: CreateSheetDto): Promise<Sheet> {

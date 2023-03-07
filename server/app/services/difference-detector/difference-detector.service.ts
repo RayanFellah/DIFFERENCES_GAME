@@ -131,12 +131,10 @@ export class DifferenceDetectorService {
         const noOfOnes = newMatrix.filter((num) => {
             return num === 1;
         }).length;
-        console.log(length + ' ' + noOfOnes + ' ' + newMatrix.length);
-        console.log(noOfOnes / newMatrix.length > 0.15);
-        if (noOfOnes / newMatrix.length > 0.15 && length < 7) {
-            return 'Easy';
-        } else {
+        if (noOfOnes / newMatrix.length <= 0.15 && length >= 7) {
             return 'Hard';
+        } else {
+            return 'Easy';
         }
     }
 }

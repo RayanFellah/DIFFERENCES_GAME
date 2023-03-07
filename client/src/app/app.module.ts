@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -16,18 +17,20 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { DialogComponent } from './components/dialogue/dialog.component';
+import { DifferencesFoundComponent } from './components/differences-found/differences-found.component';
+import { DrawingComponent } from './components/drawing/drawing.component';
 import { FileUploadComponent } from './components/file-upload/file-upload.component';
 import { GameCardGridComponent } from './components/game-card-grid/game-card-grid.component';
 import { GameCardComponent } from './components/game-card/game-card.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ImageAreaComponent } from './components/image-area/image-area.component';
+import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
 import { RadiusSizerComponent } from './components/radius-sizer/radius-sizer.component';
 import { FileValueAccessorDirective } from './directives/file-value-accessor.directive';
 import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
 import { CreationPageComponent } from './pages/creation-page/creation-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
-import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
-
+import { ChatZoneComponent } from './components/chat-zone/chat-zone.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -54,6 +57,9 @@ import { ImageDialogComponent } from './components/image-dialog/image-dialog.com
         FileValueAccessorDirective,
         DialogComponent,
         ImageDialogComponent,
+        DifferencesFoundComponent,
+        DrawingComponent,
+        ChatZoneComponent,
     ],
     imports: [
         AppMaterialModule,
@@ -67,6 +73,7 @@ import { ImageDialogComponent } from './components/image-dialog/image-dialog.com
         MatInputModule,
         MatSnackBarModule,
         MatDialogModule,
+        MatSliderModule,
     ],
     providers: [],
     bootstrap: [AppComponent],

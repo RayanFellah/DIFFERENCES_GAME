@@ -9,7 +9,7 @@ import { FileUploaderService } from '@app/services/file-uploader.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SnackBarService } from '@app/services/snack-bar.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { THREE } from 'src/constants';
 
 @Component({
@@ -23,6 +23,9 @@ export class CreationPageComponent implements OnInit {
     radiusSizePx = THREE;
     createGame: FormGroup;
     shouldNavigate$ = new BehaviorSubject(false);
+    numberofDifferences: number = 0;
+    mergedFiles: File;
+    fileUploadSubscription: Subscription;
     constructor(
         private readonly formBuilder: FormBuilder,
         private readonly fileUploaderService: FileUploaderService,
@@ -49,8 +52,8 @@ export class CreationPageComponent implements OnInit {
     get modifiedImagePath() {
         return this.createGame.get('modifiedImagePath');
     }
-    get sizeControl() {
-        return this.createGame.get('sizeControl');
+    get radiusSize() {
+        return this.createGame.get('radiusSize');
     }
     navigate() {
         this.shouldNavigate$.next(true);
@@ -89,18 +92,20 @@ export class CreationPageComponent implements OnInit {
             }
         }
     }
+
     verifyDifferences() {
         if (this.originalImagePath?.value && this.modifiedImagePath?.value) {
             const formData = new FormData();
             formData.append('originalImagePath', this.originalImagePath?.value);
             formData.append('modifiedImagePath', this.modifiedImagePath?.value);
-            formData.append('radius', this.sizeControl?.value);
+            formData.append('radius', this.radiusSize?.value);
 
             this.httpImage
                 .getDifferences(formData)
                 .subscribe((res: HttpResponse<{ body: { differences: number; imageBase64: string } } | object>) => {
                     if (res.status === HttpStatusCode.Ok) {
                         const body = res.body as { differences: number; imageBase64: string };
+                        this.numberofDifferences = body.differences;
                         this.dialog.openImageDialog(body.imageBase64);
                         this.snackBar.openSnackBar(`Il y a ${body.differences} différences`, 'Fermer');
                     } else {
@@ -119,11 +124,19 @@ export class CreationPageComponent implements OnInit {
             formData.append('title', this.title?.value);
             formData.append('originalImagePath', this.originalImagePath?.value);
             formData.append('modifiedImagePath', this.modifiedImagePath?.value);
-            formData.append('radius', this.sizeControl?.value);
-            this.http.createSheet(formData).subscribe(() => {
-                this.createGame.reset();
-                this.navigate();
-            });
+            formData.append('radius', this.radiusSize?.value);
+            this.http.createSheet(formData).subscribe(
+                (next?) => {
+                    this.dialog.openImageDialog(next.image);
+                    this.createGame.reset();
+                    this.navigate();
+                    // Handle success
+                },
+                (error?) => {
+                    this.snackBar.openSnackBar(`${error.error} `, 'Fermer');
+                    // Handle error
+                },
+            );
         } else {
             // mark all controls as touched to show errors
             this.createGame.markAllAsTouched();

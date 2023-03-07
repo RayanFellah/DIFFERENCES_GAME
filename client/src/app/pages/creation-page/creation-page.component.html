@@ -26,6 +26,7 @@
         </div>
 
         <div id="options">
+            <button type="button" mat-stroked-button color="accent" routerLink="/config">retour</button>
             <input type="file" class="file-input" (change)="onFileChange($event)" accept=".bmp" #fileUpload />
             <button mat-stroked-button type="button" color="primary" class="file-upload" (click)="fileUpload.click()">
                 {{ 'Téléverser dans les deux zones' }}

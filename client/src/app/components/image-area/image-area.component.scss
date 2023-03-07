@@ -12,14 +12,20 @@
     position: relative;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
+    grid-template-rows: 2;
+    grid-template-areas:
+        'tools'
+        'canvas';
     width: fit-content;
 }
-
+#tools {
+    grid-area: tools;
+}
 canvas {
     max-width: 640px;
     max-height: 480px;
     position: relative;
     grid-row-start: 1;
     grid-column-start: 1;
+    grid-area: canvas;
 }

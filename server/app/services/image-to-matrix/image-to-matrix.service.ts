@@ -12,10 +12,8 @@ export class ImageToMatrixService {
     async imageToMatrix() {
         const image = await Jimp.read(this.file);
         try {
-            // Initializing the matrix
             const matrix: number[][][] = new Array(image.getHeight());
 
-            // Filling the matrix with the pixel values
             for (let y = 0; y < image.getHeight(); y++) {
                 matrix[y] = new Array(image.getWidth());
                 for (let x = 0; x < image.getWidth(); x++) {

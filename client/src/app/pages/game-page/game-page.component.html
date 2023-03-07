@@ -1,6 +1,12 @@
-<div class="container">
-    <app-sidebar></app-sidebar>
-    <section class="play-area-container">
-        <app-play-area class="play-area" tabindex="0"></app-play-area>
-    </section>
+<app-header></app-header>
+<button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
+    <mat-icon>exit_to_app</mat-icon>
+</button>
+<div class="info-container">
+    <h1>
+        Bienvenue <span class="player-name">{{ playerName }}</span>
+    </h1>
 </div>
+<app-differences-found></app-differences-found>
+<app-play-area class="play-area-container"></app-play-area>
+<app-chat-zone class="chat-zone-container"></app-chat-zone>

@@ -1,4 +1,4 @@
 export interface Vec2 {
-    x: number;
-    y: number;
+    posX: number;
+    posY: number;
 }

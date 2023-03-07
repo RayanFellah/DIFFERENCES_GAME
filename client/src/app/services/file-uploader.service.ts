@@ -19,4 +19,7 @@ export class FileUploaderService {
     getCanvasImageSource(canvas: 'left' | 'right'): Observable<File> {
         return this.canvasImageSources.value[canvas].asObservable();
     }
+    getMergedCanvas(canvas: 'left' | 'right'): Observable<File> {
+        return this.canvasImageSources.value[canvas].asObservable();
+    }
 }

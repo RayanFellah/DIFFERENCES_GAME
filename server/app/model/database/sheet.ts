@@ -11,12 +11,12 @@ export class Sheet {
     title: string;
 
     @ApiProperty()
-    @Prop({ required: false })
-    difficulty: number;
+    @Prop({ required: true })
+    difficulty: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    radius: string;
+    radius: number;
 
     @ApiProperty()
     @Prop({ required: true })
@@ -31,7 +31,15 @@ export class Sheet {
     topPlayer: string;
 
     @ApiProperty()
-    id?: string;
+    @Prop({ required: false })
+    topScore: string;
+
+    @ApiProperty()
+    _id: string;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    differences: number;
 }
 
 export const sheetSchema = SchemaFactory.createForClass(Sheet);

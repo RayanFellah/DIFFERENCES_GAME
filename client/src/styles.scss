@@ -95,3 +95,17 @@ app-image-dialog {
     width: fit-content !important;
     height: fit-content !important;
 }
+app-game-card-grid {
+    display: block;
+    width: fit-content;
+    align-self: center;
+    justify-self: center;
+}
+app-configuration-page {
+    display: flex;
+    flex-direction: column;
+}
+app-selection-page {
+    display: flex;
+    flex-direction: column;
+}

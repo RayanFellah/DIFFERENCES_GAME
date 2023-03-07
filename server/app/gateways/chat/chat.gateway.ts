@@ -1,7 +1,8 @@
+import { PlayRoom } from '@common/play-room';
 import { Injectable, Logger } from '@nestjs/common';
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID, WORD_MIN_LENGTH } from './chat.gateway.constants';
+import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
 import { ChatEvents } from './chat.gateway.events';
 
 @WebSocketGateway({ cors: true })
@@ -10,17 +11,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @WebSocketServer() private server: Server;
 
     private readonly room = PRIVATE_ROOM_ID;
+    private rooms: PlayRoom[];
 
     constructor(private readonly logger: Logger) {}
 
     @SubscribeMessage(ChatEvents.Message)
     message(_: Socket, message: string) {
-        this.logger.log(`Message reçu : ${message}`);
-    }
-
-    @SubscribeMessage(ChatEvents.Validate)
-    validate(socket: Socket, word: string) {
-        socket.emit(ChatEvents.WordValidated, word.length > WORD_MIN_LENGTH);
+        this.logger.log(`Message reÃ§u : ${message}`);
     }
 
     @SubscribeMessage(ChatEvents.BroadcastAll)
@@ -29,15 +26,42 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     @SubscribeMessage(ChatEvents.JoinRoom)
-    joinRoom(socket: Socket) {
-        socket.join(this.room);
+    joinRoom(socket: Socket, payload) {
+        const room = this.rooms.find((roomJoined) => roomJoined.roomName === payload.roomName);
+        if (room.player1 && room.player2) {
+            return;
+        }
+        if (room) {
+            if (!room.player1) {
+                room.player1.socketId = socket.id;
+                room.player1.name = payload.playerName;
+            } else {
+                room.player2.socketId = socket.id;
+                room.player2.name = payload.playerName;
+            }
+        } else {
+            room.roomName = payload.roomName;
+            room.player1.name = payload.playerName;
+            room.player1.socketId = socket.id;
+            room.player2 = undefined;
+            room.sheet = payload.sheet;
+            this.rooms.push(room);
+        }
+        socket.join(room.roomName);
+        this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, room);
     }
 
     @SubscribeMessage(ChatEvents.RoomMessage)
-    roomMessage(socket: Socket, message: string) {
-        // Seulement un membre de la salle peut envoyer un message aux autres
-        if (socket.rooms.has(this.room)) {
-            this.server.to(this.room).emit(ChatEvents.RoomMessage, `${socket.id} : ${message}`);
+    roomMessage(socket: Socket, payload) {
+        if (socket.rooms.has(payload.roomName) && payload.message.length > 0) {
+            this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, { sender: payload.playerName, content: payload.message });
+        }
+    }
+
+    @SubscribeMessage(ChatEvents.Found)
+    foundDifference(socket: Socket, payload) {
+        if (socket.rooms.has(payload.roomName)) {
+            this.server.to(payload.roomName).emit(ChatEvents.CongratMessage, `${payload.playerName} has found a difference`);
         }
     }
 
@@ -49,15 +73,30 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     handleConnection(socket: Socket) {
         this.logger.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
-        // message initial
-        socket.emit(ChatEvents.Hello, 'Hello World!');
     }
 
     handleDisconnect(socket: Socket) {
-        this.logger.log(`Déconnexion par l'utilisateur avec id : ${socket.id}`);
+        this.logger.log(`Client disconnected: ${socket.id}`);
+        let name: string;
+        for (const room of this.rooms) {
+            if (socket.rooms.has(room.roomName)) {
+                socket.leave(room.roomName);
+                if (room.player1.socketId === socket.id) {
+                    name = room.player1.name;
+                    room.player1 = undefined;
+                } else {
+                    name = room.player2.name;
+                    room.player2 = undefined;
+                }
+                this.server.to(room.roomName).emit(ChatEvents.RoomMessage, { sender: 'game', message: `${name} has left the room` });
+            }
+        }
     }
 
     private emitTime() {
         this.server.emit(ChatEvents.Clock, new Date().toLocaleTimeString());
+    }
+    private deleteRoom(room: PlayRoom) {
+        this.rooms = this.rooms.filter((res) => res.roomName !== room.roomName);
     }
 }

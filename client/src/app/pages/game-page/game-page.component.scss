@@ -3,13 +3,71 @@
     display: flex;
 }
 
-.play-area-container {
-    overflow: auto;
-    flex: 1 1 auto;
+h1 {
+    font-weight: bold;
 }
 
-.play-area {
-    display: grid;
-    width: min-content;
-    outline: none;
+.player-name {
+    color: rgb(29, 146, 179);
+}
+
+.exit {
+    font-size: 24px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    background-color: #bbbfda;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24);
+}
+
+.exit:hover {
+    background-color: #f44336;
+    border-color: #f44336;
+}
+
+.exit:hover mat-icon {
+    color: #fff;
+}
+
+.scores-container {
+    position: absolute;
+    right: 5px;
+    top: 15px;
+    bottom: 10px;
+}
+
+.scores-table {
+    border-collapse: collapse;
+    width: 200px;
+    margin-top: 50px;
+}
+
+.scores-table th,
+.scores-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+}
+
+.scores-table th {
+    background-color: #f2f2f2;
+}
+
+.scores-table td {
+    text-align: center;
+}
+
+.info-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.info-container h1 {
+    margin: 0;
+    font-size: 24px;
+}
+.info-container app-timer {
+    font-size: 24px;
+    margin-left: 500px;
+    align-items: center;
 }

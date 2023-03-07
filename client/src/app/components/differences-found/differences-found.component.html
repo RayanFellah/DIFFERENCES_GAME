@@ -1,0 +1,6 @@
+<div class="differences-container">
+    <div class="found" *ngFor="let difference of differences">
+        <mat-icon [ngClass]="{ 'found-lightbulb': difference, 'not-found-lightbulb': !difference }"> lightbulb_outline </mat-icon>
+    </div>
+</div>
+<div *ngIf="allDifferencesFound" class="congratulations-message">Congratulations! You found all the differences.</div>

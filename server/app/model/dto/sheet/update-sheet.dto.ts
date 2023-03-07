@@ -8,6 +8,11 @@ export class UpdateSheetDto {
     topPlayer?: string;
 
     @ApiProperty()
+    @IsOptional()
+    @IsString()
+    topScore?: string;
+
+    @ApiProperty()
     @IsString()
     id: string;
 

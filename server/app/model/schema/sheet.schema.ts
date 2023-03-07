@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class Sheet {
     @ApiProperty()
-    id?: number;
+    id: string;
 
     @ApiProperty()
     title: string;
@@ -21,4 +21,7 @@ export class Sheet {
 
     @ApiProperty()
     topPlayer: string;
+
+    @ApiProperty()
+    differences: number;
 }

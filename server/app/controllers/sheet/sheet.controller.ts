@@ -1,6 +1,8 @@
+import { MAX_DIFFERENCES, MIN_DIFFERENCES } from '@app/constants';
 import { Sheet } from '@app/model/database/sheet';
 import { CreateSheetDto } from '@app/model/dto/sheet/create-sheet.dto';
 import { UpdateSheetDto } from '@app/model/dto/sheet/update-sheet.dto';
+import { ImageCompareService } from '@app/services/image-compare/image-compare.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -38,8 +40,8 @@ export class SheetController {
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
-    @Get('/:id')
-    async id(@Param('id') id: string, @Res() response: Response) {
+    @Get('/:_id')
+    async id(@Param('_id') id: string, @Res() response: Response) {
         try {
             const sheet = await this.sheetService.getSheet(id);
             response.status(HttpStatus.OK).json(sheet);
@@ -69,26 +71,36 @@ export class SheetController {
         try {
             const sheetDto = new CreateSheetDto();
             const uploadedFilesPaths = {};
-            for (const key in files) {
-                if (files[key]) {
-                    const file: Express.Multer.File = files[key][0];
-                    const fileName = file.originalname;
-                    const filePath = `./uploads/${fileName}`;
-                    const imageStream = createWriteStream(filePath);
-                    if (!file) {
-                        throw new Error('Upload-Failed');
+            const imageCompareService = new ImageCompareService();
+            const results: { differences: number; imageBase64: string; difficulty: string } = await imageCompareService.compareImages(
+                files['originalImagePath'][0],
+                files['modifiedImagePath'][0],
+                formData.radius,
+            );
+            if (results.differences > MIN_DIFFERENCES && results.differences < MAX_DIFFERENCES) {
+                for (const key in files) {
+                    if (files[key]) {
+                        const file: Express.Multer.File = files[key][0];
+                        const fileName = file.originalname;
+                        const filePath = `./uploads/${fileName}`;
+                        const imageStream = createWriteStream(filePath);
+                        if (!file) {
+                            throw new Error('Upload-Failed');
+                        }
+                        imageStream.write(file.buffer);
+                        imageStream.end();
+                        uploadedFilesPaths[key] = fileName;
                     }
-                    imageStream.write(file.buffer);
-                    imageStream.end();
-                    uploadedFilesPaths[key] = fileName;
                 }
-            }
-            sheetDto.title = formData.title.toString();
-            sheetDto.originalImagePath = uploadedFilesPaths['originalImagePath'];
-            sheetDto.modifiedImagePath = uploadedFilesPaths['modifiedImagePath'];
-            sheetDto.radius = formData.radius.toString();
-            await this.sheetService.addSheet(sheetDto);
-            response.status(HttpStatus.CREATED).send();
+                sheetDto.title = formData.title.toString();
+                sheetDto.originalImagePath = uploadedFilesPaths['originalImagePath'];
+                sheetDto.modifiedImagePath = uploadedFilesPaths['modifiedImagePath'];
+                sheetDto.radius = formData.radius;
+                sheetDto.differences = results.differences;
+                sheetDto.difficulty = results.difficulty;
+                await this.sheetService.addSheet(sheetDto);
+                response.status(HttpStatus.CREATED).send({ image: results.imageBase64 });
+            } else throw new Error('Vous devez avoir entre 3 et 9 différences, vous en avez ' + results.differences);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }

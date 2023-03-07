@@ -48,4 +48,12 @@ export class GameCardGridComponent implements OnInit {
             this.currentPage--;
         }
     }
+
+    onSheetDelete(sheet: Sheet) {
+        const index = this.sheets.indexOf(sheet);
+        if (index > -1) {
+            this.sheets.splice(index, 1); // Remove the deleted sheet from the array
+        }
+        this.sheetHttpService.deleteSheet(sheet._id).subscribe(() => {}); // Delete the sheet from the database
+    }
 }

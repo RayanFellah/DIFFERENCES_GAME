@@ -4,7 +4,9 @@ export enum ChatEvents {
     BroadcastAll = 'broadcastAll',
     JoinRoom = 'joinRoom',
     RoomMessage = 'roomMessage',
-
+    JoinedRoom = 'joinedRoom',
+    Found = 'found',
+    CongratMessage = 'congratMessage',
     WordValidated = 'wordValidated',
     MassMessage = 'massMessage',
     Hello = 'hello',

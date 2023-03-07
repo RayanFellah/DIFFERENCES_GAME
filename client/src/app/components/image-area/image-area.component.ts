@@ -1,4 +1,5 @@
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { DrawingComponent } from '@app/components/drawing/drawing.component';
 import { FileUploaderService } from '@app/services/file-uploader.service';
 import { Subscription } from 'rxjs';
 import { HEIGHT, WIDTH } from 'src/constants';
@@ -10,9 +11,12 @@ import { HEIGHT, WIDTH } from 'src/constants';
 })
 export class ImageAreaComponent implements OnInit, OnDestroy {
     @Input() side: 'left' | 'right';
+    @Output() leftPosition: EventEmitter<string> = new EventEmitter();
+    @ViewChild(DrawingComponent) drawingTool: DrawingComponent;
+    @ViewChild('canvasContainer', { static: false }) divContainer!: ElementRef<HTMLDivElement>;
+
     @ViewChild('foreground', { static: false }) private fCanvas!: ElementRef<HTMLCanvasElement>;
     @ViewChild('background', { static: false }) private bCanvas!: ElementRef<HTMLCanvasElement>;
-
     file: File;
     img = new Image();
     private fileUploadSubscription: Subscription;
@@ -31,6 +35,7 @@ export class ImageAreaComponent implements OnInit, OnDestroy {
             else this.clearCanvas();
         });
     }
+
     ngOnDestroy(): void {
         this.fileUploadSubscription.unsubscribe();
     }
@@ -44,6 +49,27 @@ export class ImageAreaComponent implements OnInit, OnDestroy {
 
     clearCanvas() {
         this.getBackgroundContext().clearRect(0, 0, this.width, this.height);
+    }
+    draw(event: MouseEvent, keyboardEvent?: KeyboardEvent) {
+        this.drawingTool.draw(event, this.divContainer.nativeElement, keyboardEvent);
+    }
+    stop(event: MouseEvent) {
+        this.drawingTool.stop(event);
+    }
+
+    keyEvents(event: KeyboardEvent) {
+        this.drawingTool.keyEvents(event);
+    }
+
+    mergeCanvas() {
+        const context = this.getBackgroundContext();
+        context.drawImage(this.fCanvas.nativeElement, 0, 0, this.width, this.height);
+        this.bCanvas.nativeElement.toBlob((blob: Blob | null) => {
+            if (blob) {
+                const file = new File([blob], 'image.bmp', { type: blob.type });
+                this.fileUploaderService.setCanvasImage(file, this.side);
+            }
+        });
     }
 
     private drawImageOnCanvas() {

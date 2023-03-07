@@ -12,4 +12,10 @@ export class CreateSheetDto {
 
     @ApiProperty()
     radius: number;
+
+    @ApiProperty()
+    differences: number;
+
+    @ApiProperty()
+    difficulty: string;
 }

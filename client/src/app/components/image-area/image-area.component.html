@@ -1,4 +1,18 @@
-<div class="canvas">
-    <canvas id="foreground" [attr.width]="width" [attr.height]="height" #foreground> </canvas>
+<div class="canvas" #canvasContainer>
+    <app-drawing id="tools" [canvas]="foreground"></app-drawing>
+    <canvas
+        id="foreground"
+        tabindex="0"
+        [attr.width]="width"
+        [attr.height]="height"
+        (mousedown)="draw($event)"
+        (mousemove)="draw($event)"
+        (mouseup)="stop($event)"
+        (mouseout)="stop($event)"
+        (keydown)="keyEvents($event)"
+        #foreground
+    >
+    </canvas>
     <canvas id="background" [attr.width]="width" [attr.height]="height" #background> </canvas>
 </div>
+<button type="button" (click)="mergeCanvas()">a</button>

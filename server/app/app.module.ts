@@ -14,6 +14,9 @@ import { DifferenceService } from './services/difference/difference.service';
 import { ImageToMatrixService } from './services/image-to-matrix/image-to-matrix.service';
 import { RadiusEnlargementService } from './services/radius-enlargement/radius-enlargement.service';
 import { SheetService } from './services/sheet/sheet.service';
+import { GameLogicController } from './controllers/game-logic/game-logic.controller';
+import { GameLogicService } from './services/game-logic/game-logic.service';
+import { ImageCompareService } from './services/image-compare/image-compare.service';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -26,7 +29,7 @@ import { SheetService } from './services/sheet/sheet.service';
         }),
         MongooseModule.forFeature([{ name: Sheet.name, schema: sheetSchema }]),
     ],
-    controllers: [DateController, ExampleController, SheetController, ImageController],
+    controllers: [DateController, ExampleController, SheetController, ImageController, GameLogicController],
     providers: [
         ChatGateway,
         DateService,
@@ -37,6 +40,8 @@ import { SheetService } from './services/sheet/sheet.service';
         ImageToMatrixService,
         DifferenceService,
         RadiusEnlargementService,
+        GameLogicService,
+        ImageCompareService,
     ],
 })
 export class AppModule {}

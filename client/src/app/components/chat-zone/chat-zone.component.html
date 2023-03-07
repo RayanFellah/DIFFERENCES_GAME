@@ -1,0 +1,34 @@
+<mat-card class="chat-zone" (keyup.enter)="send()">
+    <mat-card-title class="op-name">Mono</mat-card-title>
+    <div class="chat-area" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+        <div *ngFor="let message of chatService.roomMessages">
+            <div class="message-wrapper">
+                <div
+                    [ngClass]="{
+                        'message-player': message.type === 'player',
+                        'message-opponent': message.type === 'opponent',
+                        'message-game': message.type === 'game'
+                    }"
+                >
+                    <div
+                        class="message-content"
+                        [ngClass]="{
+                            player: message.type === 'player',
+                            opponent: message.type === 'opponent',
+                            game: message.type === 'game'
+                        }"
+                    >
+                        {{ message.content }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <mat-form-field appearance="outline" class="input-area">
+        <input matInput placeholder="type..." maxlength="200" type="text" [(ngModel)]="newMessage" />
+        <button class="send-button" mat-icon-button matSuffix (click)="send()">
+            <mat-icon>send</mat-icon>
+        </button>
+    </mat-form-field>
+    <p>{{ this.chatService.serverTime }}</p>
+</mat-card>

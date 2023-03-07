@@ -15,7 +15,7 @@ const FILE_UPLOAD_VALUE_ACCESSOR: ExistingProvider = {
     providers: [FILE_UPLOAD_VALUE_ACCESSOR],
 })
 export class FileUploadComponent implements ControlValueAccessor {
-    file: File;
+    file: File | null;
     fileName: string;
 
     touched: boolean = false;
@@ -25,7 +25,7 @@ export class FileUploadComponent implements ControlValueAccessor {
     constructor(private readonly bmpVerificationService: BmpVerificationService, private readonly snackBar: SnackBarService) {}
 
     // eslint-disable-next-line no-unused-vars
-    onChange = (_file: File) => {
+    onChange = (_file: File | null) => {
         // Placeholder for the real function
     };
     onTouched = () => {
@@ -49,6 +49,14 @@ export class FileUploadComponent implements ControlValueAccessor {
         }
     }
 
+    onRemoveFile() {
+        this.markAsTouched();
+        if (!this.disabled) {
+            this.file = null;
+            this.fileName = '';
+            this.onChange(this.file);
+        }
+    }
     writeValue(file: File) {
         if (file) {
             this.file = file;
@@ -56,7 +64,7 @@ export class FileUploadComponent implements ControlValueAccessor {
         }
     }
 
-    registerOnChange(onChange: (file: File) => void) {
+    registerOnChange(onChange: (file: File | null) => void) {
         this.onChange = onChange;
     }
 

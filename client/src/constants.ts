@@ -6,3 +6,5 @@ export const FIFTEEN = 15;
 export const WIDTH = 640;
 export const HEIGHT = 480;
 export const BPP = 8;
+export const COLOR: number[] = [0, 0, 255, 255];
+export const FONT_STYLE = 'Arial 20px';
