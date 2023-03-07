@@ -5,10 +5,12 @@ export enum ChatEvents {
     JoinRoom = 'joinRoom',
     RoomMessage = 'roomMessage',
     JoinedRoom = 'joinedRoom',
+    ClickValidation = 'clickValidation',
     Found = 'found',
     CongratMessage = 'congratMessage',
     WordValidated = 'wordValidated',
     MassMessage = 'massMessage',
     Hello = 'hello',
     Clock = 'clock',
+    ClickValidated = 'clickValidated',
 }

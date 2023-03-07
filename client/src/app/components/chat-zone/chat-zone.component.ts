@@ -1,10 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit } from '@angular/core';
 import { ClientChatService } from '@app/services/chat-client.service';
 import { GameSelectorService } from '@app/services/game-selector.service';
 import { LocalStorageService } from '@app/services/local-storage.service';
 import { PlayRoom } from '@common/play-room';
 import { Storage } from '@ionic/storage';
-
 
 @Component({
     selector: 'app-chat-zone',
@@ -12,8 +11,9 @@ import { Storage } from '@ionic/storage';
     styleUrls: ['./chat-zone.component.scss'],
     providers: [LocalStorageService],
 })
-export class ChatZoneComponent implements OnInit {
-    @Input() playerName: string | undefined;
+export class ChatZoneComponent implements OnInit, OnDestroy {
+    @Input() playerName: string | undefined = 'skander';
+    @Input() differenceFound: EventEmitter<boolean> = new EventEmitter();
     newMessage: string = '';
     chatService: ClientChatService;
     currentRoom: PlayRoom | undefined;
@@ -29,12 +29,14 @@ export class ChatZoneComponent implements OnInit {
         if (!this.currentRoom) {
             await this.getRoom();
         }
+
+        this.differenceFound.subscribe((found: boolean) => {
+            this.sendDifferenceFound(found);
+        });
     }
 
-    sendDifferenceFound() {
-        if (this.currentRoom && this.playerName) {
-            this.chatService.sendDifferenceFound(this.playerName, this.currentRoom?.roomName);
-        }
+    sendDifferenceFound(found: boolean) {
+        this.chatService.sendDifferenceFound(this.playerName, this.currentRoom?.roomName, found);
     }
 
     async storeInfos() {
@@ -61,5 +63,8 @@ export class ChatZoneComponent implements OnInit {
         } else {
             throw new Error('currentRoom is undefined');
         }
+    }
+    ngOnDestroy(): void {
+        this.differenceFound.unsubscribe();
     }
 }

@@ -34,8 +34,8 @@ export class ClientChatService {
         this.createRoom(playerName, undefined, roomName);
     }
 
-    sendDifferenceFound(playerName: string, roomName: string) {
-        this.socket.emit(ChatEvents.Found, { playerName, roomName });
+    sendDifferenceFound(playerName: string | undefined, roomName: string | undefined, found: boolean) {
+        this.socket.emit(ChatEvents.ClickValidation, { playerName, roomName, found });
     }
 
     sendRoomMessage(roomName: string, message: string) {
@@ -43,8 +43,12 @@ export class ClientChatService {
     }
 
     handleResponses() {
-        this.socket.on(ChatEvents.CongratMessage, (message: string) => {
+        this.socket.on(ChatEvents.CongratMessage, (message) => {
             this.roomMessages.push({ content: message, type: 'game' });
+        });
+
+        this.socket.on(ChatEvents.ClickValidated, (message) => {
+            this.roomMessages.push({ content: message.content, type: 'game' });
         });
 
         this.socket.on(ChatEvents.Clock, (time) => {

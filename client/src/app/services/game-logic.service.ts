@@ -39,7 +39,6 @@ export class GameLogicService {
     ) {
         this.audio = new AudioService();
         this.sheet = this.currentGame.currentGame;
-        this.start();
     }
 
     start() {
@@ -55,7 +54,8 @@ export class GameLogicService {
         this.numberDifferences = this.sheet.differences;
         this.differencesFoundService.setNumberOfDifferences(this.numberDifferences);
     }
-    sendCLick(event: MouseEvent) {
+    sendCLick(event: MouseEvent): boolean {
+        let result = false;
         if (this.allowed) {
             this.gameHttp.playerClick(this.sheet._id, event.offsetX, event.offsetY).subscribe((res) => {
                 if (this.foundDifferences.find((diff) => JSON.stringify(diff) === JSON.stringify(res))) return;
@@ -63,12 +63,14 @@ export class GameLogicService {
                     this.diff = res;
                     this.foundDifferences.push(res);
                     this.handleClick(event, this.diff);
+                    result = true;
                 } else {
                     this.wait();
                     this.handleClick(event, undefined);
                 }
             });
         }
+        return result;
     }
 
     makeBlink(diff: Vec2[]) {
