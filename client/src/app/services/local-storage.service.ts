@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Sheet } from '@common/sheet';
 import { Storage } from '@ionic/storage';
 @Injectable({
     providedIn: 'root',
@@ -13,7 +14,9 @@ export class LocalStorageService {
     setData(key: string, value: unknown): void {
         this.localStorage.set(key, JSON.stringify(value));
     }
-
+    setGame(key: string, value: Sheet): void {
+        this.localStorage.set(key, JSON.stringify(value));
+    }
     async getData(key: string): Promise<string | undefined> {
         return await this.localStorage.get(key);
     }

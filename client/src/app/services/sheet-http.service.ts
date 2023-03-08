@@ -23,6 +23,9 @@ export class SheetHttpService {
     deleteSheet(id: string): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/sheet/${id}`).pipe(catchError(this.handleError<void>('deleteSheet')));
     }
+    getSheet(id: string): Observable<Sheet> {
+        return this.http.get<Sheet>(`${this.baseUrl}/sheet/${id}`).pipe(catchError(this.handleError<Sheet>('getSheet')));
+    }
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);

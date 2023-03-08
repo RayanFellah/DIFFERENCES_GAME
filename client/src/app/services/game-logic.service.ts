@@ -39,10 +39,10 @@ export class GameLogicService {
         private differencesFoundService: DifferencesFoundService,
     ) {
         this.audio = new AudioService();
-        this.sheet = this.currentGame.currentGame;
     }
 
     start() {
+        this.sheet = this.currentGame.currentGame;
         this.imageHttp.getImage(this.sheet.originalImagePath).subscribe((res) => {
             const blob = new Blob([res], { type: 'image/bmp' });
             this.leftCanvas.drawImageOnCanvas(blob);

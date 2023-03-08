@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, Output, EventEmitter, ViewChild, Inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Inject, Output, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { DifferencesFoundService } from '@app/services/differences-found.service';
 import { EventService } from '@app/services/event-service.service';
@@ -7,7 +8,9 @@ import { GameLogicService } from '@app/services/game-logic.service';
 import { GameSelectorService } from '@app/services/game-selector.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { LocalStorageService } from '@app/services/local-storage.service';
+import { SheetHttpService } from '@app/services/sheet-http.service';
 import { PlayRoom } from '@common/play-room';
+import { Sheet } from '@common/sheet';
 import { HEIGHT, WIDTH } from 'src/constants';
 // import { EventEmitter } from 'events';
 @Component({
@@ -33,7 +36,9 @@ export class PlayAreaComponent implements AfterViewInit {
         private readonly gameSelector: GameSelectorService,
         private differencesFoundService: DifferencesFoundService,
         public localStorage: LocalStorageService,
+        private sheetService: SheetHttpService,
         @Inject('EventService') private eventService: EventService,
+        private activatedRoute: ActivatedRoute,
     ) {}
 
     get width(): number {
@@ -53,17 +58,16 @@ export class PlayAreaComponent implements AfterViewInit {
             this.gameSelector,
             this.differencesFoundService,
         );
-        const toParse = await this.localStorage.getData('currentRoom');
-        if (toParse) {
-            this.room = JSON.parse(toParse);
-        }
-        this.logic.sheet = this.room.sheet;
-        this.logic.start();
+        const sheetId = this.activatedRoute.snapshot.params['id'];
+        this.sheetService.getSheet(sheetId).subscribe((sheet: Sheet) => {
+            this.gameSelector.currentGame = sheet;
+            this.logic.sheet = this.gameSelector.currentGame;
+            this.logic.start();
+        });
     }
 
     async handleClick(event: MouseEvent) {
         const found = await this.logic.sendCLick(event);
-        console.log(found);
         this.eventService.emitDifferenceFound(found);
     }
 }
