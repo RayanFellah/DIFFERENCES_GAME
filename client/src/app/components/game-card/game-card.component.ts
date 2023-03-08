@@ -1,7 +1,7 @@
+/* eslint-disable no-underscore-dangle */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { GameSelectorService } from '@app/services/game-selector.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { Sheet } from '@common/sheet';
 import { BehaviorSubject } from 'rxjs';
@@ -21,12 +21,11 @@ export class GameCardComponent implements OnInit {
     constructor(
         private readonly imageHttp: ImageHttpService,
         private sanitizer: DomSanitizer,
-        private router: Router,
-        private game: GameSelectorService,
+        private router: Router, // private game: GameSelectorService, // private sheetService: SheetHttpService, // private storage: LocalStorageService,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
-                this.router.navigate(['/game']);
+                this.router.navigate(['/game', this.sheet._id]);
             }
         });
     }
@@ -41,7 +40,6 @@ export class GameCardComponent implements OnInit {
         this.shouldNavigate$.next(true);
     }
     jouer() {
-        this.game.currentSheet = this.sheet;
         this.navigate();
     }
     onDelete() {

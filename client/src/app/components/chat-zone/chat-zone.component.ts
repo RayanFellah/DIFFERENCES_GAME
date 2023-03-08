@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Inject } from '@angular/core';
+import { Component, Inject, Input, OnInit } from '@angular/core';
 import { ClientChatService } from '@app/services/chat-client.service';
 import { EventService } from '@app/services/event-service.service';
 import { GameSelectorService } from '@app/services/game-selector.service';
@@ -23,13 +23,13 @@ export class ChatZoneComponent implements OnInit {
         this.chatService = new ClientChatService(new LocalStorageService(this.storage));
         this.eventService.differenceFound$.subscribe((found) => {
             this.sendDifferenceFound(found);
-            console.log('sent');
         });
     }
 
     async ngOnInit(): Promise<void> {
         this.storeInfos();
         this.chatService.connect();
+        console.log('connect');
         this.chatService.createRoom(this.playerName, this.gameSelector.currentGame, `${this.playerName}'s room`);
         if (!this.currentRoom) {
             await this.getRoom();
