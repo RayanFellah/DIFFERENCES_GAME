@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Inject } from '@angular/core';
 import { ClientChatService } from '@app/services/chat-client.service';
+import { EventService } from '@app/services/event-service.service';
 import { GameSelectorService } from '@app/services/game-selector.service';
 import { LocalStorageService } from '@app/services/local-storage.service';
 import { PlayRoom } from '@common/play-room';
@@ -11,15 +12,19 @@ import { Storage } from '@ionic/storage';
     styleUrls: ['./chat-zone.component.scss'],
     providers: [LocalStorageService],
 })
-export class ChatZoneComponent implements OnInit, OnDestroy {
+export class ChatZoneComponent implements OnInit {
     @Input() playerName: string | undefined = 'skander';
-    @Input() differenceFound: EventEmitter<boolean> = new EventEmitter();
+    differenceFound: boolean = false;
     newMessage: string = '';
     chatService: ClientChatService;
     currentRoom: PlayRoom | undefined;
 
-    constructor(private storage: Storage, private gameSelector: GameSelectorService) {
+    constructor(@Inject('EventService') private eventService: EventService, private storage: Storage, private gameSelector: GameSelectorService) {
         this.chatService = new ClientChatService(new LocalStorageService(this.storage));
+        this.eventService.differenceFound$.subscribe((found) => {
+            this.sendDifferenceFound(found);
+            console.log('sent');
+        });
     }
 
     async ngOnInit(): Promise<void> {
@@ -29,10 +34,6 @@ export class ChatZoneComponent implements OnInit, OnDestroy {
         if (!this.currentRoom) {
             await this.getRoom();
         }
-
-        this.differenceFound.subscribe((found: boolean) => {
-            this.sendDifferenceFound(found);
-        });
     }
 
     sendDifferenceFound(found: boolean) {
@@ -63,8 +64,5 @@ export class ChatZoneComponent implements OnInit, OnDestroy {
         } else {
             throw new Error('currentRoom is undefined');
         }
-    }
-    ngOnDestroy(): void {
-        this.differenceFound.unsubscribe();
     }
 }

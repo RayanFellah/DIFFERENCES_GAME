@@ -61,6 +61,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage(ChatEvents.ClickValidation)
     validateClick(socket: Socket, payload) {
+        console.log('click received');
+        console.log(payload.found);
         const message = payload.found ? `${payload.playerName} has found a difference` : `Error from ${payload.playerName}`;
         if (socket.rooms.has(payload.roomName)) {
             this.server.to(payload.roomName).emit(ChatEvents.ClickValidated, { sender: 'game', content: message });

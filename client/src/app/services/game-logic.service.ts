@@ -28,6 +28,7 @@ export class GameLogicService {
     clickEnabled = true;
     foundDifferences: Vec2[][] = [];
     allowed = true;
+    result: boolean = false;
 
     constructor(
         private leftCanvas: CanvasHelperService,
@@ -54,23 +55,30 @@ export class GameLogicService {
         this.numberDifferences = this.sheet.differences;
         this.differencesFoundService.setNumberOfDifferences(this.numberDifferences);
     }
-    sendCLick(event: MouseEvent): boolean {
-        let result = false;
-        if (this.allowed) {
-            this.gameHttp.playerClick(this.sheet._id, event.offsetX, event.offsetY).subscribe((res) => {
-                if (this.foundDifferences.find((diff) => JSON.stringify(diff) === JSON.stringify(res))) return;
-                if (res) {
-                    this.diff = res;
-                    this.foundDifferences.push(res);
-                    this.handleClick(event, this.diff);
-                    result = true;
-                } else {
-                    this.wait();
-                    this.handleClick(event, undefined);
-                }
-            });
-        }
-        return result;
+    async sendCLick(event: MouseEvent) {
+        return new Promise<boolean>((resolve, reject) => {
+            if (this.allowed) {
+                this.gameHttp.playerClick(this.sheet._id, event.offsetX, event.offsetY).subscribe((res) => {
+                    if (this.foundDifferences.find((diff) => JSON.stringify(diff) === JSON.stringify(res))) {
+                        resolve(false);
+                        return;
+                    }
+                    if (res) {
+                        this.diff = res;
+                        this.foundDifferences.push(res);
+                        this.handleClick(event, this.diff);
+                        this.result = true;
+                    } else {
+                        this.wait();
+                        this.handleClick(event, undefined);
+                        this.result = false;
+                    }
+                    resolve(this.result);
+                });
+            } else {
+                resolve(false);
+            }
+        });
     }
 
     makeBlink(diff: Vec2[]) {

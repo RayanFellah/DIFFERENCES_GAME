@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, Output, EventEmitter, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Output, EventEmitter, ViewChild, Inject } from '@angular/core';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { DifferencesFoundService } from '@app/services/differences-found.service';
+import { EventService } from '@app/services/event-service.service';
 import { GameHttpService } from '@app/services/game-http.service';
 import { GameLogicService } from '@app/services/game-logic.service';
 import { GameSelectorService } from '@app/services/game-selector.service';
@@ -32,6 +33,7 @@ export class PlayAreaComponent implements AfterViewInit {
         private readonly gameSelector: GameSelectorService,
         private differencesFoundService: DifferencesFoundService,
         public localStorage: LocalStorageService,
+        @Inject('EventService') private eventService: EventService,
     ) {}
 
     get width(): number {
@@ -56,12 +58,12 @@ export class PlayAreaComponent implements AfterViewInit {
             this.room = JSON.parse(toParse);
         }
         this.logic.sheet = this.room.sheet;
-        console.log(this.logic.sheet);
         this.logic.start();
     }
 
     async handleClick(event: MouseEvent) {
-        const found = this.logic.sendCLick(event);
-        this.differenceFound.emit(found);
+        const found = await this.logic.sendCLick(event);
+        console.log(found);
+        this.eventService.emitDifferenceFound(found);
     }
 }

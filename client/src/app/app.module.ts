@@ -34,6 +34,7 @@ import { ChatZoneComponent } from './components/chat-zone/chat-zone.component';
 import { IonicStorageModule } from '@ionic/storage-angular';
 import { LocalStorageService } from './services/local-storage.service';
 import { Storage } from '@ionic/storage';
+import { EventService } from './services/event-service.service';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -88,6 +89,7 @@ import { Storage } from '@ionic/storage';
             deps: [LocalStorageService],
             multi: true,
         },
+        { provide: 'EventService', useClass: EventService },
     ],
     bootstrap: [AppComponent],
 })
