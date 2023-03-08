@@ -29,7 +29,8 @@ export class GameCardComponent implements OnInit {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
                 let playerName = window.prompt('What is your name?');
-                if (!playerName) playerName = 'Anonymous';
+                let validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
+                if (!validName) return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");
                 this.router.navigate(['/game', this.sheet._id, playerName]);
             }
         });

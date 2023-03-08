@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ImageDialogComponent } from '@app/components/image-dialog/image-dialog.component';
 import { HEIGHT, WIDTH } from 'src/constants';
+import { ConstantsDialogComponent } from '../constants-dialog/constants-dialog.component';
 
 @Component({
     selector: 'app-dialog',
@@ -17,5 +18,8 @@ export class DialogComponent {
             maxWidth: WIDTH,
             maxHeight: HEIGHT,
         });
+    }
+    openConstantsDialog(): void {
+        this.dialog.open(ConstantsDialogComponent, { data: {}, panelClass: 'custom-modalbox' });
     }
 }
