@@ -16,6 +16,9 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { Storage } from '@ionic/storage';
+import { IonicStorageModule } from '@ionic/storage-angular';
+import { ChatZoneComponent } from './components/chat-zone/chat-zone.component';
 import { DialogComponent } from './components/dialogue/dialog.component';
 import { DifferencesFoundComponent } from './components/differences-found/differences-found.component';
 import { DrawingComponent } from './components/drawing/drawing.component';
@@ -30,11 +33,10 @@ import { FileValueAccessorDirective } from './directives/file-value-accessor.dir
 import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
 import { CreationPageComponent } from './pages/creation-page/creation-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
-import { ChatZoneComponent } from './components/chat-zone/chat-zone.component';
-import { IonicStorageModule } from '@ionic/storage-angular';
-import { LocalStorageService } from './services/local-storage.service';
-import { Storage } from '@ionic/storage';
 import { EventService } from './services/event-service.service';
+import { LocalStorageService } from './services/local-storage.service';
+import { ConfigButtonsComponent } from './components/config-buttons/config-buttons.component';
+import { ConstantsDialogComponent } from './components/constants-dialog/constants-dialog.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -64,6 +66,8 @@ import { EventService } from './services/event-service.service';
         DifferencesFoundComponent,
         DrawingComponent,
         ChatZoneComponent,
+        ConfigButtonsComponent,
+        ConstantsDialogComponent,
     ],
     imports: [
         AppMaterialModule,
