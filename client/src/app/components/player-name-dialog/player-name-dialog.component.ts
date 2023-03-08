@@ -1,6 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'app-player-name-dialog',
@@ -8,23 +8,24 @@ import { Router } from '@angular/router';
     styleUrls: ['./player-name-dialog.component.scss'],
 })
 export class PlayerNameDialogComponent implements OnInit {
-    constructor(
-        public dialogRef: MatDialogRef<PlayerNameDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { playerName: string },
-        private router: Router,
-    ) {}
+    @Output() playerNameValidated = new EventEmitter<{ playerName: string; canNavigate: boolean }>();
+
+    canNavigate$ = new BehaviorSubject(false);
+
+    constructor(public dialogRef: MatDialogRef<PlayerNameDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: { playerName: string }) {}
+
+    ngOnInit(): void {}
 
     onNoClick() {
         this.dialogRef.close();
     }
 
-    validatePlayerName(): any {
+    validatePlayerName(): void {
         let validName = !(!this.data.playerName || this.data.playerName.trim().length === 0 || /^\d+$/.test(this.data.playerName));
         if (validName) {
-            return this.router.navigate(['/game', this.data.playerName]);
+            return this.playerNameValidated.emit({ playerName: this.data.playerName, canNavigate: true });
         } else {
             return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");
         }
     }
-    ngOnInit(): void {}
 }

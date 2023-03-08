@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { GameSelectorService } from '@app/services/game-selector.service';
+import { Router } from '@angular/router';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { Sheet } from '@common/sheet';
 import { BehaviorSubject } from 'rxjs';
@@ -17,17 +17,19 @@ export class GameCardComponent implements OnInit {
     @Input() sheet: Sheet;
     @Input() isConfig: boolean;
     @Output() delete = new EventEmitter<void>();
+    @Input() playerName: string;
     trustedUrl: SafeUrl;
     shouldNavigate$ = new BehaviorSubject(false);
 
     constructor(
         private readonly imageHttp: ImageHttpService,
         private sanitizer: DomSanitizer,
-        private game: GameSelectorService,
         private validation: MatDialog,
+        private router: Router,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
+                this.router.navigate(['/game', this.sheet._id]);
             }
         });
     }
@@ -38,15 +40,21 @@ export class GameCardComponent implements OnInit {
             });
         }
     }
-    navigate() {
-        this.validation.open(PlayerNameDialogComponent);
-        this.shouldNavigate$.next(true);
+
+    openValidator(): void {
+        const dialogRef = this.validation.open(PlayerNameDialogComponent, { data: { playerName: this.playerName } });
+
+        dialogRef.componentInstance.playerNameValidated.subscribe((res) => {
+            if (res.canNavigate) {
+                this.router.navigate(['/game', this.sheet._id]);
+            }
+        });
     }
 
     jouer() {
-        this.game.currentSheet = this.sheet;
-        this.navigate();
+        this.openValidator();
     }
+
     onDelete() {
         this.delete.emit();
     }
