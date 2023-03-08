@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { PlayRoom } from '@common/play-room';
 import { Sheet } from '@common/sheet';
 import { Storage } from '@ionic/storage';
 @Injectable({
@@ -17,7 +18,12 @@ export class LocalStorageService {
     setGame(key: string, value: Sheet): void {
         this.localStorage.set(key, JSON.stringify(value));
     }
-    async getData(key: string): Promise<string | undefined> {
-        return await this.localStorage.get(key);
+    async getPlayRoom(key: string): Promise<PlayRoom> {
+        console.log('in storage');
+        return JSON.parse(await this.localStorage.get(key));
+    }
+
+    async getPlayerName(key: string): Promise<string> {
+        return JSON.parse(await this.localStorage.get(key));
     }
 }

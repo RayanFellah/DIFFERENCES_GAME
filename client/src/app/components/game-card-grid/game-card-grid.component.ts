@@ -11,6 +11,7 @@ import { SHEETS_PER_PAGE } from 'src/constants';
 export class GameCardGridComponent implements OnInit {
     @Output() sheets: Sheet[] = [];
     @Input() isConfig: boolean;
+    @Input() playerName: string;
     currentPage = 0;
 
     constructor(private readonly sheetHttpService: SheetHttpService) {}

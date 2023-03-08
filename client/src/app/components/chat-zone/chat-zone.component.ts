@@ -4,7 +4,6 @@ import { EventService } from '@app/services/event-service.service';
 import { GameSelectorService } from '@app/services/game-selector.service';
 import { LocalStorageService } from '@app/services/local-storage.service';
 import { PlayRoom } from '@common/play-room';
-import { Storage } from '@ionic/storage';
 
 @Component({
     selector: 'app-chat-zone',
@@ -13,14 +12,16 @@ import { Storage } from '@ionic/storage';
     providers: [LocalStorageService],
 })
 export class ChatZoneComponent implements OnInit {
-    @Input() playerName: string | undefined = 'skander';
+    @Input() playerName: string;
     differenceFound: boolean = false;
     newMessage: string = '';
-    chatService: ClientChatService;
-    currentRoom: PlayRoom | undefined;
+    currentRoom: PlayRoom;
 
-    constructor(@Inject('EventService') private eventService: EventService, private storage: Storage, private gameSelector: GameSelectorService) {
-        this.chatService = new ClientChatService(new LocalStorageService(this.storage));
+    constructor(
+        @Inject('EventService') private eventService: EventService,
+        public chatService: ClientChatService,
+        private gameSelector: GameSelectorService,
+    ) {
         this.eventService.differenceFound$.subscribe((found) => {
             this.sendDifferenceFound(found);
         });
@@ -29,11 +30,15 @@ export class ChatZoneComponent implements OnInit {
     async ngOnInit(): Promise<void> {
         this.storeInfos();
         this.chatService.connect();
-        console.log('connect');
-        this.chatService.createRoom(this.playerName, this.gameSelector.currentGame, `${this.playerName}'s room`);
+        if (this.gameSelector.create) {
+            this.chatService.createRoom(this.playerName, this.gameSelector.currentGame, `${this.playerName}'s room`);
+        } else {
+            this.chatService.joinExistingRoom(this.playerName, this.currentRoom?.roomName);
+        }
         if (!this.currentRoom) {
             await this.getRoom();
         }
+        console.log(this.currentRoom);
     }
 
     sendDifferenceFound(found: boolean) {
@@ -46,21 +51,22 @@ export class ChatZoneComponent implements OnInit {
         }
 
         if (!this.playerName) {
-            this.playerName = await this.chatService.localStorage.getData('currentPlayer');
+            this.playerName = await this.chatService.localStorage.getPlayerName('currentPlayer');
         }
     }
 
     async getRoom() {
-        const toParse = await this.chatService.localStorage.getData('currentRoom');
-        if (toParse) {
-            this.currentRoom = JSON.parse(toParse);
-        }
+        return await this.chatService.localStorage.getPlayRoom('currentRoom');
+        // if (toParse) {
+        //     this.currentRoom = JSON.parse(toParse);
+        //     console.log(this.currentRoom);
+        // }
     }
 
     send(): void {
+        this.newMessage = '';
         if (this.currentRoom) {
             this.chatService.sendRoomMessage(this.currentRoom.roomName, this.newMessage);
-            this.newMessage = '';
         } else {
             throw new Error('currentRoom is undefined');
         }

@@ -6,10 +6,10 @@
     <mat-card-content> <img [src]="trustedUrl" alt="Image" /> </mat-card-content>
 
     <mat-card-actions>
-        <button mat-stroked-button color="primary" (click)="jouer()">
+        <button mat-stroked-button color="primary" (click)="play()">
             {{ isConfig ? 'Réinitialiser' : 'Jouer' }}
         </button>
-        <button mat-stroked-button color="accent" (click)="isConfig ? onDelete() : jouer()">
+        <button mat-stroked-button color="accent" (click)="isConfig ? onDelete() : join()">
             {{ isConfig ? 'Supprimer' : 'Joindre' }}
         </button>
     </mat-card-actions>

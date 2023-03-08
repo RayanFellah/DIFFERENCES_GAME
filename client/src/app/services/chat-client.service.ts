@@ -13,7 +13,7 @@ export class ClientChatService {
     roomMessages: ChatMessage[] = [];
     socket: Socket;
     serverTime: string;
-    playerName: string = 'skander';
+    playerName: string;
     room: PlayRoom;
 
     constructor(public localStorage: LocalStorageService) {}
@@ -57,18 +57,19 @@ export class ClientChatService {
 
         this.socket.on(ChatEvents.JoinedRoom, (roomReceived) => {
             this.localStorage.setData('currentRoom', roomReceived.PlayRoom);
+            console.log(this.localStorage.getPlayRoom('currentRoom'));
         });
 
         this.socket.on(ChatEvents.RoomMessage, (message) => {
-            let player: string;
+            let messageType: string;
             if (message.sender === this.playerName) {
-                player = 'player';
+                messageType = 'player';
             } else if (message.sender === 'game') {
-                player = 'game';
+                messageType = 'game';
             } else {
-                player = 'opponent';
+                messageType = 'opponent';
             }
-            this.roomMessages.push({ content: message.content, type: player });
+            this.roomMessages.push({ content: message.content, type: messageType });
         });
     }
 }
