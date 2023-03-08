@@ -12,7 +12,7 @@ import { PlayRoom } from '@common/play-room';
     providers: [LocalStorageService],
 })
 export class ChatZoneComponent implements OnInit {
-    @Input() playerName: string;
+    @Input() playerName: string | undefined;
     differenceFound: boolean = false;
     newMessage: string = '';
     currentRoom: PlayRoom;
@@ -28,15 +28,18 @@ export class ChatZoneComponent implements OnInit {
     }
 
     async ngOnInit(): Promise<void> {
-        this.storeInfos();
         this.chatService.connect();
+
         if (this.gameSelector.create) {
             this.chatService.createRoom(this.playerName, this.gameSelector.currentGame, `${this.playerName}'s room`);
         } else {
-            this.chatService.joinExistingRoom(this.playerName, this.currentRoom?.roomName);
+            if (this.playerName) {
+                this.chatService.joinExistingRoom(this.playerName, this.currentRoom?.roomName);
+            }
         }
+        this.storeInfos();
         if (!this.currentRoom) {
-            await this.getRoom();
+            this.currentRoom = this.getRoom();
         }
         console.log(this.currentRoom);
     }
@@ -45,22 +48,18 @@ export class ChatZoneComponent implements OnInit {
         this.chatService.sendDifferenceFound(this.playerName, this.currentRoom?.roomName, found);
     }
 
-    async storeInfos() {
+    storeInfos() {
         if (this.playerName) {
-            this.chatService.localStorage.setData('currentPlayer', this.playerName);
+            this.chatService.localStorage.setName(this.playerName);
         }
 
         if (!this.playerName) {
-            this.playerName = await this.chatService.localStorage.getPlayerName('currentPlayer');
+            this.playerName = this.chatService.localStorage.getName();
         }
     }
 
-    async getRoom() {
-        return await this.chatService.localStorage.getPlayRoom('currentRoom');
-        // if (toParse) {
-        //     this.currentRoom = JSON.parse(toParse);
-        //     console.log(this.currentRoom);
-        // }
+    getRoom() {
+        return this.chatService.localStorage.getRoom();
     }
 
     send(): void {

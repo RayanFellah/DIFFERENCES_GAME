@@ -27,7 +27,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage(ChatEvents.JoinRoom)
     joinRoom(socket: Socket, payload) {
-        console.log(payload);
         const room = this.rooms.find((roomJoined) => roomJoined.roomName === payload.roomName);
         if (room && room.player1 && room.player2) {
             return;
@@ -49,6 +48,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             };
             this.rooms.push(newRoom);
             socket.join(newRoom.roomName);
+            console.log(newRoom);
             this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: newRoom });
         }
     }

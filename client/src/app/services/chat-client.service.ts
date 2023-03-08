@@ -56,8 +56,7 @@ export class ClientChatService {
         });
 
         this.socket.on(ChatEvents.JoinedRoom, (roomReceived) => {
-            this.localStorage.setData('currentRoom', roomReceived.PlayRoom);
-            console.log(this.localStorage.getPlayRoom('currentRoom'));
+            this.localStorage.setPlayRoom(roomReceived.playRoom);
         });
 
         this.socket.on(ChatEvents.RoomMessage, (message) => {

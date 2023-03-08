@@ -1,29 +1,46 @@
 import { Injectable } from '@angular/core';
 import { PlayRoom } from '@common/play-room';
-import { Sheet } from '@common/sheet';
-import { Storage } from '@ionic/storage';
 @Injectable({
     providedIn: 'root',
 })
 export class LocalStorageService {
-    constructor(private localStorage: Storage) {}
+    // constructor() {}
 
-    async createStorage(): Promise<void> {
-        await this.localStorage.create();
+    // async createStorage(): Promise<void> {
+    //     await this.localStorage.create();
+    // }
+
+    // async setRoom(key: string, value: PlayRoom): Promise<void> {
+    //     await this.localStorage.set(key, JSON.stringify(value));
+    // }
+    // async setGame(key: string, value: Sheet): Promise<void> {
+    //     await this.localStorage.set(key, JSON.stringify(value));
+    // }
+    // async setName(key: string, value: string): Promise<void> {
+    //     await this.localStorage.set(key, value);
+    // }
+    // async getPlayRoom(key: string): Promise<PlayRoom> {
+    //     return JSON.parse(await this.localStorage.get(key));
+    // }
+
+    // async getPlayerName(key: string): Promise<string> {
+    //     return JSON.parse(await this.localStorage.get(key));
+    // }
+
+    setPlayRoom(room: PlayRoom) {
+        localStorage.setItem('currentRoom', JSON.stringify(room));
     }
 
-    setData(key: string, value: unknown): void {
-        this.localStorage.set(key, JSON.stringify(value));
+    setName(name: string) {
+        localStorage.setItem('playerName', name);
     }
-    setGame(key: string, value: Sheet): void {
-        this.localStorage.set(key, JSON.stringify(value));
-    }
-    async getPlayRoom(key: string): Promise<PlayRoom> {
-        console.log('in storage');
-        return JSON.parse(await this.localStorage.get(key));
+    getName() {
+        const name = localStorage.getItem('playerName');
+        return name ? name : undefined;
     }
 
-    async getPlayerName(key: string): Promise<string> {
-        return JSON.parse(await this.localStorage.get(key));
+    getRoom() {
+        const room = localStorage.getItem('currentRoom');
+        return room ? JSON.parse(room) : undefined;
     }
 }
