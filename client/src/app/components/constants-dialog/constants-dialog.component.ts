@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     styleUrls: ['./constants-dialog.component.scss'],
 })
 export class ConstantsDialogComponent implements OnInit {
-    constructor(@Inject(MAT_DIALOG_DATA) public data: { gameTime: number; penaltyTime: number; savedTime: number }) {}
+    constructor(@Inject(MAT_DIALOG_DATA) public data: {}) {}
 
     ngOnInit(): void {}
 }
