@@ -6,7 +6,5 @@ import { Sheet } from '@common/sheet';
 })
 export class GameSelectorService {
     currentGame: Sheet;
-    set currentSheet(sheet: Sheet) {
-        this.currentGame = sheet;
-    }
+    create: boolean;
 }

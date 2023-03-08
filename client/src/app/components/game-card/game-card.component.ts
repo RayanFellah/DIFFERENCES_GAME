@@ -2,6 +2,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { GameSelectorService } from '@app/services/game-selector.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { Sheet } from '@common/sheet';
 import { BehaviorSubject } from 'rxjs';
@@ -21,11 +22,15 @@ export class GameCardComponent implements OnInit {
     constructor(
         private readonly imageHttp: ImageHttpService,
         private sanitizer: DomSanitizer,
-        private router: Router, // private game: GameSelectorService, // private sheetService: SheetHttpService, // private storage: LocalStorageService,
+        // eslint-disable-next-line max-len
+        private router: Router,
+        private game: GameSelectorService, // private sheetService: SheetHttpService, // private storage: LocalStorageService,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
-                this.router.navigate(['/game', this.sheet._id]);
+                let playerName = window.prompt('What is your name?');
+                if (!playerName) playerName = 'Anonymous';
+                this.router.navigate(['/game', this.sheet._id, playerName]);
             }
         });
     }
@@ -36,11 +41,17 @@ export class GameCardComponent implements OnInit {
             });
         }
     }
-    navigate() {
+    navigate(type: boolean) {
+        this.game.create = type;
+        this.game.currentGame = this.sheet;
         this.shouldNavigate$.next(true);
     }
-    jouer() {
-        this.navigate();
+    play() {
+        this.navigate(true);
+    }
+
+    join() {
+        this.navigate(false);
     }
     onDelete() {
         this.delete.emit();

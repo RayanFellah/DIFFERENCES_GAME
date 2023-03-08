@@ -10,6 +10,7 @@ import { Sheet } from '@common/sheet';
 })
 export class SelectionPageComponent implements OnInit {
     @Output() sheets: Sheet[];
+    playerName: string;
     constructor(private readonly sheetHttpService: SheetHttpService) {}
 
     ngOnInit(): void {

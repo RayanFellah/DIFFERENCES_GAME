@@ -8,10 +8,11 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class GamePageComponent implements OnInit {
     playerName: string;
-
     constructor(private activatedRoute: ActivatedRoute) {}
 
     ngOnInit() {
-        this.playerName = this.activatedRoute.snapshot.params['playerName'];
+        const name = this.activatedRoute.snapshot.paramMap.get('name');
+        if (!name) this.playerName = 'Anonymous';
+        else this.playerName = name;
     }
 }
