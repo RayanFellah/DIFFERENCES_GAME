@@ -9,7 +9,7 @@
         <button mat-stroked-button color="primary" (click)="jouer()">
             {{ isConfig ? 'Réinitialiser' : 'Jouer' }}
         </button>
-        <button mat-stroked-button color="accent" (click)="isConfig ? onDelete() : openValidator()">
+        <button mat-stroked-button color="accent" (click)="isConfig ? onDelete() : jouer()">
             {{ isConfig ? 'Supprimer' : 'Joindre' }}
         </button>
     </mat-card-actions>

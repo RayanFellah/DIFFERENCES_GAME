@@ -19,6 +19,8 @@ import { MaterialPageComponent } from '@app/pages/material-page/material-page.co
 import { Storage } from '@ionic/storage';
 import { IonicStorageModule } from '@ionic/storage-angular';
 import { ChatZoneComponent } from './components/chat-zone/chat-zone.component';
+import { ConfigButtonsComponent } from './components/config-buttons/config-buttons.component';
+import { ConstantsDialogComponent } from './components/constants-dialog/constants-dialog.component';
 import { DialogComponent } from './components/dialogue/dialog.component';
 import { DifferencesFoundComponent } from './components/differences-found/differences-found.component';
 import { DrawingComponent } from './components/drawing/drawing.component';
@@ -35,9 +37,6 @@ import { CreationPageComponent } from './pages/creation-page/creation-page.compo
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 import { EventService } from './services/event-service.service';
 import { LocalStorageService } from './services/local-storage.service';
-import { ConfigButtonsComponent } from './components/config-buttons/config-buttons.component';
-import { ConstantsDialogComponent } from './components/constants-dialog/constants-dialog.component';
-import { PlayerNameDialogComponent } from './components/player-name-dialog/player-name-dialog.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -69,7 +68,6 @@ import { PlayerNameDialogComponent } from './components/player-name-dialog/playe
         ChatZoneComponent,
         ConfigButtonsComponent,
         ConstantsDialogComponent,
-        PlayerNameDialogComponent,
     ],
     imports: [
         AppMaterialModule,
