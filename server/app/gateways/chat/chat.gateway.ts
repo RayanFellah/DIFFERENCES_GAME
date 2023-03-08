@@ -1,3 +1,5 @@
+import { ClickValidationPayload } from '@app/interfaces/chat-clickValidate.interface';
+import { ChatGatewayPayload } from '@app/interfaces/chat-gateway.interface';
 import { PlayRoom } from '@common/play-room';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -26,7 +28,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     @SubscribeMessage(ChatEvents.JoinRoom)
-    joinRoom(socket: Socket, payload) {
+    joinRoom(socket: Socket, payload: ChatGatewayPayload) {
         const room = this.rooms.find((roomJoined) => roomJoined.roomName === payload.roomName);
         if (room && room.player1 && room.player2) {
             return;
@@ -54,14 +56,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     @SubscribeMessage(ChatEvents.RoomMessage)
-    roomMessage(socket: Socket, payload) {
+    roomMessage(socket: Socket, payload: ChatGatewayPayload) {
         if (socket.rooms.has(payload.roomName) && payload.message.length > 0) {
             this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, { sender: payload.playerName, content: payload.message });
         }
     }
 
     @SubscribeMessage(ChatEvents.ClickValidation)
-    validateClick(socket: Socket, payload) {
+    validateClick(socket: Socket, payload: ClickValidationPayload) {
         console.log('click received');
         console.log(payload.found);
         const message = payload.found ? `${payload.playerName} has found a difference` : `Error from ${payload.playerName}`;
