@@ -37,6 +37,7 @@ import { EventService } from './services/event-service.service';
 import { LocalStorageService } from './services/local-storage.service';
 import { ConfigButtonsComponent } from './components/config-buttons/config-buttons.component';
 import { ConstantsDialogComponent } from './components/constants-dialog/constants-dialog.component';
+import { PlayerNameDialogComponent } from './components/player-name-dialog/player-name-dialog.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -68,6 +69,7 @@ import { ConstantsDialogComponent } from './components/constants-dialog/constant
         ChatZoneComponent,
         ConfigButtonsComponent,
         ConstantsDialogComponent,
+        PlayerNameDialogComponent,
     ],
     imports: [
         AppMaterialModule,

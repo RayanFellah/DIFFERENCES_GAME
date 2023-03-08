@@ -1,0 +1,11 @@
+<div mat-dialog-content>
+    <p>Enterez un nom d'utilisateur</p>
+    <mat-form-field appearance="fill">
+        <mat-label>Nom </mat-label>
+        <input matInput [(ngModel)]="data.playerName" />
+    </mat-form-field>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()"><mat-icon>exit_to_app</mat-icon></button>
+    <button mat-button [mat-dialog-close]="data.playerName" cdkFocusInitial (click)="validatePlayerName()">Valider</button>
+</div>

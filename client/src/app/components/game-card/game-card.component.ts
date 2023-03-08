@@ -1,15 +1,17 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { Router } from '@angular/router';
 import { GameSelectorService } from '@app/services/game-selector.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { Sheet } from '@common/sheet';
 import { BehaviorSubject } from 'rxjs';
-
+import { DialogComponent } from '../dialogue/dialog.component';
+import { PlayerNameDialogComponent } from '../player-name-dialog/player-name-dialog.component';
 @Component({
     selector: 'app-game-card',
     templateUrl: './game-card.component.html',
     styleUrls: ['./game-card.component.scss'],
+    providers: [DialogComponent],
 })
 export class GameCardComponent implements OnInit {
     @Input() sheet: Sheet;
@@ -21,12 +23,11 @@ export class GameCardComponent implements OnInit {
     constructor(
         private readonly imageHttp: ImageHttpService,
         private sanitizer: DomSanitizer,
-        private router: Router,
         private game: GameSelectorService,
+        private validation: MatDialog,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
-                this.router.navigate(['/game']);
             }
         });
     }
@@ -38,8 +39,10 @@ export class GameCardComponent implements OnInit {
         }
     }
     navigate() {
+        this.validation.open(PlayerNameDialogComponent);
         this.shouldNavigate$.next(true);
     }
+
     jouer() {
         this.game.currentSheet = this.sheet;
         this.navigate();
