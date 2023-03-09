@@ -42,7 +42,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         } else {
             const newRoom: PlayRoom = {
                 roomName: payload.roomName,
-                player1: { name: payload.name, socketId: socket.id },
+                player1: { name: payload.playerName, socketId: socket.id },
                 player2: undefined,
                 sheet: payload.sheet,
             };
