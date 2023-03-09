@@ -12,11 +12,13 @@ import { HEIGHT, WIDTH } from 'src/constants';
 export class ImageAreaComponent implements OnInit, OnDestroy {
     @Input() side: 'left' | 'right';
     @Output() leftPosition: EventEmitter<string> = new EventEmitter();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Output() canvasMerged: EventEmitter<any> = new EventEmitter();
     @ViewChild(DrawingComponent) drawingTool: DrawingComponent;
     @ViewChild('canvasContainer', { static: false }) divContainer!: ElementRef<HTMLDivElement>;
 
-    @ViewChild('foreground', { static: false }) private fCanvas!: ElementRef<HTMLCanvasElement>;
-    @ViewChild('background', { static: false }) private bCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('foreground', { static: false }) fCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('background', { static: false }) bCanvas!: ElementRef<HTMLCanvasElement>;
     file: File;
     img = new Image();
     private fileUploadSubscription: Subscription;
@@ -66,10 +68,11 @@ export class ImageAreaComponent implements OnInit, OnDestroy {
         context.drawImage(this.fCanvas.nativeElement, 0, 0, this.width, this.height);
         this.bCanvas.nativeElement.toBlob((blob: Blob | null) => {
             if (blob) {
-                const file = new File([blob], 'image.bmp', { type: blob.type });
-                this.fileUploaderService.setCanvasImage(file, this.side);
+                const file = new File([blob], 'image.bmp', { type: 'MIME_BMP' });
+                this.fileUploaderService.setCanvasMerge(file, this.side);
             }
         });
+        this.getForegroundContext().clearRect(0, 0, this.width, this.height);
     }
 
     private drawImageOnCanvas() {

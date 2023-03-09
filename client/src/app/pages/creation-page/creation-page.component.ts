@@ -1,10 +1,12 @@
 import { HttpResponse, HttpStatusCode } from '@angular/common/http';
-import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
+import { ImageAreaComponent } from '@app/components/image-area/image-area.component';
 import { FileValueAccessorDirective } from '@app/directives/file-value-accessor.directive';
 import { BmpVerificationService } from '@app/services/bmp-verification.service';
+import { DrawingService } from '@app/services/draw.service';
 import { FileUploaderService } from '@app/services/file-uploader.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
@@ -20,6 +22,9 @@ import { THREE } from 'src/constants';
 })
 export class CreationPageComponent implements OnInit {
     @ViewChildren(FileValueAccessorDirective) leftInput: QueryList<FileValueAccessorDirective>;
+    @ViewChild('leftImageArea', { static: false }) leftImageArea: ImageAreaComponent;
+    @ViewChild('rightImageArea', { static: false }) rightImageArea: ImageAreaComponent;
+
     radiusSizePx = THREE;
     createGame: FormGroup;
     shouldNavigate$ = new BehaviorSubject(false);
@@ -66,6 +71,16 @@ export class CreationPageComponent implements OnInit {
         });
         this.modifiedImagePath?.valueChanges.subscribe((value) => {
             this.fileUploaderService.setCanvasImage(value, 'right');
+        });
+        this.fileUploaderService.getMergedCanvas('left').subscribe((value) => {
+            this.createGame.patchValue({
+                originalImagePath: value,
+            });
+        });
+        this.fileUploaderService.getMergedCanvas('right').subscribe((value) => {
+            this.createGame.patchValue({
+                modifiedImagePath: value,
+            });
         });
     }
 
@@ -141,5 +156,11 @@ export class CreationPageComponent implements OnInit {
             // mark all controls as touched to show errors
             this.createGame.markAllAsTouched();
         }
+    }
+    duplicate(image1: ImageAreaComponent, image2: ImageAreaComponent) {
+        DrawingService.duplicate(image1.fCanvas.nativeElement, image2.fCanvas.nativeElement);
+    }
+    switch(image1: ImageAreaComponent, image2: ImageAreaComponent) {
+        DrawingService.switch(image1.fCanvas.nativeElement, image2.fCanvas.nativeElement);
     }
 }

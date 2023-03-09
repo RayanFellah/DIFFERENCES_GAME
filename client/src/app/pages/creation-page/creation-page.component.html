@@ -12,15 +12,27 @@
             </div>
         </div>
 
-        <app-image-area id="leftCanvas" [side]="'left'"></app-image-area>
-        <app-image-area id="rightCanvas" [side]="'right'"></app-image-area>
+        <app-image-area #leftImageArea id="leftCanvas" [side]="'left'"></app-image-area>
+        <button mat-raised-button color="primary" id="switchButton" (click)="switch(leftImageArea, rightImageArea)">
+            <mat-icon>compare_arrows</mat-icon>
+            Inverser
+        </button>
+        <app-image-area #rightImageArea id="rightCanvas" [side]="'right'"></app-image-area>
 
         <div id="leftUpload">
+            <button type="button" mat-raised-button color="primary" (click)="duplicate(leftImageArea, rightImageArea)">
+                <mat-icon>content_copy</mat-icon>
+                Dupliquer
+            </button>
             <app-file-upload formControlName="originalImagePath"></app-file-upload>
             <mat-error *ngIf="originalImagePath!.invalid && (originalImagePath!.dirty || originalImagePath!.touched)"> Image requise </mat-error>
         </div>
 
         <div id="rightUpload">
+            <button type="button" mat-raised-button color="primary" (click)="duplicate(rightImageArea, leftImageArea)">
+                <mat-icon>content_copy</mat-icon>
+                Dupliquer
+            </button>
             <app-file-upload formControlName="modifiedImagePath"></app-file-upload>
             <mat-error *ngIf="modifiedImagePath!.invalid && (modifiedImagePath!.dirty || modifiedImagePath!.touched)"> Image requise </mat-error>
         </div>
