@@ -1,3 +1,4 @@
+import { ChatGatewayPayload } from '@app/interfaces/chat-gateway.interface';
 import { PlayRoom } from '@common/play-room';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -48,7 +49,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     @SubscribeMessage(ChatEvents.RoomMessage)
-    roomMessage(socket: Socket, payload) {
+    roomMessage(socket: Socket, payload: ChatGatewayPayload) {
         if (socket.rooms.has(payload.roomName) && payload.message.length > 0) {
             this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, { sender: payload.playerName, content: payload.message });
         }
