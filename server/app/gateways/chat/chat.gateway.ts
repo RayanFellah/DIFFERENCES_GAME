@@ -1,5 +1,3 @@
-import { ClickValidationPayload } from '@app/interfaces/chat-clickValidate.interface';
-import { ChatGatewayPayload } from '@app/interfaces/chat-gateway.interface';
 import { PlayRoom } from '@common/play-room';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
