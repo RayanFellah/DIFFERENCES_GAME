@@ -15,42 +15,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     constructor(private readonly logger: Logger) {}
 
-    @SubscribeMessage(ChatEvents.Message)
-    message(_: Socket, message: string) {
-        this.logger.log(`Message reÃ§u : ${message}`);
-    }
-
     @SubscribeMessage(ChatEvents.BroadcastAll)
     broadcastAll(socket: Socket, message: string) {
         this.server.emit(ChatEvents.MassMessage, `${socket.id} : ${message}`);
     }
 
     @SubscribeMessage(ChatEvents.JoinRoom)
-    joinRoom(socket: Socket, payload) {
-        const room = this.rooms.find((roomJoined) => roomJoined.roomName === payload.roomName);
-        if (room && room.player1 && room.player2) {
-            return;
-        }
-        if (room) {
-            if (!room.player1) {
-                room.player1 = { name: payload.playerName, socketId: socket.id };
-            } else {
-                room.player2 = { name: payload.playerName, socketId: socket.id };
-            }
+    joinActiveRoom(socket: Socket, payload) {
+        const room = this.rooms.find((playRoom) => playRoom.roomName === payload.roomName);
+        if (room.player1.name === payload.playerName) {
+            room.player1.socketId = socket.id;
             socket.join(room.roomName);
             this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: room });
         } else {
-            const newRoom: PlayRoom = {
-                roomName: payload.roomName,
-                player1: { name: payload.name, socketId: socket.id },
-                player2: undefined,
-                sheet: payload.sheet,
-            };
-            this.rooms.push(newRoom);
-            socket.join(newRoom.roomName);
-            console.log(newRoom);
-            this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: newRoom });
+            room.player2 = { name: payload.playerName, socketId: socket.id };
+            socket.join(room.roomName);
+            this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: room });
         }
+    }
+
+    @SubscribeMessage(ChatEvents.CreateRoom)
+    createRoom(socket: Socket, payload) {
+        const newRoom: PlayRoom = {
+            roomName: payload.roomName,
+            player1: { name: payload.playerName, socketId: socket.id },
+            player2: undefined,
+            sheet: payload.sheet,
+        };
+        this.rooms.push(newRoom);
+        socket.join(newRoom.roomName);
+        this.server.to(payload.roomName).emit(ChatEvents.RoomCreated, { playRoom: newRoom });
     }
 
     @SubscribeMessage(ChatEvents.RoomMessage)
@@ -62,8 +56,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage(ChatEvents.ClickValidation)
     validateClick(socket: Socket, payload) {
-        console.log('click received');
-        console.log(payload.found);
         const message = payload.found ? `${payload.playerName} has found a difference` : `Error from ${payload.playerName}`;
         if (socket.rooms.has(payload.roomName)) {
             this.server.to(payload.roomName).emit(ChatEvents.ClickValidated, { sender: 'game', content: message });
