@@ -1,5 +1,6 @@
 <div class="differences-container">
-    <div class="found" *ngFor="let difference of differences">
+    <div class="found" *ngFor="let difference of differences; let i = index">
+        <mat-icon class="not-found-lightbulb"></mat-icon>
         <mat-icon [ngClass]="{ 'found-lightbulb': difference, 'not-found-lightbulb': !difference }"> lightbulb_outline </mat-icon>
     </div>
 </div>
