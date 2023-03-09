@@ -14,7 +14,7 @@ export class ClientChatService {
     roomMessages: ChatMessage[] = [];
     socket: Socket;
     serverTime: string;
-    playerName: string;
+    playerName: string | undefined;
     room: BehaviorSubject<PlayRoom | null> = new BehaviorSubject<PlayRoom | null>(null);
     reload: BehaviorSubject<PlayRoom | null> = new BehaviorSubject<PlayRoom | null>(null);
 
@@ -33,7 +33,6 @@ export class ClientChatService {
     }
 
     joinActiveRoom(playerName: string | undefined, roomName: string | null) {
-        console.log('hh');
         this.socket.emit(ChatEvents.JoinRoom, { playerName, roomName });
     }
 
@@ -41,8 +40,8 @@ export class ClientChatService {
         this.socket.emit(ChatEvents.ClickValidation, { playerName, roomName, found });
     }
 
-    sendRoomMessage(roomName: string, message: string) {
-        this.socket.emit(ChatEvents.RoomMessage, { roomName, message });
+    sendRoomMessage(roomName: string, playerName: string | undefined, message: string) {
+        this.socket.emit(ChatEvents.RoomMessage, { roomName, playerName, message });
     }
 
     handleResponses() {
@@ -59,13 +58,11 @@ export class ClientChatService {
         });
 
         this.socket.on(ChatEvents.RoomCreated, (roomReceived) => {
-            console.log('in create');
             this.localStorage.setPlayRoom(roomReceived.playRoom);
             this.room.next(roomReceived.playRoom);
         });
 
         this.socket.on(ChatEvents.JoinedRoom, (roomReceived) => {
-            console.log('in join');
             this.localStorage.setPlayRoom(roomReceived.playRoom);
             this.reload.next(roomReceived.playRoom);
         });

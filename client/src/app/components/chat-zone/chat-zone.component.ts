@@ -45,7 +45,6 @@ export class ChatZoneComponent implements OnInit, OnDestroy {
     }
 
     sendDifferenceFound(found: boolean) {
-        console.log(this.currentRoom);
         this.chatService.sendDifferenceFound(this.playerName, this.currentRoom?.roomName, found);
     }
 
@@ -55,7 +54,6 @@ export class ChatZoneComponent implements OnInit, OnDestroy {
                 this.currentRoom = room;
             }
             if (this.gameSelector.create) {
-                console.log(this.playerName);
                 this.chatService.createRoom(this.playerName, this.gameSelector.currentGame, `${this.playerName}'s room`);
                 this.gameSelector.create = false;
             }
@@ -66,10 +64,10 @@ export class ChatZoneComponent implements OnInit, OnDestroy {
         if (this.playerName) {
             this.chatService.localStorage.setName(this.playerName);
         }
-
         if (!this.playerName) {
             this.playerName = this.chatService.localStorage.getName();
         }
+        this.chatService.playerName = this.playerName;
     }
     async getRoom() {
         return new Promise<PlayRoom>((resolve) => {
@@ -78,9 +76,8 @@ export class ChatZoneComponent implements OnInit, OnDestroy {
     }
 
     send(): void {
-        console.log(this.currentRoom);
         if (this.currentRoom) {
-            this.chatService.sendRoomMessage(this.currentRoom.roomName, this.newMessage);
+            this.chatService.sendRoomMessage(this.currentRoom.roomName, this.playerName, this.newMessage);
         } else {
             throw new Error('currentRoom is undefined');
         }
