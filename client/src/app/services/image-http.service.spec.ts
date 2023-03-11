@@ -1,10 +1,11 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { environment } from 'src/environments/environment';
 import { ImageHttpService } from './image-http.service';
 
 describe('ImageHttpService', () => {
     let service: ImageHttpService;
-    let httpMock: HttpTestingController;
+    let httpTestingController: HttpTestingController;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -12,39 +13,45 @@ describe('ImageHttpService', () => {
             providers: [ImageHttpService],
         });
         service = TestBed.inject(ImageHttpService);
-        httpMock = TestBed.inject(HttpTestingController);
+        httpTestingController = TestBed.inject(HttpTestingController);
     });
 
     afterEach(() => {
-        httpMock.verify();
+        httpTestingController.verify();
     });
 
-    it('should get image successfully', () => {
-        const fileName = 'test.jpg';
-        const mockResponse = new Blob(['test data'], { type: 'image/jpeg' });
-
-        service.getImage(fileName).subscribe((response: Blob) => {
-            expect(response).toEqual(mockResponse);
-        });
-
-        const request = httpMock.expectOne(`${service['baseUrl']}/image/${fileName}`);
-        expect(request.request.method).toBe('GET');
-        request.flush(mockResponse);
+    it('should be created', () => {
+        expect(service).toBeTruthy();
     });
 
-    it('should compare images successfully', () => {
-        const sheetForm = new FormData();
-        sheetForm.append('originalImage', new File(['original image'], 'original.jpg'));
-        sheetForm.append('modifiedImage', new File(['modified image'], 'modified.jpg'));
-        const mockResponse = { differences: 5 };
-
-        service.getDifferences(sheetForm).subscribe((response: unknown) => {
-            expect(response.body).toEqual(mockResponse);
+    describe('#getImage', () => {
+        it('should return an image blob', () => {
+            const fileName = 'test.png';
+            const blob = new Blob([''], { type: 'image/png' });
+            service.getImage(fileName).subscribe((response) => {
+                expect(response.type).toEqual('image/png');
+            });
+            const req = httpTestingController.expectOne(`${environment.serverUrl}/image/${fileName}`);
+            expect(req.request.method).toEqual('GET');
+            req.flush(blob);
         });
+    });
 
-        const request = httpMock.expectOne(`${service['baseUrl']}/image/compare`);
-        expect(request.request.method).toBe('POST');
-        expect(request.request.body).toEqual(sheetForm);
-        request.flush(mockResponse);
+    describe('#getDifferences', () => {
+        it('should return a JSON object with a response status', () => {
+            const formData = new FormData();
+            const blob = new Blob([''], { type: 'image/png' });
+            formData.append('image', blob, 'test.png');
+            const expectedResponse = {
+                status: 200,
+            };
+            service.getDifferences(formData).subscribe((response) => {
+                expect(response.status).toEqual(200);
+            });
+            const req = httpTestingController.expectOne(`${environment.serverUrl}/image/compare`);
+            expect(req.request.method).toEqual('POST');
+            expect(req.request.body.get('image')).toEqual(formData.get('image'));
+            req.flush(expectedResponse, { status: 200, statusText: 'OK' });
+        });
     });
 });
