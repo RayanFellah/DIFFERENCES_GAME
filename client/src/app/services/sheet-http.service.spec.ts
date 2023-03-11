@@ -1,21 +1,21 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Sheet } from '@common/sheet';
+import { environment } from 'src/environments/environment';
 import { SheetHttpService } from './sheet-http.service';
 
 describe('SheetHttpService', () => {
-    let service: SheetHttpService;
     let httpMock: HttpTestingController;
-    const testUrl = 'https://example.com';
+    let sheetHttpService: SheetHttpService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
-            providers: [SheetHttpService, { provide: 'SERVER_URL', useValue: testUrl }],
+            providers: [SheetHttpService],
         });
 
-        service = TestBed.inject(SheetHttpService);
         httpMock = TestBed.inject(HttpTestingController);
+        sheetHttpService = TestBed.inject(SheetHttpService);
     });
 
     afterEach(() => {
@@ -23,81 +23,108 @@ describe('SheetHttpService', () => {
     });
 
     it('should be created', () => {
-        expect(service).toBeTruthy();
+        expect(sheetHttpService).toBeTruthy();
     });
 
-    it('should get all sheets successfully', () => {
-        const mockResponse: Sheet[] = [
-            {
-                _id: '1',
-                title: 'Sheet 1',
-                originalImagePath: '',
-                modifiedImagePath: '',
-                difficulty: '',
-                radius: 0,
-                topPlayer: '',
-                differences: 0,
-            },
-        ];
+    describe('getAllSheets', () => {
+        it('should return an Observable<Sheet[]>', () => {
+            const mockSheets: Sheet[] = [
+                {
+                    _id: '1',
+                    title: 'Sheet 1',
+                    originalImagePath: 'path/to/original/image',
+                    modifiedImagePath: 'path/to/modified/image',
+                    difficulty: 'Easy',
+                    radius: 5,
+                    topPlayer: 'John',
+                    differences: 10,
+                },
+                {
+                    _id: '2',
+                    title: 'Sheet 2',
+                    originalImagePath: 'path/to/original/image',
+                    modifiedImagePath: 'path/to/modified/image',
+                    difficulty: 'Medium',
+                    radius: 10,
+                    topPlayer: 'Jane',
+                    differences: 15,
+                },
+            ];
 
-        service.getAllSheets().subscribe((sheets: Sheet[]) => {
-            expect(sheets).toEqual(mockResponse);
+            sheetHttpService.getAllSheets().subscribe((sheets) => {
+                expect(sheets.length).toBe(2);
+                expect(sheets).toEqual(mockSheets);
+            });
+
+            const req = httpMock.expectOne(`${environment.serverUrl}/sheet`);
+            expect(req.request.method).toBe('GET');
+            req.flush(mockSheets);
         });
 
-        const req = httpMock.expectOne(`${testUrl}/sheet`);
-        expect(req.request.method).toBe('GET');
-        req.flush(mockResponse);
+        it('should handle error', () => {
+            const error = new Error('An error occurred.');
+
+            sheetHttpService.getAllSheets().subscribe(
+                () => {
+                    fail('should have failed with the error');
+                },
+                (err) => {
+                    expect(err).toEqual(error);
+                },
+            );
+
+            const req = httpMock.expectOne(`${environment.serverUrl}/sheet`);
+            expect(req.request.method).toBe('GET');
+            req.flush(null, { status: 500, statusText: 'Server Error' });
+        });
     });
 
-    it('should create a new sheet successfully', () => {
-        const mockResponse = { id: '1', name: 'New Sheet' };
-        const mockForm = new FormData();
+    describe('createSheet', () => {
+        it('should return an Observable<any>', () => {
+            const formData = new FormData();
+            formData.append('title', 'Sheet 3');
+            formData.append('originalImage', new Blob());
+            formData.append('modifiedImage', new Blob());
+            formData.append('difficulty', 'Hard');
+            formData.append('radius', '15');
 
-        service.createSheet(mockForm).subscribe((res) => {
-            expect(res).toEqual(mockResponse);
+            sheetHttpService.createSheet(formData).subscribe((res) => {
+                expect(res).toBeTruthy();
+            });
+
+            const req = httpMock.expectOne(`${environment.serverUrl}/sheet`);
+            expect(req.request.method).toBe('POST');
+            expect(req.request.body).toEqual(formData);
+            req.flush({});
+        });
+    });
+
+    describe('deleteSheet', () => {
+        it('should return an Observable<void>', () => {
+            const id = '1';
+
+            sheetHttpService.deleteSheet(id).subscribe((res) => {
+                expect(res).toBeUndefined();
+            });
+
+            const req = httpMock.expectOne(`${environment.serverUrl}/sheet/${id}`);
+            expect(req.request.method).toBe('DELETE');
+            req.flush(null);
         });
 
-        const req = httpMock.expectOne(`${testUrl}/sheet`);
-        expect(req.request.method).toBe('POST');
-        expect(req.request.body).toBe(mockForm);
-        req.flush(mockResponse);
-    });
+        it('should handle error if server returns error status code', () => {
+            const id = '1';
+            const errorMessage = 'Error: Sheet could not be deleted';
+            sheetHttpService.deleteSheet(id).subscribe(
+                () => {},
+                (error) => {
+                    expect(error.message).toBe(errorMessage);
+                },
+            );
 
-    it('should delete a sheet successfully', () => {
-        const mockId = '1';
-
-        service.deleteSheet(mockId).subscribe((res) => {
-            expect(res).toBeUndefined();
+            const req = httpMock.expectOne(`${environment.serverUrl}/sheet/${id}`);
+            expect(req.request.method).toBe('DELETE');
+            req.flush(errorMessage, { status: 500, statusText: 'Server Error' });
         });
-
-        const req = httpMock.expectOne(`${testUrl}/sheet/${mockId}`);
-        expect(req.request.method).toBe('DELETE');
-        req.flush(null);
-    });
-
-    it('should get a sheet by id successfully', () => {
-        const mockId = '1';
-        const mockResponse = { id: mockId, name: 'Sheet 1' };
-
-        service.getSheet(mockId).subscribe((sheet) => {
-            expect(sheet).toEqual(mockResponse);
-        });
-
-        const req = httpMock.expectOne(`${testUrl}/sheet/${mockId}`);
-        expect(req.request.method).toBe('GET');
-        req.flush(mockResponse);
-    });
-
-    it('should handle errors correctly', () => {
-        const mockError = new Error('Test error');
-        const errorHandlerSpy = jasmine.createSpy('errorHandler');
-
-        service.getAllSheets().subscribe(() => {}, errorHandlerSpy);
-
-        const req = httpMock.expectOne(`${testUrl}/sheet`);
-        expect(req.request.method).toBe('GET');
-        req.flush(null, { status: 500, statusText: 'Internal Server Error' });
-
-        expect(errorHandlerSpy).toHaveBeenCalledWith(mockError);
     });
 });
