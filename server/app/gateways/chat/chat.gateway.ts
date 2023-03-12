@@ -1,4 +1,5 @@
-import { ChatGatewayPayload } from '@app/interfaces/chat-gateway.interface';
+import { Coord } from '@app/interfaces/coord.interface';
+import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
 import { PlayRoom } from '@common/play-room';
 import { Injectable, Logger } from '@nestjs/common';
@@ -15,7 +16,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     private readonly room = PRIVATE_ROOM_ID;
     private rooms: PlayRoom[] = [];
 
-    constructor(private readonly logger: Logger, private readonly sheetService: SheetService) {}
+    constructor(private readonly logger: Logger, private readonly sheetService: SheetService, private gameService: GameLogicService) {}
 
     @SubscribeMessage(ChatEvents.BroadcastAll)
     broadcastAll(socket: Socket, message: string) {
@@ -25,6 +26,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage(ChatEvents.JoinRoom)
     joinActiveRoom(socket: Socket, payload) {
         const room = this.rooms.find((playRoom) => playRoom.roomName === payload.roomName);
+        if (!room) {
+            // this.createRoom(socket, payload);
+            return;
+        }
         if (room.player1.name === payload.playerName) {
             room.player1.socketId = socket.id;
             socket.join(room.roomName);
@@ -36,31 +41,47 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         }
     }
 
-    @SubscribeMessage(ChatEvents.CreateRoom)
-    createRoom(socket: Socket, payload) {
+    @SubscribeMessage('createSoloGame')
+    async createSoloRoom(socket: Socket, payload) {
+        const playSheet = await this.sheetService.getSheet(payload.sheetId);
+        const diffs = await this.gameService.getAllDifferences(playSheet);
         const newRoom: PlayRoom = {
-            roomName: payload.roomName,
-            player1: { name: payload.playerName, socketId: socket.id },
+            roomName: `${payload.name}'s room`,
+            player1: { name: payload.name, socketId: socket.id },
             player2: undefined,
-            sheet: payload.sheet,
+            sheet: playSheet,
+            differences: diffs,
+            differencesFound: 0,
         };
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
-        this.server.to(payload.roomName).emit(ChatEvents.RoomCreated, { playRoom: newRoom });
+        this.server.to(payload.roomName).emit(ChatEvents.RoomCreated, { playRoom: newRoom.roomName });
+    }
+
+    @SubscribeMessage('Click')
+    validateClick(client: Socket, payload) {
+        const clickCoord: Coord = { posX: payload.x, posY: payload.y };
+        const room = this.rooms.find((res) => res.roomName === payload.roomName);
+
+        for (const diff of room.differences) {
+            for (const coords of diff.coords) {
+                if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
+                    room.differencesFound++;
+                    this.server.to(payload.roomName).emit('found', {
+                        coords: diff.coords,
+                        player: payload.playerName,
+                        diffsLeft: room.differences.length - room.differencesFound,
+                    });
+                }
+            }
+        }
+        this.server.to(payload.roomName).emit('error', payload.playerName);
     }
 
     @SubscribeMessage(ChatEvents.RoomMessage)
-    roomMessage(socket: Socket, payload: ChatGatewayPayload) {
+    roomMessage(socket: Socket, payload) {
         if (socket.rooms.has(payload.roomName) && payload.message.length > 0) {
             this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, { sender: payload.playerName, content: payload.message });
-        }
-    }
-
-    @SubscribeMessage(ChatEvents.ClickValidation)
-    validateClick(socket: Socket, payload) {
-        const message = payload.found ? `${payload.playerName} has found a difference` : `Error from ${payload.playerName}`;
-        if (socket.rooms.has(payload.roomName)) {
-            this.server.to(payload.roomName).emit(ChatEvents.ClickValidated, { sender: 'game', content: message });
         }
     }
 

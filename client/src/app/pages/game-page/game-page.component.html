@@ -10,4 +10,9 @@
 <h2>Difficulté: {{ difficulty }}</h2>
 <app-differences-found></app-differences-found>
 <app-play-area (difficulty)="onDifficultyChange($event)" class="play-area-container"></app-play-area>
-<app-chat-zone class="chat-zone-container" [playerName]="playerName"></app-chat-zone>
+<app-chat-zone
+    class="chat-zone-container"
+    [playerName]="playerName"
+    [chatMessages]="this.chatMessages"
+    (messageEvent)="sendMessage($event)"
+></app-chat-zone>
