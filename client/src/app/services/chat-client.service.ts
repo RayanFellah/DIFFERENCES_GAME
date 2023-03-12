@@ -32,8 +32,8 @@ export class ClientChatService {
         this.socket.emit(ChatEvents.CreateRoom, { sheet, roomName, playerName });
     }
 
-    joinActiveRoom(playerName: string | undefined, roomName: string | null) {
-        this.socket.emit(ChatEvents.JoinRoom, { playerName, roomName });
+    joinActiveRoom(playerName: string | undefined, roomName: string | null, sheet: Sheet) {
+        this.socket.emit(ChatEvents.JoinRoom, { playerName, roomName, sheet });
     }
 
     sendDifferenceFound(playerName: string | undefined, roomName: string | undefined, found: boolean) {

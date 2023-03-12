@@ -1,6 +1,6 @@
 <mat-card class="chat-zone" (keyup.enter)="send()">
     <mat-card-title class="op-name">{{ this.playerName }}</mat-card-title>
-    <div class="chat-area" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+    <div class="chat-area" swScrollPosition="lorum-ipsum">
         <div *ngFor="let message of chatService.roomMessages">
             <div class="message-wrapper">
                 <div

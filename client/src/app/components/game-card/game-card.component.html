@@ -10,7 +10,7 @@
             {{ isConfig ? 'Réinitialiser' : 'Jouer' }}
         </button>
         <button mat-stroked-button color="accent" (click)="isConfig ? onDelete() : join()">
-            {{ isConfig ? 'Supprimer' : 'Joindre' }}
+            {{ isConfig ? 'Supprimer' : sheet.isJoinable ? 'Joindre' : 'Créer' }}
         </button>
     </mat-card-actions>
 </mat-card>

@@ -63,6 +63,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         }
     }
 
+    @SubscribeMessage(ChatEvents.JoinGridRoom)
+    joinGridRoom(socket: Socket) {
+        console.log('new grid joining');
+        socket.join('GridRoom');
+    }
+    @SubscribeMessage('gameJoinable')
+    joinableGame(socket: Socket, sheetId: string) {
+        console.log('received notification');
+        this.server.to('GridRoom').emit('Joinable', sheetId);
+    }
+
     afterInit() {
         setInterval(() => {
             this.emitTime();

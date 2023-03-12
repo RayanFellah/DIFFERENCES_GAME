@@ -16,4 +16,5 @@ export enum ChatEvents {
     Clock = 'clock',
     ClickValidated = 'clickValidated',
     RoomCreated = 'roomCreated',
+    JoinGridRoom = 'joinGridRoom',
 }

@@ -16,6 +16,7 @@ export class GameCardComponent implements OnInit {
     @Input() sheet: Sheet;
     @Input() isConfig: boolean;
     @Output() delete = new EventEmitter<void>();
+    @Output() myEvent = new EventEmitter<string>();
     trustedUrl: SafeUrl;
     shouldNavigate$ = new BehaviorSubject(false);
 
@@ -28,8 +29,8 @@ export class GameCardComponent implements OnInit {
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
-                let playerName = window.prompt('What is your name?');
-                let validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
+                const playerName = window.prompt('What is your name?');
+                const validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
                 if (!validName) return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");
                 this.router.navigate(['/game', this.sheet._id, playerName]);
             }
@@ -49,6 +50,9 @@ export class GameCardComponent implements OnInit {
     }
     play() {
         this.navigate(true);
+        console.log('notifying grid');
+        console.log(this.sheet._id);
+        this.myEvent.emit(this.sheet._id);
     }
 
     join() {

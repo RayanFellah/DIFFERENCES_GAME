@@ -1,8 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit, Output } from '@angular/core';
 import { SheetHttpService } from '@app/services/sheet-http.service';
+import { SocketService } from '@app/socket-service.service';
 import { Sheet } from '@common/sheet';
 import { SHEETS_PER_PAGE } from 'src/constants';
+
 @Component({
     selector: 'app-game-card-grid',
     templateUrl: './game-card-grid.component.html',
@@ -14,7 +16,7 @@ export class GameCardGridComponent implements OnInit {
     @Input() playerName: string;
     currentPage = 0;
 
-    constructor(private readonly sheetHttpService: SheetHttpService) {}
+    constructor(private readonly sheetHttpService: SheetHttpService, public socketService: SocketService) {}
 
     get totalPages(): number {
         return Math.ceil(this.sheets.length / SHEETS_PER_PAGE);
@@ -30,6 +32,34 @@ export class GameCardGridComponent implements OnInit {
                 window.alert(responseString);
             },
         });
+
+        this.connect();
+        console.log(this.socketService.socket.connected);
+    }
+
+    connect() {
+        this.socketService.connect();
+        this.socketService.socket.emit('joinGridRoom');
+        this.handleResponse();
+    }
+    handleResponse() {
+        this.socketService.on('Joinable', (sheetId: string) => {
+            this.makeJoinable(sheetId);
+            console.log('ABADWDC');
+        });
+    }
+
+    onChildEvent(sheetId: string): void {
+        console.log('notified, sending now to server');
+        console.log(sheetId);
+        this.socketService.send('gameJoinable', sheetId);
+    }
+
+    makeJoinable(sheetID: string) {
+        const foundSheet = this.sheets.find((sheet) => sheet._id === sheetID);
+        if (foundSheet) {
+            foundSheet.isJoinable = true;
+        }
     }
 
     getCurrentSheets(): Sheet[] {

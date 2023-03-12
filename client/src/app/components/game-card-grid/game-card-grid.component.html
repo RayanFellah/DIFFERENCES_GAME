@@ -1,6 +1,12 @@
 <div class="grid" *ngIf="sheets.length > 0">
     <ng-container *ngFor="let sheet of getCurrentSheets()">
-        <app-game-card class="cell" [sheet]="sheet" [isConfig]="isConfig" (delete)="onSheetDelete(sheet)"></app-game-card>
+        <app-game-card
+            class="cell"
+            [sheet]="sheet"
+            [isConfig]="isConfig"
+            (delete)="onSheetDelete(sheet)"
+            (myEvent)="onChildEvent($event)"
+        ></app-game-card>
     </ng-container>
 </div>
 <div class="buttons">

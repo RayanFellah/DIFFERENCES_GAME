@@ -29,6 +29,7 @@ export class ChatZoneComponent implements OnInit, OnDestroy {
 
     async ngOnInit() {
         await this.start();
+        console.log(this.chatService.localStorage.getName());
     }
 
     async start() {
@@ -40,7 +41,8 @@ export class ChatZoneComponent implements OnInit, OnDestroy {
             this.createGame();
         } else {
             this.currentRoom = await this.getRoom();
-            this.chatService.joinActiveRoom(this.playerName, this.currentRoom.roomName);
+            console.log(this.currentRoom);
+            this.chatService.joinActiveRoom(this.playerName, this.currentRoom?.roomName, this.gameSelector.currentGame);
         }
     }
 
