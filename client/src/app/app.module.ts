@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
@@ -30,6 +31,7 @@ import { GameCardComponent } from './components/game-card/game-card.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ImageAreaComponent } from './components/image-area/image-area.component';
 import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
+import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
 import { RadiusSizerComponent } from './components/radius-sizer/radius-sizer.component';
 import { FileValueAccessorDirective } from './directives/file-value-accessor.directive';
 import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
@@ -67,6 +69,7 @@ import { EventService } from './services/event-service.service';
         ChatZoneComponent,
         ConfigButtonsComponent,
         ConstantsDialogComponent,
+        LoadingDialogComponent,
     ],
     imports: [
         AppMaterialModule,
@@ -81,6 +84,7 @@ import { EventService } from './services/event-service.service';
         MatSnackBarModule,
         MatDialogModule,
         MatSliderModule,
+        MatProgressSpinnerModule,
         IonicStorageModule.forRoot(),
     ],
     providers: [

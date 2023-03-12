@@ -1,4 +1,5 @@
 import { ChatGatewayPayload } from '@app/interfaces/chat-gateway.interface';
+import { SheetService } from '@app/services/sheet/sheet.service';
 import { PlayRoom } from '@common/play-room';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -14,7 +15,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     private readonly room = PRIVATE_ROOM_ID;
     private rooms: PlayRoom[] = [];
 
-    constructor(private readonly logger: Logger) {}
+    constructor(private readonly logger: Logger, private readonly sheetService: SheetService) {}
 
     @SubscribeMessage(ChatEvents.BroadcastAll)
     broadcastAll(socket: Socket, message: string) {
@@ -71,7 +72,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage('gameJoinable')
     joinableGame(socket: Socket, sheetId: string) {
         console.log('received notification');
-        this.server.to('GridRoom').emit('Joinable', sheetId);
+        console.log(sheetId);
+        this.sheetService.modifySheet({ _id: sheetId, isJoinable: true });
+        socket.broadcast.to('GridRoom').emit('Joinable', sheetId);
+    }
+
+    @SubscribeMessage('cancelGameCreation')
+    cancelGameCreation(socket: Socket, sheetId: string) {
+        console.log('received notification');
+        console.log(sheetId);
+        this.sheetService.modifySheet({ _id: sheetId, isJoinable: false });
+        socket.broadcast.to('GridRoom').emit('Cancelled', sheetId);
     }
 
     afterInit() {
@@ -100,6 +111,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 this.server.to(room.roomName).emit(ChatEvents.RoomMessage, { sender: 'game', message: `${name} has left the room` });
             }
         }
+    }
+
+    emitDeletedSheet(sheetId: string) {
+        this.server.to('GridRoom').emit('SheetDeleted', sheetId);
     }
 
     private emitTime() {

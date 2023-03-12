@@ -1,5 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit, Output } from '@angular/core';
+import { DialogComponent } from '@app/components/dialogue/dialog.component';
+import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketService } from '@app/socket-service.service';
 import { Sheet } from '@common/sheet';
@@ -9,14 +11,21 @@ import { SHEETS_PER_PAGE } from 'src/constants';
     selector: 'app-game-card-grid',
     templateUrl: './game-card-grid.component.html',
     styleUrls: ['./game-card-grid.component.scss'],
+    providers: [DialogComponent],
 })
 export class GameCardGridComponent implements OnInit {
     @Output() sheets: Sheet[] = [];
     @Input() isConfig: boolean;
     @Input() playerName: string;
     currentPage = 0;
+    currentSheetId: string;
 
-    constructor(private readonly sheetHttpService: SheetHttpService, public socketService: SocketService) {}
+    constructor(
+        private readonly sheetHttpService: SheetHttpService,
+        public socketService: SocketService,
+        private readonly dialog: DialogComponent,
+        private dialogService: DialogService,
+    ) {}
 
     get totalPages(): number {
         return Math.ceil(this.sheets.length / SHEETS_PER_PAGE);
@@ -32,9 +41,12 @@ export class GameCardGridComponent implements OnInit {
                 window.alert(responseString);
             },
         });
-
         this.connect();
-        console.log(this.socketService.socket.connected);
+        this.dialogService.cancel$.subscribe((isCancelled: boolean) => {
+            if (isCancelled) {
+                this.socketService.send('cancelGameCreation', this.currentSheetId);
+            }
+        });
     }
 
     connect() {
@@ -45,14 +57,27 @@ export class GameCardGridComponent implements OnInit {
     handleResponse() {
         this.socketService.on('Joinable', (sheetId: string) => {
             this.makeJoinable(sheetId);
-            console.log('ABADWDC');
+        });
+        this.socketService.on('Cancelled', (sheetId: string) => {
+            this.cancel(sheetId);
+        });
+        this.socketService.on('SheetDeleted', (sheetId: string) => {
+            window.location.reload();
+            alert('La feuille a été supprimée par un autre joueur' + sheetId);
         });
     }
 
+    cancel(sheetId: string) {
+        const foundSheet = this.sheets.find((sheet) => sheet._id === sheetId);
+        if (foundSheet) {
+            foundSheet.isJoinable = false;
+        }
+    }
+
     onChildEvent(sheetId: string): void {
-        console.log('notified, sending now to server');
-        console.log(sheetId);
+        this.currentSheetId = sheetId;
         this.socketService.send('gameJoinable', sheetId);
+        this.dialog.openLoadingDialog();
     }
 
     makeJoinable(sheetID: string) {
@@ -85,6 +110,6 @@ export class GameCardGridComponent implements OnInit {
         if (index > -1) {
             this.sheets.splice(index, 1); // Remove the deleted sheet from the array
         }
-        this.sheetHttpService.deleteSheet(sheet._id).subscribe(() => {}); // Delete the sheet from the database
+        this.sheetHttpService.deleteSheet(sheet._id).subscribe(); // Delete the sheet from the database
     }
 }

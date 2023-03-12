@@ -43,20 +43,19 @@ export class GameCardComponent implements OnInit {
             });
         }
     }
+
     navigate(type: boolean) {
         this.game.create = type;
         this.game.currentGame = this.sheet;
-        this.shouldNavigate$.next(true);
+        this.shouldNavigate$.next(type);
     }
     play() {
         this.navigate(true);
-        console.log('notifying grid');
-        console.log(this.sheet._id);
-        this.myEvent.emit(this.sheet._id);
     }
 
     join() {
         this.navigate(false);
+        this.myEvent.emit(this.sheet._id);
     }
     onDelete() {
         this.delete.emit();
