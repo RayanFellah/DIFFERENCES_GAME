@@ -1,7 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -90,6 +90,10 @@ import { EventService } from './services/event-service.service';
     providers: [
         { provide: Storage, useFactory: () => new Storage({}) },
         { provide: 'EventService', useClass: EventService },
+        {
+            provide: MatDialogRef,
+            useValue: {},
+        },
     ],
     bootstrap: [AppComponent],
 })

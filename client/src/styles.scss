@@ -109,3 +109,12 @@ app-selection-page {
     display: flex;
     flex-direction: column;
 }
+mat-spinner {
+    width: 50px !important;
+    height: 50px !important;
+    align-self: center;
+}
+mat-spinner svg {
+    width: 50px !important;
+    height: 50px !important;
+}

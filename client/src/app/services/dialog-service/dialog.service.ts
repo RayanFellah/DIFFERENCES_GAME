@@ -7,7 +7,14 @@ import { BehaviorSubject } from 'rxjs';
 export class DialogService {
     cancel = new BehaviorSubject<boolean>(false);
     cancel$ = this.cancel.asObservable();
+
+    playerName = new BehaviorSubject<string>('');
+    playerNames$ = this.playerName.asObservable();
     emitCancellation() {
         this.cancel.next(true);
+    }
+
+    emitPlayerNames(playerName: string) {
+        this.playerName.next(playerName);
     }
 }

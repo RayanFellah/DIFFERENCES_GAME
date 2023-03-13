@@ -1,12 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit, Output } from '@angular/core';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
+import { JoinGame } from '@app/interfaces/join-game';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketService } from '@app/socket-service.service';
 import { Sheet } from '@common/sheet';
 import { SHEETS_PER_PAGE } from 'src/constants';
-
 @Component({
     selector: 'app-game-card-grid',
     templateUrl: './game-card-grid.component.html',
@@ -41,12 +41,12 @@ export class GameCardGridComponent implements OnInit {
                 window.alert(responseString);
             },
         });
-        this.connect();
         this.dialogService.cancel$.subscribe((isCancelled: boolean) => {
             if (isCancelled) {
                 this.socketService.send('cancelGameCreation', this.currentSheetId);
             }
         });
+        this.connect();
     }
 
     connect() {
@@ -65,6 +65,10 @@ export class GameCardGridComponent implements OnInit {
             window.location.reload();
             alert('La feuille a été supprimée par un autre joueur' + sheetId);
         });
+        this.socketService.on('UserJoined', (joinGame: JoinGame) => {
+            this.dialogService.emitPlayerNames(joinGame.playerName);
+            console.log(joinGame.playerName);
+        });
     }
 
     cancel(sheetId: string) {
@@ -78,6 +82,10 @@ export class GameCardGridComponent implements OnInit {
         this.currentSheetId = sheetId;
         this.socketService.send('gameJoinable', sheetId);
         this.dialog.openLoadingDialog();
+    }
+
+    onJoinEvent(joinGame: JoinGame): void {
+        this.socketService.send('joinGame', { playerName: joinGame.playerName, sheetId: joinGame.sheetId });
     }
 
     makeJoinable(sheetID: string) {

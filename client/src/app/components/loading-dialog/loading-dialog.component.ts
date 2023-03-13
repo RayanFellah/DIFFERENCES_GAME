@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 
 @Component({
@@ -7,7 +8,13 @@ import { DialogService } from '@app/services/dialog-service/dialog.service';
     styleUrls: ['./loading-dialog.component.scss'],
 })
 export class LoadingDialogComponent {
-    constructor(private dialogService: DialogService) {}
+    playerNames: string[] = [];
+    constructor(
+        private dialogService: DialogService,
+        public dialogRef: MatDialogRef<LoadingDialogComponent>,
+        @Inject(MAT_DIALOG_DATA) public data: { playerName: string },
+    ) {}
+
     cancelCreation() {
         this.dialogService.emitCancellation();
     }

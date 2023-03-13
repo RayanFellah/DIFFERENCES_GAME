@@ -66,23 +66,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage(ChatEvents.JoinGridRoom)
     joinGridRoom(socket: Socket) {
-        console.log('new grid joining');
         socket.join('GridRoom');
     }
     @SubscribeMessage('gameJoinable')
     joinableGame(socket: Socket, sheetId: string) {
-        console.log('received notification');
-        console.log(sheetId);
         this.sheetService.modifySheet({ _id: sheetId, isJoinable: true });
         socket.broadcast.to('GridRoom').emit('Joinable', sheetId);
     }
 
     @SubscribeMessage('cancelGameCreation')
     cancelGameCreation(socket: Socket, sheetId: string) {
-        console.log('received notification');
-        console.log(sheetId);
         this.sheetService.modifySheet({ _id: sheetId, isJoinable: false });
         socket.broadcast.to('GridRoom').emit('Cancelled', sheetId);
+    }
+
+    @SubscribeMessage('joinGame')
+    joinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
+        socket.broadcast.to('GridRoom').emit('UserJoined', { playerName, sheetId });
     }
 
     afterInit() {

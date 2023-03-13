@@ -1,1 +1,16 @@
-<mat-spinner></mat-spinner> <button mat-raised-button [mat-dialog-close]="true" (click)="cancelCreation()">Annuler</button>
+<mat-card>
+    <mat-card-title>Salle d'attente</mat-card-title>
+    <mat-card-subtitle>En attente d'un joueur</mat-card-subtitle>
+    <mat-card-content class="content">
+        <div *ngIf="data.playerName">
+            <p>Joueur : {{ data.playerName }}</p>
+            <button mat-mini-fab><mat-icon>check</mat-icon></button>
+
+            <button mat-mini-fab><mat-icon>close</mat-icon></button>
+        </div>
+        <mat-spinner></mat-spinner>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-stroked-button color="accent" [mat-dialog-close]="true" (click)="cancelCreation()">Annuler</button>
+    </mat-card-actions>
+</mat-card>

@@ -5,7 +5,8 @@
             [sheet]="sheet"
             [isConfig]="isConfig"
             (delete)="onSheetDelete(sheet)"
-            (myEvent)="onChildEvent($event)"
+            (createEvent)="onChildEvent($event)"
+            (joinEvent)="onJoinEvent($event)"
         ></app-game-card>
     </ng-container>
 </div>
