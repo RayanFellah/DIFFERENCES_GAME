@@ -3,7 +3,7 @@ import { Component, Input, OnInit, Output } from '@angular/core';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
-import { SocketService } from '@app/socket-service.service';
+import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { Sheet } from '@common/sheet';
 import { SHEETS_PER_PAGE } from 'src/constants';
 
@@ -22,7 +22,7 @@ export class GameCardGridComponent implements OnInit {
 
     constructor(
         private readonly sheetHttpService: SheetHttpService,
-        public socketService: SocketService,
+        private socketService: SocketClientService,
         private readonly dialog: DialogComponent,
         private dialogService: DialogService,
     ) {}
@@ -32,6 +32,7 @@ export class GameCardGridComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.connect();
         this.sheetHttpService.getAllSheets().subscribe({
             next: (response) => {
                 this.sheets = response;
@@ -41,7 +42,6 @@ export class GameCardGridComponent implements OnInit {
                 window.alert(responseString);
             },
         });
-        this.connect();
         this.dialogService.cancel$.subscribe((isCancelled: boolean) => {
             if (isCancelled) {
                 this.socketService.send('cancelGameCreation', this.currentSheetId);

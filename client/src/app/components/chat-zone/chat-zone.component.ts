@@ -1,14 +1,12 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ChatMessage } from '@app/interfaces/chat-message';
-import { LocalStorageService } from '@app/services/local-storage.service';
 
 @Component({
     selector: 'app-chat-zone',
     templateUrl: './chat-zone.component.html',
     styleUrls: ['./chat-zone.component.scss'],
-    providers: [LocalStorageService],
 })
-export class ChatZoneComponent implements OnInit, OnDestroy {
+export class ChatZoneComponent implements OnInit {
     @Input() playerName: string;
     @Input() opponentName: string;
     @Input() chatMessages: ChatMessage[] = [];

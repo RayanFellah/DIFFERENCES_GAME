@@ -19,6 +19,7 @@ export class GameCardComponent implements OnInit {
     @Output() myEvent = new EventEmitter<string>();
     trustedUrl: SafeUrl;
     shouldNavigate$ = new BehaviorSubject(false);
+    private type: string;
 
     constructor(
         private readonly imageHttp: ImageHttpService,
@@ -26,14 +27,13 @@ export class GameCardComponent implements OnInit {
         // eslint-disable-next-line max-len
         private router: Router,
         private game: GameSelectorService, // private sheetService: SheetHttpService, // private storage: LocalStorageService,
-        private type: string;
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
                 const playerName = window.prompt('What is your name?');
                 const validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
                 if (!validName) return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");
-                this.router.navigate(['/game', this.sheet._id, playerName, type]);
+                this.router.navigate(['/game', this.sheet._id, playerName, this.type]);
             }
         });
     }
@@ -51,7 +51,7 @@ export class GameCardComponent implements OnInit {
         this.shouldNavigate$.next(type);
     }
     play() {
-        this.type = 'solo'; 
+        this.type = 'solo';
         this.navigate(true);
     }
 

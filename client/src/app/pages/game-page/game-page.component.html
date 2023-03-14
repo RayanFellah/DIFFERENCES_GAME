@@ -9,7 +9,7 @@
 </div>
 <h2>Difficulté: {{ difficulty }}</h2>
 <app-differences-found></app-differences-found>
-<app-play-area (difficulty)="onDifficultyChange($event)" class="play-area-container"></app-play-area>
+<app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area-container"></app-play-area>
 <app-chat-zone
     class="chat-zone-container"
     [playerName]="playerName"

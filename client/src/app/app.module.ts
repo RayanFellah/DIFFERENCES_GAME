@@ -37,6 +37,7 @@ import { FileValueAccessorDirective } from './directives/file-value-accessor.dir
 import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
 import { CreationPageComponent } from './pages/creation-page/creation-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
+import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
 /**
  * Main module that is used in main.ts.
@@ -52,7 +53,6 @@ import { EventService } from './services/event-service.service';
         MaterialPageComponent,
         PlayAreaComponent,
         SidebarComponent,
-        GameCardComponent,
         SelectionPageComponent,
         GameCardGridComponent,
         HeaderComponent,
@@ -70,6 +70,7 @@ import { EventService } from './services/event-service.service';
         ConfigButtonsComponent,
         ConstantsDialogComponent,
         LoadingDialogComponent,
+        GameCardComponent,
     ],
     imports: [
         AppMaterialModule,
@@ -90,6 +91,8 @@ import { EventService } from './services/event-service.service';
     providers: [
         { provide: Storage, useFactory: () => new Storage({}) },
         { provide: 'EventService', useClass: EventService },
+        CanvasHelperService,
+        { provide: HTMLCanvasElement, useValue: document.createElement('canvas') },
     ],
     bootstrap: [AppComponent],
 })

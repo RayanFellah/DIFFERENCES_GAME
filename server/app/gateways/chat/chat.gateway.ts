@@ -1,4 +1,4 @@
-import { Coord } from '@app/interfaces/coord.interface';
+import { Coord } from '@app/interfaces/coord';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
 import { PlayRoom } from '@common/play-room';
@@ -35,7 +35,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             socket.join(room.roomName);
             this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: room });
         } else {
-            room.player2 = { name: payload.playerName, socketId: socket.id };
+            room.player2 = { name: payload.playerName, socketId: socket.id, differencesFound: 0 };
             socket.join(room.roomName);
             this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: room });
         }
@@ -43,37 +43,47 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('createSoloGame')
     async createSoloRoom(socket: Socket, payload) {
+        console.log('in create');
         const playSheet = await this.sheetService.getSheet(payload.sheetId);
         const diffs = await this.gameService.getAllDifferences(playSheet);
         const newRoom: PlayRoom = {
             roomName: `${payload.name}'s room`,
-            player1: { name: payload.name, socketId: socket.id },
+            player1: { name: payload.name, socketId: socket.id, differencesFound: 0 },
             player2: undefined,
             sheet: playSheet,
             differences: diffs,
-            differencesFound: 0,
+            numberOfDifferences: diffs.length,
         };
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
-        this.server.to(payload.roomName).emit(ChatEvents.RoomCreated, { playRoom: newRoom.roomName });
+        this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
     }
 
-    @SubscribeMessage('Click')
+    @SubscribeMessage('click')
     validateClick(client: Socket, payload) {
         const clickCoord: Coord = { posX: payload.x, posY: payload.y };
         const room = this.rooms.find((res) => res.roomName === payload.roomName);
+        const player = room.player1.name === payload.playerName ? room.player1 : room.player2;
+        console.log(room.differences.length);
+        console.log(player.differencesFound);
 
         for (const diff of room.differences) {
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
-                    room.differencesFound++;
+                    console.log('found');
+                    player.differencesFound++;
                     this.server.to(payload.roomName).emit('found', {
                         coords: diff.coords,
                         player: payload.playerName,
-                        diffsLeft: room.differences.length - room.differencesFound,
+                        diffsLeft: room.differences.length - player.differencesFound,
                     });
+                    room.differences = room.differences.filter((it) => JSON.stringify(diff) !== JSON.stringify(it));
                 }
             }
+        }
+        if (player.differencesFound === room.numberOfDifferences) {
+            this.server.to(payload.roomName).emit('gameDone', `${payload.playerName} has won!`);
+            return;
         }
         this.server.to(payload.roomName).emit('error', payload.playerName);
     }

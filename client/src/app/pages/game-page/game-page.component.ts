@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
@@ -8,8 +8,12 @@ import { SocketClientService } from '@app/services/socket-client/socket-client.s
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
 })
+/**
+ * On met ici tout ce qui a rapport a la creation des games pour les sockets,
+ * la gestion des clicks se fera dans le service de gamelogic, et la gestion du chat dans le chatboxcomponent
+ */
 export class GamePageComponent implements OnInit {
-    playerName: string;
+    @Output() playerName: string;
     difficulty: string;
     chatMessages: ChatMessage[] = [];
     gameType: string | null;
@@ -31,15 +35,6 @@ export class GamePageComponent implements OnInit {
         this.chatMessages.push(message);
         this.socketService.send('roomMessage', message);
     }
-
-    joinRoom() {
-        this.socketService.send('joinRoom', this.playerName);
-    }
-
-    createRoom() {
-        this.socketService.send('createRoom', this.playerName);
-    }
-
     createSoloGame() {
         const data = { name: this.playerName, sheet: this.sheetId };
         this.socketService.send('createSoloGame', data);
