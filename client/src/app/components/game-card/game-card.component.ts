@@ -55,13 +55,13 @@ export class GameCardComponent implements OnInit {
         this.type = 'solo';
         this.navigate(true);
     }
-
-    join() {
-        this.type = '1v1';
+    create() {
         this.navigate(false);
         this.createEvent.emit(this.sheet._id);
     }
+
     join() {
+        this.type = '1v1';
         const playerName = window.prompt('What is your name?');
         const validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
         if (!validName) return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");
