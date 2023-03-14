@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Inject, Injectable, OnDestroy } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 import { finalize, fromEvent, OperatorFunction, switchMap, tap } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -14,7 +14,7 @@ export class CanvasHelperService implements OnDestroy {
     tempImageData: ImageData;
     url: string;
     color: string;
-    constructor(private canvasRef: HTMLCanvasElement) {
+    constructor(@Inject(HTMLCanvasElement) private canvasRef: HTMLCanvasElement) {
         this.context = canvasRef.getContext('2d');
         if (this.context) this.tempImageData = this.context.getImageData(0, 0, WIDTH, HEIGHT);
     }

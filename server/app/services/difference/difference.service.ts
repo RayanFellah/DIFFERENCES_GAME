@@ -1,4 +1,4 @@
-import { Coord } from '@app/interfaces/coord.interface';
+import { Coord } from '@common/coord';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

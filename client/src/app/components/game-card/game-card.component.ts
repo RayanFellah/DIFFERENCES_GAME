@@ -20,6 +20,7 @@ export class GameCardComponent implements OnInit {
     @Output() joinEvent = new EventEmitter<JoinGame>();
     trustedUrl: SafeUrl;
     shouldNavigate$ = new BehaviorSubject(false);
+    private type: string;
 
     constructor(
         private readonly imageHttp: ImageHttpService,
@@ -33,7 +34,7 @@ export class GameCardComponent implements OnInit {
                 const playerName = window.prompt('What is your name?');
                 const validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
                 if (!validName) return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");
-                this.router.navigate(['/game', this.sheet._id, playerName]);
+                this.router.navigate(['/game', this.sheet._id, playerName, this.type]);
             }
         });
     }
@@ -51,10 +52,12 @@ export class GameCardComponent implements OnInit {
         this.shouldNavigate$.next(type);
     }
     play() {
+        this.type = 'solo';
         this.navigate(true);
     }
 
-    create() {
+    join() {
+        this.type = '1v1';
         this.navigate(false);
         this.createEvent.emit(this.sheet._id);
     }

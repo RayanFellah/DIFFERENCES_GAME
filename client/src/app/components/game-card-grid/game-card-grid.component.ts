@@ -4,7 +4,7 @@ import { DialogComponent } from '@app/components/dialogue/dialog.component';
 import { JoinGame } from '@app/interfaces/join-game';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
-import { SocketService } from '@app/socket-service.service';
+import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { Sheet } from '@common/sheet';
 import { SHEETS_PER_PAGE } from 'src/constants';
 @Component({
@@ -22,7 +22,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
 
     constructor(
         private readonly sheetHttpService: SheetHttpService,
-        public socketService: SocketService,
+        private socketService: SocketClientService,
         private readonly dialog: DialogComponent,
         private dialogService: DialogService,
     ) {}
@@ -32,6 +32,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.connect();
         this.sheetHttpService.getAllSheets().subscribe({
             next: (response) => {
                 this.sheets = response;

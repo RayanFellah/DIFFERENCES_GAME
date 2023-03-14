@@ -1,7 +1,7 @@
-<mat-card class="chat-zone" (keyup.enter)="send()">
+<mat-card class="chat-zone" (keyup.enter)="sendMessage()">
     <mat-card-title class="op-name">{{ this.playerName }}</mat-card-title>
     <div class="chat-area" swScrollPosition="lorum-ipsum">
-        <div *ngFor="let message of chatService.roomMessages">
+        <div *ngFor="let message of chatMessages">
             <div class="message-wrapper">
                 <div
                     [ngClass]="{
@@ -25,10 +25,10 @@
         </div>
     </div>
     <mat-form-field appearance="outline" class="input-area">
-        <input matInput placeholder="type..." maxlength="200" type="text" [(ngModel)]="newMessage" />
-        <button class="send-button" mat-icon-button matSuffix (click)="send()">
+        <input matInput placeholder="type..." maxlength="200" type="text" [(ngModel)]="messageContent" />
+        <button class="send-button" mat-icon-button matSuffix (click)="sendMessage()">
             <mat-icon>send</mat-icon>
         </button>
     </mat-form-field>
-    <p>{{ this.chatService.serverTime }}</p>
+    <p></p>
 </mat-card>
