@@ -1,12 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ImageDialogComponent } from './image-dialog.component';
 
 describe('ImageDialogComponent', () => {
     let component: ImageDialogComponent;
     let fixture: ComponentFixture<ImageDialogComponent>;
-    let domSanitizer: DomSanitizer;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -16,6 +15,10 @@ describe('ImageDialogComponent', () => {
                     provide: MAT_DIALOG_DATA,
                     useValue: { imageUrl: 'test-image-url' },
                 },
+                {
+                    provide: MatDialogRef,
+                    useValue: {},
+                },
             ],
         }).compileComponents();
     });
@@ -23,7 +26,7 @@ describe('ImageDialogComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(ImageDialogComponent);
         component = fixture.componentInstance;
-        domSanitizer = TestBed.inject(DomSanitizer);
+        TestBed.inject(DomSanitizer);
     });
 
     it('should create', () => {
@@ -31,9 +34,11 @@ describe('ImageDialogComponent', () => {
     });
 
     it('should set imageUrl', () => {
-        spyOn(domSanitizer, 'bypassSecurityTrustUrl');
-        fixture.detectChanges();
-        expect(domSanitizer.bypassSecurityTrustUrl).toHaveBeenCalledWith('data:image/bmp;base64,test-image-url');
-        expect(component.imageUrl).toBeDefined();
+        const imageUrl = 'test';
+        const sanitizer = TestBed.inject(DomSanitizer);
+        const spy = spyOn(sanitizer, 'bypassSecurityTrustUrl').and.returnValue('safeUrl');
+        component = new ImageDialogComponent({ imageUrl }, sanitizer, {} as MatDialogRef<ImageDialogComponent>);
+        expect(spy).toHaveBeenCalledWith('data:image/bmp;base64,test');
+        expect(component.imageUrl).toEqual('safeUrl');
     });
 });

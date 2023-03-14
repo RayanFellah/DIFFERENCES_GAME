@@ -1,4 +1,4 @@
-import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ClientChatService } from '@app/services/chat-client.service';
 import { EventService } from '@app/services/event-service.service';
 import { GameSelectorService } from '@app/services/game-selector.service';
@@ -16,11 +16,7 @@ export class ChatZoneComponent implements OnInit, OnDestroy {
     differenceFound: boolean = false;
     newMessage: string = '';
     currentRoom: PlayRoom | null;
-    constructor(
-        @Inject('EventService') private eventService: EventService,
-        public chatService: ClientChatService,
-        private gameSelector: GameSelectorService,
-    ) {
+    constructor(private eventService: EventService, public chatService: ClientChatService, private gameSelector: GameSelectorService) {
         this.eventService.differenceFound$.subscribe((found) => {
             this.sendDifferenceFound(found);
         });

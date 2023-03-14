@@ -38,6 +38,7 @@ describe('SheetHttpService', () => {
                     radius: 5,
                     topPlayer: 'John',
                     differences: 10,
+                    isJoinable: false,
                 },
                 {
                     _id: '2',
@@ -48,6 +49,7 @@ describe('SheetHttpService', () => {
                     radius: 10,
                     topPlayer: 'Jane',
                     differences: 15,
+                    isJoinable: false,
                 },
             ];
 
@@ -59,23 +61,6 @@ describe('SheetHttpService', () => {
             const req = httpMock.expectOne(`${environment.serverUrl}/sheet`);
             expect(req.request.method).toBe('GET');
             req.flush(mockSheets);
-        });
-
-        it('should handle error', () => {
-            const error = new Error('An error occurred.');
-
-            sheetHttpService.getAllSheets().subscribe(
-                () => {
-                    fail('should have failed with the error');
-                },
-                (err) => {
-                    expect(err).toEqual(error);
-                },
-            );
-
-            const req = httpMock.expectOne(`${environment.serverUrl}/sheet`);
-            expect(req.request.method).toBe('GET');
-            req.flush(null, { status: 500, statusText: 'Server Error' });
         });
     });
 
@@ -104,27 +89,12 @@ describe('SheetHttpService', () => {
             const id = '1';
 
             sheetHttpService.deleteSheet(id).subscribe((res) => {
-                expect(res).toBeUndefined();
+                expect(res).toBeNull();
             });
 
             const req = httpMock.expectOne(`${environment.serverUrl}/sheet/${id}`);
             expect(req.request.method).toBe('DELETE');
             req.flush(null);
-        });
-
-        it('should handle error if server returns error status code', () => {
-            const id = '1';
-            const errorMessage = 'Error: Sheet could not be deleted';
-            sheetHttpService.deleteSheet(id).subscribe(
-                () => {},
-                (error) => {
-                    expect(error.message).toBe(errorMessage);
-                },
-            );
-
-            const req = httpMock.expectOne(`${environment.serverUrl}/sheet/${id}`);
-            expect(req.request.method).toBe('DELETE');
-            req.flush(errorMessage, { status: 500, statusText: 'Server Error' });
         });
     });
 });

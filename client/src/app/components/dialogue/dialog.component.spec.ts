@@ -1,12 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { ConstantsDialogComponent } from '@app/components/constants-dialog/constants-dialog.component';
 import { ImageDialogComponent } from '@app/components/image-dialog/image-dialog.component';
-import { ConstantsDialogComponent } from '../constants-dialog/constants-dialog.component';
+import { HEIGHT, WIDTH } from 'src/constants';
 import { DialogComponent } from './dialog.component';
 
 describe('DialogComponent', () => {
     let component: DialogComponent;
     let fixture: ComponentFixture<DialogComponent>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let mockMatDialog: any;
 
     beforeEach(async () => {
@@ -16,7 +18,13 @@ describe('DialogComponent', () => {
 
         await TestBed.configureTestingModule({
             declarations: [DialogComponent],
-            providers: [{ provide: MatDialog, useValue: mockMatDialog }],
+            providers: [
+                { provide: MatDialog, useValue: mockMatDialog },
+                {
+                    provide: MatDialogRef,
+                    useValue: {},
+                },
+            ],
         }).compileComponents();
     });
 
@@ -36,8 +44,8 @@ describe('DialogComponent', () => {
             component.openImageDialog(imageUrl);
             expect(mockMatDialog.open).toHaveBeenCalledWith(ImageDialogComponent, {
                 data: { imageUrl },
-                maxWidth: jasmine.any(String),
-                maxHeight: jasmine.any(String),
+                maxWidth: WIDTH,
+                maxHeight: HEIGHT,
             });
         });
     });
