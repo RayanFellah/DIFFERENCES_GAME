@@ -12,7 +12,7 @@ import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SnackBarService } from '@app/services/snack-bar.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { THREE } from 'src/constants';
+import { HEIGHT, THREE, WIDTH } from 'src/constants';
 
 @Component({
     selector: 'app-creation-page',
@@ -107,10 +107,50 @@ export class CreationPageComponent implements OnInit {
             }
         }
     }
+    async mergeCanvas(canvas: ImageAreaComponent, side: 'left' | 'right'): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            const leftForegroundCanvas = canvas.fCanvas.nativeElement;
+            const leftBackgroundCanvas = canvas.bCanvas.nativeElement;
 
-    verifyDifferences() {
+            leftBackgroundCanvas.getContext('2d')?.drawImage(leftForegroundCanvas, 0, 0, WIDTH, HEIGHT);
+
+            leftBackgroundCanvas.toBlob((blob: Blob | null) => {
+                if (blob) {
+                    const file = new File([blob], 'image.bmp', { type: 'MIME_BMP' });
+                    if (side === 'left') {
+                        this.createGame.patchValue({
+                            originalImagePath: file,
+                        });
+                    } else {
+                        this.createGame.patchValue({
+                            modifiedImagePath: file,
+                        });
+                    }
+                    resolve();
+                } else {
+                    reject('Error creating blob.');
+                }
+            });
+        });
+    }
+    async mergeAllCanvas(image1: ImageAreaComponent, image2: ImageAreaComponent): Promise<void> {
+        return new Promise<void>((resolve) => {
+            const promises = [];
+
+            promises.push(this.mergeCanvas(image1, 'left'));
+            promises.push(this.mergeCanvas(image2, 'right'));
+
+            Promise.all(promises).then(() => {
+                resolve();
+            });
+        });
+    }
+
+    async verifyDifferences(image1: ImageAreaComponent, image2: ImageAreaComponent) {
+        await this.mergeAllCanvas(image1, image2);
         if (this.originalImagePath?.value && this.modifiedImagePath?.value) {
             const formData = new FormData();
+
             formData.append('originalImagePath', this.originalImagePath?.value);
             formData.append('modifiedImagePath', this.modifiedImagePath?.value);
             formData.append('radius', this.radiusSize?.value);
@@ -133,7 +173,9 @@ export class CreationPageComponent implements OnInit {
         }
     }
 
-    submit() {
+    async submit(image1: ImageAreaComponent, image2: ImageAreaComponent) {
+        await this.mergeAllCanvas(image1, image2);
+
         if (this.createGame.valid) {
             const formData = new FormData();
             formData.append('title', this.title?.value);

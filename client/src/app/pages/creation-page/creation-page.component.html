@@ -1,6 +1,6 @@
 <app-header pageTitle="Création"></app-header>
 <main>
-    <form [formGroup]="createGame" (ngSubmit)="submit()">
+    <form [formGroup]="createGame" (ngSubmit)="submit(leftImageArea, rightImageArea)">
         <div class="head">
             <mat-form-field>
                 <input matInput id="gameTitle" type="text" formControlName="title" placeholder="Titre du jeu" />
@@ -47,29 +47,17 @@
                     <mat-icon>attach_file</mat-icon>
                 </button>
             </button>
-            <button
-                mat-stroked-button
-                type="button"
-                color="primary"
-                (click)="verifyDifferences()"
-                [disabled]="!(originalImagePath?.value && modifiedImagePath?.value)"
-            >
+            <button mat-stroked-button type="button" color="primary" (click)="verifyDifferences(leftImageArea, rightImageArea)">
                 {{ 'Vérifier les différences' }}
 
-                <button
-                    mat-mini-fab
-                    type="button"
-                    color="primary"
-                    [ngStyle]="{ transform: 'scale(0.7)' }"
-                    [disabled]="!(originalImagePath?.value && modifiedImagePath?.value)"
-                >
+                <button mat-mini-fab type="button" color="primary" [ngStyle]="{ transform: 'scale(0.7)' }">
                     <mat-icon>compare_arrows</mat-icon>
                 </button>
             </button>
-            <button mat-stroked-button color="primary" (click)="(submit)" [disabled]="!createGame.valid">
+            <button mat-stroked-button color="primary" (click)="(submit)">
                 {{ 'Créer la partie' }}
 
-                <button mat-mini-fab color="primary" [ngStyle]="{ transform: 'scale(0.7)' }" [disabled]="!createGame.valid">
+                <button mat-mini-fab color="primary" [ngStyle]="{ transform: 'scale(0.7)' }">
                     <mat-icon>done_outline</mat-icon>
                 </button>
             </button>

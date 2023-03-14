@@ -63,18 +63,6 @@ export class ImageAreaComponent implements OnInit, OnDestroy {
         this.drawingTool.keyEvents(event);
     }
 
-    mergeCanvas() {
-        const context = this.getBackgroundContext();
-        context.drawImage(this.fCanvas.nativeElement, 0, 0, this.width, this.height);
-        this.bCanvas.nativeElement.toBlob((blob: Blob | null) => {
-            if (blob) {
-                const file = new File([blob], 'image.bmp', { type: 'MIME_BMP' });
-                this.fileUploaderService.setCanvasMerge(file, this.side);
-            }
-        });
-        this.getForegroundContext().clearRect(0, 0, this.width, this.height);
-    }
-
     private drawImageOnCanvas() {
         const reader = new FileReader();
         reader.onload = () => {

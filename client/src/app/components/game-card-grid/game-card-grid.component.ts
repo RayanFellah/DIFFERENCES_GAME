@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
 import { JoinGame } from '@app/interfaces/join-game';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
@@ -13,7 +13,7 @@ import { SHEETS_PER_PAGE } from 'src/constants';
     styleUrls: ['./game-card-grid.component.scss'],
     providers: [DialogComponent],
 })
-export class GameCardGridComponent implements OnInit {
+export class GameCardGridComponent implements OnInit, OnDestroy {
     @Output() sheets: Sheet[] = [];
     @Input() isConfig: boolean;
     @Input() playerName: string;
@@ -42,7 +42,7 @@ export class GameCardGridComponent implements OnInit {
             },
         });
         this.dialogService.cancel$.subscribe((isCancelled: boolean) => {
-            if (isCancelled) {
+            if (isCancelled && this.currentSheetId) {
                 this.socketService.send('cancelGameCreation', this.currentSheetId);
             }
         });
@@ -119,5 +119,10 @@ export class GameCardGridComponent implements OnInit {
             this.sheets.splice(index, 1); // Remove the deleted sheet from the array
         }
         this.sheetHttpService.deleteSheet(sheet._id).subscribe(); // Delete the sheet from the database
+    }
+
+    ngOnDestroy(): void {
+        console.log('this.currentSheetId' + this.currentSheetId);
+        if (this.currentSheetId) this.socketService.send('cancelGameCreation', this.currentSheetId);
     }
 }

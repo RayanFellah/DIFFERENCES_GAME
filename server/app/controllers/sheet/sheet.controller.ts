@@ -11,6 +11,7 @@ import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from 
 import { Response } from 'express';
 import { createWriteStream } from 'fs';
 
+const randomString = require('randomstring');
 @ApiTags('Sheets')
 @Controller('sheet')
 export class SheetController {
@@ -82,7 +83,7 @@ export class SheetController {
                 for (const key in files) {
                     if (files[key]) {
                         const file: Express.Multer.File = files[key][0];
-                        const fileName = file.originalname;
+                        const fileName = file.originalname + randomString.generate();
                         const filePath = `./uploads/${fileName}`;
                         const imageStream = createWriteStream(filePath);
                         if (!file) {
