@@ -54,6 +54,8 @@ export class GameLogicService {
 
         this.numberDifferences = this.sheet.differences;
         this.differencesFoundService.setNumberOfDifferences(this.numberDifferences);
+        this.difficulty = this.sheet.difficulty;
+        this.differencesFoundService.setNumberOfDifferences(this.numberDifferences);
     }
     async sendCLick(event: MouseEvent) {
         return new Promise<boolean>((resolve, reject) => {
@@ -64,6 +66,7 @@ export class GameLogicService {
                         return;
                     }
                     if (res) {
+                        this.differencesFoundService.setNumberOfDifferences(this.differencesFound);
                         this.diff = res;
                         this.foundDifferences.push(res);
                         this.handleClick(event, this.diff);
@@ -112,7 +115,7 @@ export class GameLogicService {
             this.makeBlink(this.diff);
             this.audio.playSuccessSound();
             this.differencesFound++;
-            // this.differencesFoundService.setAttribute(this.differencesFound);
+            this.differencesFoundService.setAttribute(this.differencesFound);
             if (this.differencesFound === this.numberDifferences) {
                 // this.showDialog();
             }

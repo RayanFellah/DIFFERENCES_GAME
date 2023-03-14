@@ -8,11 +8,16 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class GamePageComponent implements OnInit {
     playerName: string;
+    difficulty: string;
     constructor(private activatedRoute: ActivatedRoute) {}
 
     ngOnInit() {
         const name = this.activatedRoute.snapshot.paramMap.get('name');
         if (!name) this.playerName = 'Anonymous';
         else this.playerName = name;
+    }
+    onDifficultyChange(eventData: string) {
+        console.log('dedans');
+        this.difficulty = eventData;
     }
 }

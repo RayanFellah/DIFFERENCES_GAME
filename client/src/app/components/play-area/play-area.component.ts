@@ -20,6 +20,7 @@ import { HEIGHT, WIDTH } from 'src/constants';
 })
 export class PlayAreaComponent implements AfterViewInit {
     @Output() differenceFound: EventEmitter<boolean> = new EventEmitter();
+    @Output() difficulty = new EventEmitter();
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
 
@@ -63,6 +64,8 @@ export class PlayAreaComponent implements AfterViewInit {
             this.gameSelector.currentGame = sheet;
             this.logic.sheet = this.gameSelector.currentGame;
             this.logic.start();
+            this.difficulty.emit(this.logic.difficulty);
+            console.log(this.logic.difficulty);
         });
     }
 

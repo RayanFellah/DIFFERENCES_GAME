@@ -7,4 +7,5 @@ export interface Sheet {
     radius: number;
     topPlayer: string;
     differences: number;
+    isJoinable: boolean;
 }

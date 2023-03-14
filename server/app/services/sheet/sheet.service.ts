@@ -40,7 +40,7 @@ export class SheetService {
     }
 
     async modifySheet(sheet: UpdateSheetDto): Promise<void> {
-        const filterQuery = { _id: sheet.id };
+        const filterQuery = { _id: sheet._id };
         try {
             const res = await this.sheetModel.updateOne(filterQuery, sheet);
             if (res.matchedCount === 0) {
@@ -49,5 +49,10 @@ export class SheetService {
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);
         }
+    }
+
+    async isSheetJoinable(id: string) {
+        const sheet = await this.sheetModel.findOne({ _id: id });
+        return sheet.isJoinable;
     }
 }

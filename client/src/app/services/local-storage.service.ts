@@ -4,43 +4,20 @@ import { PlayRoom } from '@common/play-room';
     providedIn: 'root',
 })
 export class LocalStorageService {
-    // constructor() {}
-
-    // async createStorage(): Promise<void> {
-    //     await this.localStorage.create();
-    // }
-
-    // async setRoom(key: string, value: PlayRoom): Promise<void> {
-    //     await this.localStorage.set(key, JSON.stringify(value));
-    // }
-    // async setGame(key: string, value: Sheet): Promise<void> {
-    //     await this.localStorage.set(key, JSON.stringify(value));
-    // }
-    // async setName(key: string, value: string): Promise<void> {
-    //     await this.localStorage.set(key, value);
-    // }
-    // async getPlayRoom(key: string): Promise<PlayRoom> {
-    //     return JSON.parse(await this.localStorage.get(key));
-    // }
-
-    // async getPlayerName(key: string): Promise<string> {
-    //     return JSON.parse(await this.localStorage.get(key));
-    // }
-
+    tabID: string = window.location.href;
     setPlayRoom(room: PlayRoom) {
-        localStorage.setItem('currentRoom', JSON.stringify(room));
+        localStorage.setItem(this.tabID + 'currentRoom', JSON.stringify(room));
     }
-
     setName(name: string) {
-        localStorage.setItem('playerName', name);
+        localStorage.setItem(this.tabID + 'playerName', name);
     }
     getName() {
-        const name = localStorage.getItem('playerName');
+        const name = localStorage.getItem(this.tabID + 'playerName');
         return name ? name : undefined;
     }
 
     getRoom() {
-        const room = localStorage.getItem('currentRoom');
+        const room = localStorage.getItem(this.tabID + 'currentRoom');
         return room ? JSON.parse(room) : undefined;
     }
 }

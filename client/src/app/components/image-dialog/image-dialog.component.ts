@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
@@ -9,7 +9,11 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 })
 export class ImageDialogComponent {
     imageUrl: SafeUrl;
-    constructor(@Inject(MAT_DIALOG_DATA) public data: { imageUrl: string }, private sanitizer: DomSanitizer) {
+    constructor(
+        @Inject(MAT_DIALOG_DATA) public data: { imageUrl: string },
+        private sanitizer: DomSanitizer,
+        public dialogRef: MatDialogRef<ImageDialogComponent>,
+    ) {
         this.imageUrl = this.sanitizer.bypassSecurityTrustUrl('data:image/bmp;base64,' + data.imageUrl);
     }
 }

@@ -7,6 +7,7 @@
         Bienvenue <span class="player-name">{{ playerName }}</span>
     </h1>
 </div>
+<h2>Difficulté: {{ difficulty }}</h2>
 <app-differences-found></app-differences-found>
-<app-play-area class="play-area-container"></app-play-area>
+<app-play-area (difficulty)="onDifficultyChange($event)" class="play-area-container"></app-play-area>
 <app-chat-zone class="chat-zone-container" [playerName]="playerName"></app-chat-zone>

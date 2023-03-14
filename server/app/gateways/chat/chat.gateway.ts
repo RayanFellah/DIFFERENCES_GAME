@@ -1,5 +1,5 @@
-import { ClickValidationPayload } from '@app/interfaces/chat-clickValidate.interface';
 import { ChatGatewayPayload } from '@app/interfaces/chat-gateway.interface';
+import { SheetService } from '@app/services/sheet/sheet.service';
 import { PlayRoom } from '@common/play-room';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -15,12 +15,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     private readonly room = PRIVATE_ROOM_ID;
     private rooms: PlayRoom[] = [];
 
-    constructor(private readonly logger: Logger) {}
-
-    @SubscribeMessage(ChatEvents.Message)
-    message(_: Socket, message: string) {
-        this.logger.log(`Message reÃ§u : ${message}`);
-    }
+    constructor(private readonly logger: Logger, private readonly sheetService: SheetService) {}
 
     @SubscribeMessage(ChatEvents.BroadcastAll)
     broadcastAll(socket: Socket, message: string) {
@@ -28,31 +23,30 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     @SubscribeMessage(ChatEvents.JoinRoom)
-    joinRoom(socket: Socket, payload: ChatGatewayPayload) {
-        const room = this.rooms.find((roomJoined) => roomJoined.roomName === payload.roomName);
-        if (room && room.player1 && room.player2) {
-            return;
-        }
-        if (room) {
-            if (!room.player1) {
-                room.player1 = { name: payload.playerName, socketId: socket.id };
-            } else {
-                room.player2 = { name: payload.playerName, socketId: socket.id };
-            }
+    joinActiveRoom(socket: Socket, payload) {
+        const room = this.rooms.find((playRoom) => playRoom.roomName === payload.roomName);
+        if (room.player1.name === payload.playerName) {
+            room.player1.socketId = socket.id;
             socket.join(room.roomName);
             this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: room });
         } else {
-            const newRoom: PlayRoom = {
-                roomName: payload.roomName,
-                player1: { name: payload.playerName, socketId: socket.id },
-                player2: undefined,
-                sheet: payload.sheet,
-            };
-            this.rooms.push(newRoom);
-            socket.join(newRoom.roomName);
-            console.log(newRoom);
-            this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: newRoom });
+            room.player2 = { name: payload.playerName, socketId: socket.id };
+            socket.join(room.roomName);
+            this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: room });
         }
+    }
+
+    @SubscribeMessage(ChatEvents.CreateRoom)
+    createRoom(socket: Socket, payload) {
+        const newRoom: PlayRoom = {
+            roomName: payload.roomName,
+            player1: { name: payload.playerName, socketId: socket.id },
+            player2: undefined,
+            sheet: payload.sheet,
+        };
+        this.rooms.push(newRoom);
+        socket.join(newRoom.roomName);
+        this.server.to(payload.roomName).emit(ChatEvents.RoomCreated, { playRoom: newRoom });
     }
 
     @SubscribeMessage(ChatEvents.RoomMessage)
@@ -63,13 +57,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     @SubscribeMessage(ChatEvents.ClickValidation)
-    validateClick(socket: Socket, payload: ClickValidationPayload) {
-        console.log('click received');
-        console.log(payload.found);
+    validateClick(socket: Socket, payload) {
         const message = payload.found ? `${payload.playerName} has found a difference` : `Error from ${payload.playerName}`;
         if (socket.rooms.has(payload.roomName)) {
             this.server.to(payload.roomName).emit(ChatEvents.ClickValidated, { sender: 'game', content: message });
         }
+    }
+
+    @SubscribeMessage(ChatEvents.JoinGridRoom)
+    joinGridRoom(socket: Socket) {
+        socket.join('GridRoom');
+    }
+    @SubscribeMessage('gameJoinable')
+    joinableGame(socket: Socket, sheetId: string) {
+        this.sheetService.modifySheet({ _id: sheetId, isJoinable: true });
+        socket.broadcast.to('GridRoom').emit('Joinable', sheetId);
+    }
+
+    @SubscribeMessage('cancelGameCreation')
+    cancelGameCreation(socket: Socket, sheetId: string) {
+        this.sheetService.modifySheet({ _id: sheetId, isJoinable: false });
+        socket.broadcast.to('GridRoom').emit('Cancelled', sheetId);
+    }
+
+    @SubscribeMessage('joinGame')
+    joinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
+        socket.broadcast.to('GridRoom').emit('UserJoined', { playerName, sheetId });
     }
 
     afterInit() {
@@ -98,6 +111,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 this.server.to(room.roomName).emit(ChatEvents.RoomMessage, { sender: 'game', message: `${name} has left the room` });
             }
         }
+    }
+
+    emitDeletedSheet(sheetId: string) {
+        this.server.to('GridRoom').emit('SheetDeleted', sheetId);
     }
 
     private emitTime() {

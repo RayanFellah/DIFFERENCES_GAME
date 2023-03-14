@@ -24,4 +24,7 @@ export class Sheet {
 
     @ApiProperty()
     differences: number;
+
+    @ApiProperty()
+    isJoinable: boolean;
 }

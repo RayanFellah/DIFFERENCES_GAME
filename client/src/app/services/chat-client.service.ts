@@ -4,6 +4,7 @@ import { ChatMessage } from '@app/interfaces/chat-message';
 import { LocalStorageService } from '@app/services/local-storage.service';
 import { PlayRoom } from '@common/play-room';
 import { Sheet } from '@common/sheet';
+import { BehaviorSubject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 @Injectable({
@@ -13,8 +14,9 @@ export class ClientChatService {
     roomMessages: ChatMessage[] = [];
     socket: Socket;
     serverTime: string;
-    playerName: string;
-    room: PlayRoom;
+    playerName: string | undefined;
+    room: BehaviorSubject<PlayRoom | null> = new BehaviorSubject<PlayRoom | null>(null);
+    reload: BehaviorSubject<PlayRoom | null> = new BehaviorSubject<PlayRoom | null>(null);
 
     constructor(public localStorage: LocalStorageService) {}
     connect() {
@@ -27,19 +29,19 @@ export class ClientChatService {
     }
 
     createRoom(playerName: string | undefined, sheet: Sheet | undefined, roomName: string | null = null) {
-        this.socket.emit(ChatEvents.JoinRoom, { sheet, roomName, playerName });
+        this.socket.emit(ChatEvents.CreateRoom, { sheet, roomName, playerName });
     }
 
-    joinExistingRoom(playerName: string, roomName: string) {
-        this.createRoom(playerName, undefined, roomName);
+    joinActiveRoom(playerName: string | undefined, roomName: string | null, sheet: Sheet) {
+        this.socket.emit(ChatEvents.JoinRoom, { playerName, roomName, sheet });
     }
 
     sendDifferenceFound(playerName: string | undefined, roomName: string | undefined, found: boolean) {
         this.socket.emit(ChatEvents.ClickValidation, { playerName, roomName, found });
     }
 
-    sendRoomMessage(roomName: string, message: string) {
-        this.socket.emit(ChatEvents.RoomMessage, { roomName, message });
+    sendRoomMessage(roomName: string, playerName: string | undefined, message: string) {
+        this.socket.emit(ChatEvents.RoomMessage, { roomName, playerName, message });
     }
 
     handleResponses() {
@@ -55,8 +57,14 @@ export class ClientChatService {
             this.serverTime = time;
         });
 
+        this.socket.on(ChatEvents.RoomCreated, (roomReceived) => {
+            this.localStorage.setPlayRoom(roomReceived.playRoom);
+            this.room.next(roomReceived.playRoom);
+        });
+
         this.socket.on(ChatEvents.JoinedRoom, (roomReceived) => {
             this.localStorage.setPlayRoom(roomReceived.playRoom);
+            this.reload.next(roomReceived.playRoom);
         });
 
         this.socket.on(ChatEvents.RoomMessage, (message) => {

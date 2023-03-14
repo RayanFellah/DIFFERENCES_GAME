@@ -18,4 +18,7 @@ export class CreateSheetDto {
 
     @ApiProperty()
     difficulty: string;
+
+    @ApiProperty()
+    isJoinable: boolean;
 }

@@ -4,10 +4,16 @@ form {
     grid-template-rows: auto;
     row-gap: 10px;
     grid-template-areas:
-        'head head'
-        'leftCanvas rightCanvas'
-        'leftUpload rightUpload'
-        'options options';
+        'head head head'
+        'leftCanvas switchButton rightCanvas'
+        'leftUpload . rightUpload'
+        'options options options';
+}
+#switchButton {
+    grid-area: switchButton;
+    justify-self: center;
+    align-self: center;
+    height: fit-content;
 }
 .head {
     grid-area: head;
