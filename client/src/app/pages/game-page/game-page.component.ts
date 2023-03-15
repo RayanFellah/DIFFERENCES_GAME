@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 
 @Component({
     selector: 'app-game-page',
@@ -7,6 +8,7 @@ import { ActivatedRoute } from '@angular/router';
     styleUrls: ['./game-page.component.scss'],
 })
 export class GamePageComponent implements OnInit {
+    @ViewChild(PlayAreaComponent) playArea: PlayAreaComponent;
     playerName: string;
     difficulty: string;
     constructor(private activatedRoute: ActivatedRoute) {}
@@ -17,7 +19,6 @@ export class GamePageComponent implements OnInit {
         else this.playerName = name;
     }
     onDifficultyChange(eventData: string) {
-        console.log('dedans');
         this.difficulty = eventData;
     }
 }

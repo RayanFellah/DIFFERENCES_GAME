@@ -12,6 +12,7 @@ export class DrawingService {
     context: CanvasRenderingContext2D;
     drawColor = DEFAULT_DRAWING_COLOR;
     pencilWidth = DEFAULT_PENCIL_SIZE;
+    shiftKeyPressed: boolean = false;
     private startPos: Vec2;
     private isDrawing = false;
     private isDrawingRect = false;
@@ -78,20 +79,19 @@ export class DrawingService {
         this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
     }
 
-    drawRectangle(event: MouseEvent, keyboardEvent?: KeyboardEvent) {
+    drawRectangle(event: MouseEvent) {
         if (!this.isDrawingRect) return;
         if (this.context) this.context.fillStyle = this.drawColor;
         if (this.tempContext) this.tempContext.fillStyle = this.drawColor;
         const width = event.offsetX - this.startPos.posX;
         const height = event.offsetY - this.startPos.posY;
-        if (keyboardEvent && keyboardEvent.shiftKey) {
-            this.context.fillRect(this.startPos.posX, this.startPos.posY, Math.min(width, height), Math.min(width, height));
+        this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
+        if (this.shiftKeyPressed) {
+            this.context.fillRect(this.startPos.posX, this.startPos.posY, Math.max(width, height), Math.max(width, height));
         } else {
-            this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
             this.tempContext.fillRect(this.startPos.posX, this.startPos.posY, width, height);
         }
     }
-
     erase(event: MouseEvent) {
         if (event.type === 'mousedown') {
             this.isErasing = true;
@@ -118,6 +118,7 @@ export class DrawingService {
         }
         if (this.isErasing) {
             this.context.globalCompositeOperation = 'source-over';
+            this.context.lineCap = 'square';
             this.isErasing = false;
         }
         this.context?.closePath();

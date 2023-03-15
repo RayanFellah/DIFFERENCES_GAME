@@ -10,6 +10,8 @@
         (mouseup)="stop($event)"
         (mouseout)="stop($event)"
         (keydown)="keyEvents($event)"
+        (keyup.shift)="drawingTool.drawingService.shiftKeyPressed = false"
+        (keydown.shift)="drawingTool.drawingService.shiftKeyPressed = true"
         #foreground
     >
     </canvas>

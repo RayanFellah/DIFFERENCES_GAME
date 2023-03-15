@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Inject, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Inject, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
+import { CheatModeService } from '@app/services/cheat-mode.service';
 import { DifferencesFoundService } from '@app/services/differences-found.service';
 import { EventService } from '@app/services/event-service.service';
 import { GameHttpService } from '@app/services/game-http.service';
@@ -18,7 +19,7 @@ import { HEIGHT, WIDTH } from 'src/constants';
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
 })
-export class PlayAreaComponent implements AfterViewInit {
+export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
     @Output() differenceFound: EventEmitter<boolean> = new EventEmitter();
     @Output() difficulty = new EventEmitter();
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
@@ -40,6 +41,7 @@ export class PlayAreaComponent implements AfterViewInit {
         private sheetService: SheetHttpService,
         @Inject('EventService') private eventService: EventService,
         private activatedRoute: ActivatedRoute,
+        private cheatMode: CheatModeService,
     ) {}
 
     get width(): number {
@@ -49,7 +51,11 @@ export class PlayAreaComponent implements AfterViewInit {
     get height(): number {
         return this.canvasSize.y;
     }
-
+    ngAfterViewChecked() {
+        if (!this.cheatMode.cheatModeActivated && !this.logic.isBlinking) {
+            this.logic.updateImagesInformation();
+        }
+    }
     async ngAfterViewInit(): Promise<void> {
         this.logic = new GameLogicService(
             new CanvasHelperService(this.canvas1.nativeElement),
@@ -58,6 +64,7 @@ export class PlayAreaComponent implements AfterViewInit {
             this.imageHttp,
             this.gameSelector,
             this.differencesFoundService,
+            this.cheatMode,
         );
         const sheetId = this.activatedRoute.snapshot.params['id'];
         this.sheetService.getSheet(sheetId).subscribe((sheet: Sheet) => {
@@ -65,12 +72,14 @@ export class PlayAreaComponent implements AfterViewInit {
             this.logic.sheet = this.gameSelector.currentGame;
             this.logic.start();
             this.difficulty.emit(this.logic.difficulty);
-            console.log(this.logic.difficulty);
         });
     }
 
     async handleClick(event: MouseEvent) {
         const found = await this.logic.sendCLick(event);
         this.eventService.emitDifferenceFound(found);
+    }
+    blink() {
+        this.logic.cheat();
     }
 }
