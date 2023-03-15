@@ -8,13 +8,18 @@ export class DialogService {
     cancel = new BehaviorSubject<boolean>(false);
     cancel$ = this.cancel.asObservable();
 
-    playerName = new BehaviorSubject<string>('');
+    playerName = new BehaviorSubject<string[]>([]);
     playerNames$ = this.playerName.asObservable();
     emitCancellation() {
+        this.playerName.next([]);
         this.cancel.next(true);
     }
 
     emitPlayerNames(playerName: string) {
-        this.playerName.next(playerName);
+        const currentNames = this.playerName.getValue();
+        console.log(currentNames);
+        currentNames.push(playerName);
+
+        this.playerName.next(currentNames);
     }
 }

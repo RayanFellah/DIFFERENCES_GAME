@@ -62,13 +62,15 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.socketService.on('Cancelled', (sheetId: string) => {
             this.cancel(sheetId);
         });
-        this.socketService.on('SheetDeleted', (sheetId: string) => {
-            window.location.reload();
-            alert('La feuille a été supprimée par un autre joueur' + sheetId);
-        });
         this.socketService.on('UserJoined', (joinGame: JoinGame) => {
             this.dialogService.emitPlayerNames(joinGame.playerName);
-            console.log(joinGame.playerName);
+            console.log('UserJoined' + joinGame.playerName);
+        });
+        this.socketService.on('sheetDeleted', (res: { sheetId: string }) => {
+            const foundSheet = this.sheets.find((sheet) => sheet._id === res.sheetId);
+            if (foundSheet) {
+                this.sheets.splice(this.sheets.indexOf(foundSheet), 1);
+            }
         });
     }
 
@@ -115,11 +117,12 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     }
 
     onSheetDelete(sheet: Sheet) {
-        const index = this.sheets.indexOf(sheet);
-        if (index > -1) {
-            this.sheets.splice(index, 1); // Remove the deleted sheet from the array
-        }
-        this.sheetHttpService.deleteSheet(sheet._id).subscribe(); // Delete the sheet from the database
+        // const index = this.sheets.indexOf(sheet);
+        // if (index > -1) {
+        //     this.sheets.splice(index, 1); // Remove the deleted sheet from the array
+        // }
+        this.socketService.send('deleteSheet', { sheetId: sheet._id });
+        // this.sheetHttpService.deleteSheet(sheet._id).subscribe(); // Delete the sheet from the database
     }
 
     ngOnDestroy(): void {

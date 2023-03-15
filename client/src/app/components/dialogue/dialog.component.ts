@@ -13,12 +13,12 @@ import { HEIGHT, WIDTH } from 'src/constants';
     styleUrls: ['./dialog.component.scss'],
 })
 export class DialogComponent {
-    playerName: string = '';
+    playerNames: string[] = [];
     private loadingDialogRef: MatDialogRef<LoadingDialogComponent>;
     constructor(private dialog: MatDialog, private dialogService: DialogService) {
-        this.dialogService.playerNames$.subscribe((playerName: string) => {
+        this.dialogService.playerNames$.subscribe((playerNames: string[]) => {
             if (this.loadingDialogRef && this.loadingDialogRef.componentInstance) {
-                this.loadingDialogRef.componentInstance.data = { playerName };
+                this.loadingDialogRef.componentInstance.data = { playerNames };
             }
         });
     }
@@ -35,6 +35,6 @@ export class DialogComponent {
     }
 
     openLoadingDialog(): void {
-        this.loadingDialogRef = this.dialog.open(LoadingDialogComponent, { data: { playerName: this.playerName }, panelClass: 'custom-modalbox' });
+        this.loadingDialogRef = this.dialog.open(LoadingDialogComponent, { data: { playerNames: this.playerNames }, panelClass: 'custom-modalbox' });
     }
 }

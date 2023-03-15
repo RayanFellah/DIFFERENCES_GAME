@@ -66,6 +66,7 @@ export class GameCardComponent implements OnInit {
         const validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
         if (!validName) return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");
         const joinGame: JoinGame = { playerName, sheetId: this.sheet._id };
+        console.log('a');
         this.joinEvent.emit(joinGame);
     }
     onDelete() {

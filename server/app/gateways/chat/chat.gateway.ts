@@ -13,6 +13,7 @@ import { ChatEvents } from './chat.gateway.events';
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
 
+    sentToSockets = new Set<string>();
     private readonly room = PRIVATE_ROOM_ID;
     private rooms: PlayRoom[] = [];
 
@@ -102,6 +103,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage('gameJoinable')
     joinableGame(socket: Socket, sheetId: string) {
         this.sheetService.modifySheet({ _id: sheetId, isJoinable: true });
+        socket.join(`GameRoom${sheetId}`);
         socket.broadcast.to('GridRoom').emit('Joinable', sheetId);
     }
 
@@ -113,7 +115,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('joinGame')
     joinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
-        socket.broadcast.to('GridRoom').emit('UserJoined', { playerName, sheetId });
+        socket.broadcast.to(`GameRoom${sheetId}`).emit('UserJoined', { playerName, sheetId });
+        console.log('user joined');
+        // add the socket to the set of sockets that have received the event
+        this.sentToSockets.add(socket.id);
+    }
+    @SubscribeMessage('deleteSheet')
+    deleteSheet(socket: Socket, { sheetId }: { sheetId: string }) {
+        this.sheetService.deleteSheet(sheetId);
+        socket.to('GridRoom').emit('sheetDeleted', { sheetId });
     }
 
     afterInit() {

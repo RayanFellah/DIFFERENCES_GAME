@@ -135,7 +135,7 @@ export class SheetController {
     async deleteSheet(@Param('id') id: string, @Res() response: Response) {
         try {
             await this.sheetService.deleteSheet(id);
-            this.chatGateway.emitDeletedSheet(id);
+            console.log('deleted sheet' + id);
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
