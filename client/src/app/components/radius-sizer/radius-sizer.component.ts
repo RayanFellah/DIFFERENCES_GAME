@@ -18,8 +18,8 @@ export class RadiusSizerComponent implements ControlValueAccessor {
     @Input() size: number | string;
     @Output() sizeChange = new EventEmitter<number>();
 
-    private onChange: (value: number) => void;
-    private onTouch: () => void;
+    public onChange: (value: number) => void;
+    public onTouch: () => void;
 
     dec() {
         if (this.size === NINE) this.resize(-SIX);

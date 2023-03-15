@@ -13,7 +13,7 @@ export class DifferencesFoundComponent implements OnInit, OnDestroy {
     allDifferencesFound = false;
     nextDifferenceIndex = 0;
     differencesFound: number;
-    private differencesFoundSubscription: Subscription;
+     differencesFoundSubscription: Subscription;
     constructor(private differencesFoundService: DifferencesFoundService) {}
     ngOnInit() {
         this.differencesFoundSubscription = this.differencesFoundService.getAttributeSubject().subscribe((value) => {

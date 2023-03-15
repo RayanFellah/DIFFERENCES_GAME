@@ -48,6 +48,8 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             }
         });
         this.connect();
+        const startIndex = this.currentPage * SHEETS_PER_PAGE;
+         this.sheets.slice(startIndex, startIndex + SHEETS_PER_PAGE);
     }
 
     connect() {
@@ -62,10 +64,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.socketService.on('Cancelled', (sheetId: string) => {
             this.cancel(sheetId);
         });
-        this.socketService.on('SheetDeleted', (sheetId: string) => {
-            window.location.reload();
-            alert('La feuille a été supprimée par un autre joueur' + sheetId);
-        });
+         
         this.socketService.on('UserJoined', (joinGame: JoinGame) => {
             this.dialogService.emitPlayerNames(joinGame.playerName);
             console.log(joinGame.playerName);
@@ -117,9 +116,13 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     onSheetDelete(sheet: Sheet) {
         const index = this.sheets.indexOf(sheet);
         if (index > -1) {
+            console.log(index);
             this.sheets.splice(index, 1); // Remove the deleted sheet from the array
-        }
+        } 
+        console.log(index);
+
         this.sheetHttpService.deleteSheet(sheet._id).subscribe(); // Delete the sheet from the database
+        
     }
 
     ngOnDestroy(): void {
