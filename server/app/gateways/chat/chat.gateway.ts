@@ -4,6 +4,7 @@ import { SheetService } from '@app/services/sheet/sheet.service';
 import { PlayRoom } from '@common/play-room';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { unlinkSync } from 'fs';
 import { Server, Socket } from 'socket.io';
 import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
 import { ChatEvents } from './chat.gateway.events';
@@ -13,6 +14,7 @@ import { ChatEvents } from './chat.gateway.events';
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
 
+    sentToSockets = new Set<string>();
     private readonly room = PRIVATE_ROOM_ID;
     private rooms: PlayRoom[] = [];
 
@@ -102,6 +104,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage('gameJoinable')
     joinableGame(socket: Socket, sheetId: string) {
         this.sheetService.modifySheet({ _id: sheetId, isJoinable: true });
+        socket.join(`GameRoom${sheetId}`);
         socket.broadcast.to('GridRoom').emit('Joinable', sheetId);
     }
 
@@ -113,7 +116,37 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('joinGame')
     joinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
-        socket.broadcast.to('GridRoom').emit('UserJoined', { playerName, sheetId });
+        socket.broadcast.to(`GameRoom${sheetId}`).emit('UserJoined', { playerName, sheetId });
+        console.log('user joined');
+        // add the socket to the set of sockets that have received the event
+        this.sentToSockets.add(socket.id);
+    }
+    @SubscribeMessage('deleteSheet')
+    deleteSheet(socket: Socket, { sheetId }: { sheetId: string }) {
+        this.sheetService.getSheet(sheetId).then((sheet) => {
+            const originalImagePath = sheet.originalImagePath;
+            if (originalImagePath) {
+                const originalImageFilePath = `./uploads/${originalImagePath}`;
+                try {
+                    unlinkSync(originalImageFilePath);
+                } catch (error) {
+                    console.error(`Failed to delete original image for sheet with id ${sheetId}: ${error}`);
+                }
+            }
+
+            // Delete the modified image
+            const modifiedImagePath = sheet.modifiedImagePath;
+            if (modifiedImagePath) {
+                const modifiedImageFilePath = `./uploads/${modifiedImagePath}`;
+                try {
+                    unlinkSync(modifiedImageFilePath);
+                } catch (error) {
+                    console.error(`Failed to delete modified image for sheet with id ${sheetId}: ${error}`);
+                }
+            }
+        });
+        this.sheetService.deleteSheet(sheetId);
+        socket.to('GridRoom').emit('sheetDeleted', { sheetId });
     }
 
     afterInit() {

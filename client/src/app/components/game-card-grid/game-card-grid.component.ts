@@ -67,7 +67,13 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
          
         this.socketService.on('UserJoined', (joinGame: JoinGame) => {
             this.dialogService.emitPlayerNames(joinGame.playerName);
-            console.log(joinGame.playerName);
+            console.log('UserJoined' + joinGame.playerName);
+        });
+        this.socketService.on('sheetDeleted', (res: { sheetId: string }) => {
+            const foundSheet = this.sheets.find((sheet) => sheet._id === res.sheetId);
+            if (foundSheet) {
+                this.sheets.splice(this.sheets.indexOf(foundSheet), 1);
+            }
         });
     }
 

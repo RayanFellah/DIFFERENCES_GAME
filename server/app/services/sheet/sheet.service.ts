@@ -26,11 +26,13 @@ export class SheetService {
         }
     }
 
-    async deleteSheet(id: string): Promise<void> {
+    async deleteSheet(_id: string): Promise<void> {
         try {
             const res = await this.sheetModel.deleteOne({
-                id,
+                _id,
             });
+            console.log(res);
+
             if (res.deletedCount === 0) {
                 return Promise.reject('Could not find course');
             }

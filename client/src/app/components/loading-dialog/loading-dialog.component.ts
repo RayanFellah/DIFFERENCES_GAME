@@ -12,7 +12,7 @@ export class LoadingDialogComponent {
     constructor(
         private dialogService: DialogService,
         public dialogRef: MatDialogRef<LoadingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { playerName: string },
+        @Inject(MAT_DIALOG_DATA) public data: { playerNames: string[] },
     ) {}
 
     cancelCreation() {
