@@ -64,7 +64,6 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             if (playerName) this.socketService.send('playerRejected', { playerName, sheetId: this.currentSheetId });
         });
         this.dialogService.playerConfirmed$.subscribe((playerName: string) => {
-            console.log('playerConfirmed');
             if (playerName) this.socketService.send('playerConfirmed', { player1: this.name, player2: playerName, sheetId: this.currentSheetId });
         });
         this.connect();
@@ -86,10 +85,9 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         });
         this.socketService.on('UserJoined', (joinGame: JoinGame) => {
             this.dialogService.emitPlayerNames(joinGame.playerName);
-            console.log('UserJoined' + joinGame.playerName);
         });
-        this.socketService.on('sheetDeleted', (res: { sheetId: string }) => {
-            const foundSheet = this.sheets.find((sheet) => sheet._id === res.sheetId);
+        this.socketService.on('sheetDeleted', (sheetId: string) => {
+            const foundSheet = this.sheets.find((sheet) => sheet._id === sheetId);
             if (foundSheet) {
                 this.sheets.splice(this.sheets.indexOf(foundSheet), 1);
             }
@@ -97,7 +95,6 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.socketService.on('MultiRoomCreated', (res: { player2: string; roomName: string }) => {
             if (this.name === res.player2) {
                 this.socketService.send('player2Joined', res);
-                console.log(res);
             }
         });
         this.socketService.on('Rejection', (res: { playerName: string; sheetId: string }) => {
@@ -108,7 +105,6 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         });
         this.socketService.on(ChatEvents.JoinedRoom, (room: PlayRoom) => {
             this.playRoom = room;
-            console.log('JoinedRoom' + room);
             this.navigate(true);
         });
     }
@@ -158,16 +154,10 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     }
 
     onSheetDelete(sheet: Sheet) {
-        // const index = this.sheets.indexOf(sheet);
-        // if (index > -1) {
-        //     this.sheets.splice(index, 1); // Remove the deleted sheet from the array
-        // }
         this.socketService.send('deleteSheet', { sheetId: sheet._id });
-        // this.sheetHttpService.deleteSheet(sheet._id).subscribe(); // Delete the sheet from the database
     }
 
     ngOnDestroy(): void {
-        console.log('this.currentSheetId' + this.currentSheetId);
         if (this.currentSheetId) this.socketService.send('cancelGameCreation', this.currentSheetId);
     }
 }

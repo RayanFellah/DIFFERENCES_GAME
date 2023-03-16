@@ -26,7 +26,7 @@ export class CreationPageComponent implements OnInit {
     radiusSizePx = THREE;
     createGame: FormGroup;
     shouldNavigate$ = new BehaviorSubject(false);
-    numberofDifferences: number = 0;
+    numberOfDifferences: number = 0;
     mergedFiles: File;
     fileUploadSubscription: Subscription;
     constructor(
@@ -106,25 +106,6 @@ export class CreationPageComponent implements OnInit {
         }
     }
 
-    isCanvasBlank(canvas: HTMLCanvasElement): boolean {
-        const context = canvas.getContext('2d');
-        if (context) {
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
-            const pixels = imageData.data;
-            const numPixels = pixels.length;
-
-            for (let i = 0; i < numPixels; i++) {
-                if (pixels[i] !== 0) {
-                    // Canvas is not blank if any pixel has a non-zero value
-                    return false;
-                }
-            }
-        }
-        // All pixels are zero, canvas is blank
-        return true;
-    }
-
     async mergeCanvas(canvas: ImageAreaComponent, side: 'left' | 'right'): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             const foregroundCanvas = canvas.fCanvas.nativeElement;
@@ -178,7 +159,7 @@ export class CreationPageComponent implements OnInit {
                 .subscribe((res: HttpResponse<{ body: { differences: number; imageBase64: string } } | object>) => {
                     if (res.status === HttpStatusCode.Ok) {
                         const body = res.body as { differences: number; imageBase64: string };
-                        this.numberofDifferences = body.differences;
+                        this.numberOfDifferences = body.differences;
                         this.dialog.openImageDialog(body.imageBase64);
                         this.snackBar.openSnackBar(`Il y a ${body.differences} différences`, 'Fermer');
                     } else {

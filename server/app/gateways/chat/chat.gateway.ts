@@ -1,3 +1,4 @@
+import { ID_LENGTH } from '@app/constants';
 import { Coord } from '@app/interfaces/coord';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
@@ -126,7 +127,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const playSheet = await this.sheetService.getSheet(sheetId);
         const diffs = await this.gameService.getAllDifferences(playSheet);
         const newRoom: PlayRoom = {
-            roomName: this.generateRandomId(10),
+            roomName: this.generateRandomId(ID_LENGTH),
             player1: { name: player1, socketId: socket.id, differencesFound: 0 },
             player2: undefined,
             sheet: playSheet,
@@ -140,11 +141,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     @SubscribeMessage('player2Joined')
     player2Joined(socket: Socket, { player2, roomName }: { player2: string; roomName: string }) {
-        console.log('____________________________________________________________');
         const room = this.rooms.find((res) => res.roomName === roomName);
         room.player2 = { name: player2, socketId: socket.id, differencesFound: 0 };
         socket.join(room.roomName);
-        console.log(room);
         this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
     }
 
@@ -155,29 +154,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage('deleteSheet')
     deleteSheet(socket: Socket, { sheetId }: { sheetId: string }) {
         this.sheetService.getSheet(sheetId).then((sheet) => {
-            const originalImagePath = sheet.originalImagePath;
-            if (originalImagePath) {
-                const originalImageFilePath = `./uploads/${originalImagePath}`;
-                try {
-                    unlinkSync(originalImageFilePath);
-                } catch (error) {
-                    console.error(`Failed to delete original image for sheet with id ${sheetId}: ${error}`);
+            try {
+                const originalImagePath = sheet.originalImagePath;
+                if (originalImagePath) {
+                    const originalImageFilePath = `./uploads/${originalImagePath}`;
+                    try {
+                        unlinkSync(originalImageFilePath);
+                    } catch (error) {
+                        this.logger.error(`Failed to delete original image for sheet with id ${sheetId}: ${error}`);
+                    }
                 }
-            }
-
-            // Delete the modified image
-            const modifiedImagePath = sheet.modifiedImagePath;
-            if (modifiedImagePath) {
-                const modifiedImageFilePath = `./uploads/${modifiedImagePath}`;
-                try {
-                    unlinkSync(modifiedImageFilePath);
-                } catch (error) {
-                    console.error(`Failed to delete modified image for sheet with id ${sheetId}: ${error}`);
+                sheet.originalImagePath = null;
+                // Delete the modified image
+                const modifiedImagePath = sheet.modifiedImagePath;
+                if (modifiedImagePath) {
+                    const modifiedImageFilePath = `./uploads/${modifiedImagePath}`;
+                    try {
+                        unlinkSync(modifiedImageFilePath);
+                    } catch (error) {
+                        this.logger.error(`Failed to delete modified image for sheet with id ${sheetId}: ${error}`);
+                    }
                 }
+                sheet.modifiedImagePath = null;
+                this.sheetService.deleteSheet(sheetId);
+                this.server.to('GridRoom').emit('sheetDeleted', sheetId);
+            } catch (error) {
+                this.logger.error(`Failed to delete sheet with id ${sheetId}: ${error}`);
             }
         });
-        this.sheetService.deleteSheet(sheetId);
-        socket.to('GridRoom').emit('sheetDeleted', { sheetId });
     }
 
     afterInit() {
