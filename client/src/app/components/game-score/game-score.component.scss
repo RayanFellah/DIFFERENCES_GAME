@@ -1,0 +1,26 @@
+.score-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+.scores-details-container {
+    display: flex;
+    justify-content: space-between;
+    border: 4px solid rgba(63, 81, 181, 0.38);
+    padding: 10px;
+    margin-top: 20px;
+    background-color: white;
+
+}
+
+.scores-solo,
+.scores-1V1 {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
