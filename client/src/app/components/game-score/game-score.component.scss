@@ -1,20 +1,17 @@
-.score-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+.scores-container {
+    text-align: center;
+    border: 8px ridge #3f51b5;
+    background-color: white;
+    margin-top: 40px;
 }
-
-
 
 .scores-details-container {
     display: flex;
     justify-content: space-between;
-    border: 4px solid rgba(63, 81, 181, 0.38);
+    border: 4px solid #3f51b5;
+    border-top: 8px solid #3f51b5;
     padding: 10px;
     margin-top: 20px;
-    background-color: white;
-
 }
 
 .scores-solo,
@@ -23,4 +20,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+
+.scores-container h2 {
+    font-weight: bold;
+}
+
+.scores-details-container h3 {
+    font-weight: bold;
+    font-size: 1.2em;
 }
