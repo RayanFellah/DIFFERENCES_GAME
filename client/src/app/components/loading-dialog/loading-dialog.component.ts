@@ -18,4 +18,10 @@ export class LoadingDialogComponent {
     cancelCreation() {
         this.dialogService.emitCancellation();
     }
+    reject(name: string) {
+        this.dialogService.emitRejection(name);
+    }
+    confirm(name: string) {
+        this.dialogService.emitConfirmation(name);
+    }
 }

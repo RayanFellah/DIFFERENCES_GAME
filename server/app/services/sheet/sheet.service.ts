@@ -31,10 +31,9 @@ export class SheetService {
             const res = await this.sheetModel.deleteOne({
                 _id,
             });
-            console.log(res);
 
             if (res.deletedCount === 0) {
-                return Promise.reject('Could not find course');
+                return Promise.reject('Could not find sheet');
             }
         } catch (error) {
             return Promise.reject(`Failed to delete sheet: ${error}`);

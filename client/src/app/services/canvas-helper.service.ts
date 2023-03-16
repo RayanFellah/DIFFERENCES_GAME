@@ -2,7 +2,7 @@ import { Inject, Injectable, OnDestroy } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 import { finalize, fromEvent, OperatorFunction, switchMap, tap } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { COLOR, FONT_STYLE, HEIGHT, WIDTH } from 'src/constants';
+import { FONT_STYLE, HEIGHT, ONE_SECOND, WIDTH } from 'src/constants';
 @Injectable({
     providedIn: 'root',
 })
@@ -10,12 +10,12 @@ export class CanvasHelperService implements OnDestroy {
     context: CanvasRenderingContext2D | null;
     width = WIDTH;
     height = HEIGHT;
-    isOpaque: boolean = false;
+    isOn: boolean = false;
     tempImageData: ImageData;
     url: string;
-    color: string;
+    disable: boolean = false;
     constructor(@Inject(HTMLCanvasElement) private canvasRef: HTMLCanvasElement) {
-        this.context = canvasRef.getContext('2d');
+        this.context = canvasRef.getContext('2d', { willReadFrequently: true });
         if (this.context) this.tempImageData = this.context.getImageData(0, 0, WIDTH, HEIGHT);
     }
 
@@ -26,50 +26,62 @@ export class CanvasHelperService implements OnDestroy {
         return canvas;
     }
 
-    set(canvas: HTMLCanvasElement) {
+    setCanvas(canvas: HTMLCanvasElement) {
         this.canvasRef = canvas;
     }
-    get() {
+    getCanvas() {
         return this.canvasRef;
     }
 
     drawImageOnCanvas(blob: Blob) {
         this.url = URL.createObjectURL(blob);
         const image = new Image();
-        image.src = this.url; // récupère limage
+        image.src = this.url;
         image.onload = () => {
             if (this.context) {
-                this.context.drawImage(image, 0, 0); // dessine limage sur le canvas
+                this.context.drawImage(image, 0, 0);
             }
         };
     }
 
-    updateImage(coords: Vec2[]) {
+    getColor() {
+        this.tempImageData = this.context?.getImageData(0, 0, WIDTH, HEIGHT) as ImageData;
+        return this.tempImageData;
+    }
+
+    updateImage(coords: Vec2[], color1: ImageData, color2: ImageData) {
         if (this.context) {
             const imageData = this.context.getImageData(0, 0, this.width, this.height);
-            this.changeColor(coords, imageData.data);
+            this.changeColor(coords, imageData.data, color1, color2);
             this.context.putImageData(imageData, 0, 0);
         }
     }
 
-    changeColor(coords: Vec2[], data: Uint8ClampedArray) {
+    changeColor(coords: Vec2[], data: Uint8ClampedArray, color1: ImageData, color2: ImageData) {
         for (const coord of coords) {
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             const index = (coord.posX + coord.posY * this.width) * 4;
-            if (this.tempImageData) data[index + 3] = this.isOpaque ? COLOR[3] : this.tempImageData.data[index + 3];
+            if (this.tempImageData) {
+                data[index + 0] = this.isOn ? color1.data[index + 0] : color2.data[index + 0];
+                data[index + 1] = this.isOn ? color1.data[index + 1] : color2.data[index + 1];
+                data[index + 2] = this.isOn ? color1.data[index + 2] : color2.data[index + 2];
+                data[index + 3] = this.isOn ? color1.data[index + 3] : color2.data[index + 3];
+            }
         }
-        this.isOpaque = !this.isOpaque;
+        this.isOn = !this.isOn;
         return undefined;
     }
 
     displayErrorMessage(event: MouseEvent) {
+        if (this.disable) return;
+        this.disable = true;
         const temp: ImageData | undefined = this.context?.getImageData(0, 0, this.width, this.height);
         if (this.context) this.context.font = FONT_STYLE;
         this.context?.fillText('ERROR', event.offsetX, event.offsetY);
         setTimeout(() => {
             if (temp) this.context?.putImageData(temp, 0, 0);
-            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        }, 1000);
+            this.disable = false;
+        }, ONE_SECOND);
     }
     drawingOnImage() {
         const mouseDownStream = fromEvent(this.canvasRef, 'mousedown');

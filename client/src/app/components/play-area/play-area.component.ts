@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
+import { CheatModeService } from '@app/services/cheat-mode.service';
 import { DifferencesFoundService } from '@app/services/differences-found.service';
 import { GameLogicService } from '@app/services/game-logic.service';
 import { ImageHttpService } from '@app/services/image-http.service';
@@ -14,14 +15,12 @@ import { HEIGHT, WIDTH } from 'src/constants';
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
 })
-export class PlayAreaComponent implements AfterViewInit {
-    @Output() differenceFound: EventEmitter<boolean> = new EventEmitter();
+export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
     @Output() difficulty = new EventEmitter();
     @Input() playerName: string;
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
 
-    // differenceFound: Subject<string> = new Subject<string>();
     logic: GameLogicService;
     clickEnabled = true;
     room: PlayRoom;
@@ -34,6 +33,7 @@ export class PlayAreaComponent implements AfterViewInit {
         private differencesFoundService: DifferencesFoundService,
         private sheetService: SheetHttpService,
         private activatedRoute: ActivatedRoute,
+        private cheatMode: CheatModeService,
     ) {}
 
     get width(): number {
@@ -43,7 +43,6 @@ export class PlayAreaComponent implements AfterViewInit {
     get height(): number {
         return this.canvasSize.y;
     }
-
     async ngAfterViewInit(): Promise<void> {
         this.logic = new GameLogicService(
             new CanvasHelperService(this.canvas1.nativeElement),
@@ -53,15 +52,23 @@ export class PlayAreaComponent implements AfterViewInit {
             this.activatedRoute,
             this.sheetService,
             this.socketService,
+            this.cheatMode,
         );
-        await this.logic.start('solo', this.playerName).then((difficulty: string) => {
+        await this.logic.start().then((difficulty: string) => {
             this.difficulty.emit(difficulty);
         });
+    }
+    ngAfterViewChecked() {
+        if (!this.cheatMode.cheatModeActivated && !this.logic.isBlinking) {
+            this.logic.updateImagesInformation();
+        }
     }
 
     handleClick(event: MouseEvent) {
         this.logic.setClick(event, this.playerName);
     }
 
-    createSoloGame() {}
+    blink() {
+        this.logic.cheat();
+    }
 }
