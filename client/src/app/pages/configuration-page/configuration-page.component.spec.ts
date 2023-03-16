@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { ConfigButtonsComponent } from '@app/components/config-buttons/config-buttons.component';
 import { GameCardGridComponent } from '@app/components/game-card-grid/game-card-grid.component';
 import { HeaderComponent } from '@app/components/header/header.component';
@@ -25,6 +26,7 @@ describe('ConfigurationPageComponent', () => {
             providers: [
                 { provide: SheetHttpService, useValue: sheetHttpServiceSpy },
                 { provide: MatDialog, useValue: dialogSpy },
+                { provide: Router, useValue: {} },
             ],
         }).compileComponents();
     });

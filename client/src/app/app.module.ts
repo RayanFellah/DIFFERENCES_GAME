@@ -23,7 +23,6 @@ import { ChatZoneComponent } from './components/chat-zone/chat-zone.component';
 import { ConfigButtonsComponent } from './components/config-buttons/config-buttons.component';
 import { ConstantsDialogComponent } from './components/constants-dialog/constants-dialog.component';
 import { DialogComponent } from './components/dialogue/dialog.component';
-import { DifferencesFoundComponent } from './components/differences-found/differences-found.component';
 import { DrawingComponent } from './components/drawing/drawing.component';
 import { FileUploadComponent } from './components/file-upload/file-upload.component';
 import { GameCardGridComponent } from './components/game-card-grid/game-card-grid.component';
@@ -64,7 +63,6 @@ import { EventService } from './services/event-service.service';
         FileValueAccessorDirective,
         DialogComponent,
         ImageDialogComponent,
-        DifferencesFoundComponent,
         DrawingComponent,
         ChatZoneComponent,
         ConfigButtonsComponent,

@@ -1,3 +1,4 @@
+import { Sheet } from '@app/model/database/sheet';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SheetService } from './sheet.service';
 
@@ -6,7 +7,7 @@ describe('SheetService', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [SheetService],
+            providers: [SheetService, Sheet],
         }).compile();
 
         service = module.get<SheetService>(SheetService);

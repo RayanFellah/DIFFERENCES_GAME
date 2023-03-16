@@ -13,7 +13,7 @@ describe('LoadingDialogComponent', () => {
             providers: [
                 {
                     provide: MAT_DIALOG_DATA,
-                    useValue: { imageUrl: 'test-image-url' },
+                    useValue: { playerNames: [''] },
                 },
                 {
                     provide: MatDialogRef,

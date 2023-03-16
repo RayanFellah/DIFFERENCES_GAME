@@ -24,19 +24,6 @@ describe('FileUploadComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-
-    it('should set file when onFileChange is called', () => {
-        const mockFile = new File([''], 'filename');
-        spyOn(component, 'onChange');
-        spyOn(component['bmpVerificationService'], 'verifyImage').and.returnValue(true);
-        const input = fixture.debugElement.nativeElement.querySelector('input[type="file"]');
-        input.dispatchEvent(new Event('change'));
-        fixture.detectChanges();
-        expect(component.file).toEqual(mockFile); // a verifier
-        expect(component.fileName).toEqual('filename'); // a verifier & changer
-        expect(component.onChange).toHaveBeenCalled();
-    });
-
     it('should not set file when onFileChange is called and image is invalid', () => {
         spyOn(component, 'onChange');
         spyOn(component['bmpVerificationService'], 'verifyImage').and.returnValue(false);

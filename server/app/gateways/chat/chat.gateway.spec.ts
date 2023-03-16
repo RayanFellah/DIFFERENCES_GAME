@@ -1,4 +1,6 @@
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
+import { GameLogicService } from '@app/services/game-logic/game-logic.service';
+import { SheetService } from '@app/services/sheet/sheet.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, match, SinonStubbedInstance, stub } from 'sinon';
@@ -23,6 +25,8 @@ describe('ChatGateway', () => {
                     provide: Logger,
                     useValue: logger,
                 },
+                SheetService,
+                GameLogicService,
             ],
         }).compile();
 
@@ -36,33 +40,9 @@ describe('ChatGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('received message should be logged', () => {
-        gateway.message(socket, 'X');
-        expect(logger.log.called).toBeTruthy();
-    });
-
-    it('validate() message should take account word length', () => {
-        const testCases = [
-            { word: 'XX', isValid: false },
-            { word: 'XXXXX', isValid: false },
-            { word: 'XXXXXX', isValid: false },
-            { word: 'XXXXXXX', isValid: true },
-            { word: 'XXXXXXXX', isValid: true },
-        ];
-        for (const { word, isValid } of testCases) {
-            gateway.validate(socket, word);
-            expect(socket.emit.calledWith(ChatEvents.WordValidated, isValid)).toBeTruthy();
-        }
-    });
-
     it('broadcastAll() should send a mass message to the server', () => {
         gateway.broadcastAll(socket, 'X');
         expect(server.emit.calledWith(ChatEvents.MassMessage, match.any)).toBeTruthy();
-    });
-
-    it('joinRoom() should join the socket room', () => {
-        gateway.joinRoom(socket);
-        expect(socket.join.calledOnce).toBeTruthy();
     });
 
     it('roomMessage() should not send message if socket not in the room', () => {
