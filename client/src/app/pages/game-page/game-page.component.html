@@ -1,18 +1,20 @@
-<app-header></app-header>
-<button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
-    <mat-icon>exit_to_app</mat-icon>
-</button>
-<div class="info-container">
-    <h1>
-        Bienvenue <span class="player-name">{{ playerName }}</span>
-    </h1>
+<div tabindex="0" (keydown.t)="playArea.blink()">
+    <app-header></app-header>
+    <button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
+        <mat-icon>exit_to_app</mat-icon>
+    </button>
+    <div class="info-container">
+        <h1>
+            Bienvenue <span class="player-name">{{ playerName }}</span>
+        </h1>
+    </div>
+    <h2>Difficulté: {{ difficulty }}</h2>
+    <app-differences-found></app-differences-found>
+    <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area-container"></app-play-area>
+    <app-chat-zone
+        class="chat-zone-container"
+        [playerName]="playerName"
+        [chatMessages]="this.chatMessages"
+        (messageEvent)="sendMessage($event)"
+    ></app-chat-zone>
 </div>
-<h2>Difficulté: {{ difficulty }}</h2>
-<app-differences-found></app-differences-found>
-<app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area-container"></app-play-area>
-<app-chat-zone
-    class="chat-zone-container"
-    [playerName]="playerName"
-    [chatMessages]="this.chatMessages"
-    (messageEvent)="sendMessage($event)"
-></app-chat-zone>

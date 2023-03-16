@@ -21,6 +21,17 @@ export class GameLogicController {
         } else return undefined;
     }
 
+    @Get('current/allDifferences/:id')
+    async getAllDifferences(@Param('id') id: string) {
+        const sheet = await this.sheetService.getSheet(id);
+        const arr = [];
+        const diffs = await this.gameLogicService.getAllDifferences(sheet);
+        for (const d of diffs) {
+            arr.push(d.coords);
+        }
+        return arr;
+    }
+
     @Patch('finish/:sheetId')
     async finishGame(id: string, @Body() data) {
         const sheet: Sheet = await this.sheetService.getSheet(id);

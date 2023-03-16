@@ -25,6 +25,7 @@ export class SocketClientService {
     }
 
     send<T>(event: string, data?: T) {
+        console.log('Sending event: ' + event);
         if (data) this.socket.emit(event, data);
         else this.socket.emit(event);
     }

@@ -13,7 +13,6 @@ import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SnackBarService } from '@app/services/snack-bar.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { HEIGHT, THREE, WIDTH } from 'src/constants';
-
 @Component({
     selector: 'app-creation-page',
     templateUrl: './creation-page.component.html',
@@ -24,11 +23,10 @@ export class CreationPageComponent implements OnInit {
     @ViewChildren(FileValueAccessorDirective) leftInput: QueryList<FileValueAccessorDirective>;
     @ViewChild('leftImageArea', { static: false }) leftImageArea: ImageAreaComponent;
     @ViewChild('rightImageArea', { static: false }) rightImageArea: ImageAreaComponent;
-
     radiusSizePx = THREE;
     createGame: FormGroup;
     shouldNavigate$ = new BehaviorSubject(false);
-    numberofDifferences: number = 0;
+    numberOfDifferences: number = 0;
     mergedFiles: File;
     fileUploadSubscription: Subscription;
     constructor(
@@ -107,14 +105,15 @@ export class CreationPageComponent implements OnInit {
             }
         }
     }
+
     async mergeCanvas(canvas: ImageAreaComponent, side: 'left' | 'right'): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            const leftForegroundCanvas = canvas.fCanvas.nativeElement;
-            const leftBackgroundCanvas = canvas.bCanvas.nativeElement;
+            const foregroundCanvas = canvas.fCanvas.nativeElement;
+            const backgroundCanvas = canvas.bCanvas.nativeElement;
 
-            leftBackgroundCanvas.getContext('2d')?.drawImage(leftForegroundCanvas, 0, 0, WIDTH, HEIGHT);
+            backgroundCanvas.getContext('2d')?.drawImage(foregroundCanvas, 0, 0, WIDTH, HEIGHT);
 
-            leftBackgroundCanvas.toBlob((blob: Blob | null) => {
+            backgroundCanvas.toBlob((blob: Blob | null) => {
                 if (blob) {
                     const file = new File([blob], 'image.bmp', { type: 'MIME_BMP' });
                     if (side === 'left') {
@@ -160,7 +159,7 @@ export class CreationPageComponent implements OnInit {
                 .subscribe((res: HttpResponse<{ body: { differences: number; imageBase64: string } } | object>) => {
                     if (res.status === HttpStatusCode.Ok) {
                         const body = res.body as { differences: number; imageBase64: string };
-                        this.numberofDifferences = body.differences;
+                        this.numberOfDifferences = body.differences;
                         this.dialog.openImageDialog(body.imageBase64);
                         this.snackBar.openSnackBar(`Il y a ${body.differences} différences`, 'Fermer');
                     } else {

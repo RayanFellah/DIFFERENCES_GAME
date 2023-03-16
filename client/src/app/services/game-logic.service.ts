@@ -7,8 +7,10 @@ import { Vec2 } from '@app/interfaces/vec2';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { Sheet } from '@common/sheet';
 import { Subject } from 'rxjs';
+import { BLINK_DURATION, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
+import { CheatModeService } from './cheat-mode.service';
 import { DifferencesFoundService } from './differences-found.service';
 import { ImageHttpService } from './image-http.service';
 import { SheetHttpService } from './sheet-http.service';
@@ -18,20 +20,22 @@ import { SheetHttpService } from './sheet-http.service';
 })
 export class GameLogicService {
     clicks$: Subject<MouseEvent> = new Subject();
-    differencesFound: number = 0;
-    numberDifferences: number;
+    isBlinking = false;
     audio: AudioService;
     diff: Vec2[];
     originalImage: SafeUrl;
     modifiedImage: SafeUrl;
+    originalImageData: ImageData;
+    modifiedImageData: ImageData;
     sheet: Sheet;
     difficulty: string;
     clickEnabled = true;
-    foundDifferences: Vec2[][] = [];
     allowed = true;
     result: boolean = false;
     currentClick: MouseEvent;
     playRoom: string;
+    numberDifferences: number;
+    differencesFound: number;
 
     constructor(
         private leftCanvas: CanvasHelperService,
@@ -41,11 +45,12 @@ export class GameLogicService {
         public activatedRoute: ActivatedRoute,
         private sheetHttp: SheetHttpService,
         private socketService: SocketClientService,
+        private cheatMode: CheatModeService,
     ) {
         this.audio = new AudioService();
     }
 
-    async start(gameType: string, playerName: string) {
+    async start() {
         return new Promise<string>((resolve) => {
             const sheetId = this.activatedRoute.snapshot.paramMap.get('id');
             if (sheetId) {
@@ -62,12 +67,8 @@ export class GameLogicService {
                         this.rightCanvas.drawImageOnCanvas(blob);
                     });
                     this.handleResponses();
-
-                    if (gameType === 'solo') {
-                        this.createSoloGame(playerName);
-                    }
-                    this.differencesFoundService.setNumberOfDifferences(this.numberDifferences);
-                    this.differencesFoundService.setNumberOfDifferences(this.numberDifferences);
+                    this.playRoom = this.activatedRoute.snapshot.paramMap.get('roomId') as string;
+                    this.cheatMode.getDifferences(this.sheet);
                     resolve(this.sheet.difficulty);
                 });
             }
@@ -85,18 +86,10 @@ export class GameLogicService {
         this.socketService.send('click', data);
     }
 
-    createSoloGame(playerName: string) {
-        const data = {
-            name: playerName,
-            sheetId: this.sheet._id,
-        };
-        this.socketService.send('createSoloGame', data);
-    }
-
     handleResponses() {
-        this.socketService.on('found', (coords: Vec2[]) => {
-            // this.makeBlink(coords);
-            this.handleClick(this.currentClick, coords);
+        this.socketService.on('found', (res: { coords: Vec2[]; player: string; diffsLeft: number }) => {
+            this.makeBlink(res.coords);
+            this.handleClick(this.currentClick, res.coords);
         });
 
         this.socketService.on('roomCreated', (res: string) => {
@@ -104,63 +97,65 @@ export class GameLogicService {
         });
 
         this.socketService.on('gameDone', (message: string) => {
-            console.log(message);
+            setTimeout(() => {
+                alert(message);
+            }, BLINK_DURATION);
         });
     }
 
     makeBlink(diff: Vec2[]) {
-        if (this.leftCanvas.context) {
-            const tempImageData = this.leftCanvas.context.getImageData(0, 0, this.leftCanvas.width, this.leftCanvas.height);
-            const intervalId = setInterval(() => {
-                this.leftCanvas.updateImage(diff);
-                this.rightCanvas.updateImage(diff);
-            }, 30);
+        if (diff) {
+            if (this.leftCanvas.context) {
+                const leftDiffColor = this.leftCanvas.getColor();
+                const rightDiffColor = this.rightCanvas.getColor();
+                const intervalId = setInterval(() => {
+                    this.isBlinking = true;
+                    this.leftCanvas.updateImage(diff, leftDiffColor, rightDiffColor);
+                    this.rightCanvas.updateImage(diff, leftDiffColor, rightDiffColor);
+                }, 1);
 
-            setTimeout(() => {
-                this.leftCanvas.context!.putImageData(tempImageData, 0, 0);
-                const imagedata2 = this.rightCanvas.context!.getImageData(0, 0, this.rightCanvas.width, this.rightCanvas.height);
-                for (const d of diff) {
-                    const index = (d.posX + d.posY * this.rightCanvas.width) * 4;
-                    imagedata2.data[index + 0] = tempImageData.data[index + 0]; // R (rouge)
-                    imagedata2.data[index + 1] = tempImageData.data[index + 1]; // G (vert)
-                    imagedata2.data[index + 2] = tempImageData.data[index + 2]; // B (bleu)
-                    imagedata2.data[index + 3] = tempImageData.data[index + 3]; // A (alpha)
-                }
-                this.rightCanvas.context!.putImageData(imagedata2, 0, 0);
-                clearInterval(intervalId);
-            }, 800);
+                setTimeout(() => {
+                    this.leftCanvas.context!.putImageData(this.originalImageData, 0, 0);
+                    this.replaceDifference(diff, this.originalImageData);
+                    this.isBlinking = false;
+                    this.updateImagesInformation();
+                    clearInterval(intervalId);
+                }, BLINK_DURATION);
+            }
         }
     }
-
+    updateImagesInformation() {
+        this.originalImageData = this.leftCanvas.getColor();
+        this.modifiedImageData = this.rightCanvas.getColor();
+    }
+    replaceDifference(diff: Vec2[], tempImageData: ImageData) {
+        for (const d of diff) {
+            const index = (d.posX + d.posY * this.rightCanvas.width) * RGBA_LENGTH;
+            this.modifiedImageData.data[index + 0] = tempImageData.data[index + 0];
+            this.modifiedImageData.data[index + 1] = tempImageData.data[index + 1];
+            this.modifiedImageData.data[index + 2] = tempImageData.data[index + 2];
+            this.modifiedImageData.data[index + 3] = tempImageData.data[index + 3];
+        }
+        this.rightCanvas.context!.putImageData(this.modifiedImageData, 0, 0);
+    }
     handleClick(event: MouseEvent, diff: Vec2[] | undefined) {
         const canvasClicked = event.target as HTMLCanvasElement;
-        const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.get() ? this.leftCanvas : this.rightCanvas;
+        const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
         if (diff) {
-            // this.makeBlink(this.diff);
+            this.makeBlink(this.diff);
             this.audio.playSuccessSound();
             this.differencesFound++;
             this.differencesFoundService.setAttribute(this.differencesFound);
-            if (this.differencesFound === this.numberDifferences) {
-                // this.showDialog();
-            }
+            this.cheatMode.removeDifference(diff);
             return diff;
         } else {
-            this.audio.playFailSound();
             canvas.displayErrorMessage(event);
+            this.audio.playFailSound();
             return undefined;
         }
-        // this.clicks$.next(event);
     }
-
-    // private showDialog() {
-    //     const dialogRef = this.dialog.open(DialaogGameOverComponent);
-
-    //     dialogRef.afterClosed().subscribe(() => {});
-    // }
-    // private wait() {
-    //     this.allowed = false;
-    //     setTimeout(() => {
-    //         this.allowed = true;
-    //     }, 1000);
-    // }
+    cheat() {
+        this.cheatMode.getDifferences(this.sheet);
+        this.cheatMode.cheatBlink(this.leftCanvas, this.rightCanvas, this.originalImageData, this.modifiedImageData);
+    }
 }
