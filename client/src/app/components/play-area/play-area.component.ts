@@ -54,7 +54,7 @@ export class PlayAreaComponent implements AfterViewInit {
             this.sheetService,
             this.socketService,
         );
-        await this.logic.start('solo', this.playerName).then((difficulty: string) => {
+        await this.logic.start().then((difficulty: string) => {
             this.difficulty.emit(difficulty);
         });
     }
@@ -62,6 +62,4 @@ export class PlayAreaComponent implements AfterViewInit {
     handleClick(event: MouseEvent) {
         this.logic.setClick(event, this.playerName);
     }
-
-    createSoloGame() {}
 }

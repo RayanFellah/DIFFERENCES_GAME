@@ -13,7 +13,6 @@ import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SnackBarService } from '@app/services/snack-bar.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { HEIGHT, THREE, WIDTH } from 'src/constants';
-
 @Component({
     selector: 'app-creation-page',
     templateUrl: './creation-page.component.html',
@@ -24,7 +23,6 @@ export class CreationPageComponent implements OnInit {
     @ViewChildren(FileValueAccessorDirective) leftInput: QueryList<FileValueAccessorDirective>;
     @ViewChild('leftImageArea', { static: false }) leftImageArea: ImageAreaComponent;
     @ViewChild('rightImageArea', { static: false }) rightImageArea: ImageAreaComponent;
-
     radiusSizePx = THREE;
     createGame: FormGroup;
     shouldNavigate$ = new BehaviorSubject(false);
@@ -107,14 +105,34 @@ export class CreationPageComponent implements OnInit {
             }
         }
     }
+
+    isCanvasBlank(canvas: HTMLCanvasElement): boolean {
+        const context = canvas.getContext('2d');
+        if (context) {
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+            const pixels = imageData.data;
+            const numPixels = pixels.length;
+
+            for (let i = 0; i < numPixels; i++) {
+                if (pixels[i] !== 0) {
+                    // Canvas is not blank if any pixel has a non-zero value
+                    return false;
+                }
+            }
+        }
+        // All pixels are zero, canvas is blank
+        return true;
+    }
+
     async mergeCanvas(canvas: ImageAreaComponent, side: 'left' | 'right'): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            const leftForegroundCanvas = canvas.fCanvas.nativeElement;
-            const leftBackgroundCanvas = canvas.bCanvas.nativeElement;
+            const foregroundCanvas = canvas.fCanvas.nativeElement;
+            const backgroundCanvas = canvas.bCanvas.nativeElement;
 
-            leftBackgroundCanvas.getContext('2d')?.drawImage(leftForegroundCanvas, 0, 0, WIDTH, HEIGHT);
+            backgroundCanvas.getContext('2d')?.drawImage(foregroundCanvas, 0, 0, WIDTH, HEIGHT);
 
-            leftBackgroundCanvas.toBlob((blob: Blob | null) => {
+            backgroundCanvas.toBlob((blob: Blob | null) => {
                 if (blob) {
                     const file = new File([blob], 'image.bmp', { type: 'MIME_BMP' });
                     if (side === 'left') {

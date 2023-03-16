@@ -45,11 +45,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('createSoloGame')
     async createSoloRoom(socket: Socket, payload) {
-        console.log('in create');
         const playSheet = await this.sheetService.getSheet(payload.sheetId);
         const diffs = await this.gameService.getAllDifferences(playSheet);
         const newRoom: PlayRoom = {
-            roomName: `${payload.name}'s room`,
+            roomName: payload.roomName,
             player1: { name: payload.name, socketId: socket.id, differencesFound: 0 },
             player2: undefined,
             sheet: playSheet,
@@ -66,13 +65,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const clickCoord: Coord = { posX: payload.x, posY: payload.y };
         const room = this.rooms.find((res) => res.roomName === payload.roomName);
         const player = room.player1.name === payload.playerName ? room.player1 : room.player2;
-        console.log(room.differences.length);
-        console.log(player.differencesFound);
 
         for (const diff of room.differences) {
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
-                    console.log('found');
                     player.differencesFound++;
                     this.server.to(payload.roomName).emit('found', {
                         coords: diff.coords,
@@ -116,10 +112,45 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('joinGame')
     joinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
+        socket.join(`GameRoom${sheetId}`);
         socket.broadcast.to(`GameRoom${sheetId}`).emit('UserJoined', { playerName, sheetId });
-        console.log('user joined');
         // add the socket to the set of sockets that have received the event
         this.sentToSockets.add(socket.id);
+    }
+    @SubscribeMessage('playerRejected')
+    playerRejected(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
+        socket.broadcast.to(`GameRoom${sheetId}`).emit('Rejection', { playerName, sheetId });
+    }
+    @SubscribeMessage('playerConfirmed')
+    async playerConfirmed(socket: Socket, { player1, player2, sheetId }: { player1: string; player2: string; sheetId: string }) {
+        const playSheet = await this.sheetService.getSheet(sheetId);
+        const diffs = await this.gameService.getAllDifferences(playSheet);
+        const newRoom: PlayRoom = {
+            roomName: this.generateRandomId(10),
+            player1: { name: player1, socketId: socket.id, differencesFound: 0 },
+            player2: undefined,
+            sheet: playSheet,
+            differences: diffs,
+            numberOfDifferences: diffs.length,
+        };
+        this.rooms.push(newRoom);
+        socket.join(newRoom.roomName);
+        this.server.to(`GameRoom${sheetId}`).emit('MultiRoomCreated', { player2, roomName: newRoom.roomName });
+        this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
+    }
+    @SubscribeMessage('player2Joined')
+    player2Joined(socket: Socket, { player2, roomName }: { player2: string; roomName: string }) {
+        console.log('____________________________________________________________');
+        const room = this.rooms.find((res) => res.roomName === roomName);
+        room.player2 = { name: player2, socketId: socket.id, differencesFound: 0 };
+        socket.join(room.roomName);
+        console.log(room);
+        this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
+    }
+
+    @SubscribeMessage('rejectionConfirmed')
+    async rejectionConfirmed(socket: Socket, sheetId: string) {
+        await socket.leave(`GameRoom${sheetId}`);
     }
     @SubscribeMessage('deleteSheet')
     deleteSheet(socket: Socket, { sheetId }: { sheetId: string }) {
@@ -181,6 +212,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.server.to('GridRoom').emit('SheetDeleted', sheetId);
     }
 
+    private generateRandomId(length: number): string {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
     private emitTime() {
         this.server.emit(ChatEvents.Clock, new Date().toLocaleTimeString());
     }

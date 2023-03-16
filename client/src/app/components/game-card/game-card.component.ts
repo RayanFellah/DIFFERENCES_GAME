@@ -3,8 +3,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { JoinGame } from '@app/interfaces/join-game';
-import { GameSelectorService } from '@app/services/game-selector.service';
 import { ImageHttpService } from '@app/services/image-http.service';
+import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { Sheet } from '@common/sheet';
 import { BehaviorSubject } from 'rxjs';
 @Component({
@@ -16,25 +16,30 @@ export class GameCardComponent implements OnInit {
     @Input() sheet: Sheet;
     @Input() isConfig: boolean;
     @Output() delete = new EventEmitter<void>();
-    @Output() createEvent = new EventEmitter<string>();
+    @Output() createEvent = new EventEmitter<JoinGame>();
     @Output() joinEvent = new EventEmitter<JoinGame>();
     trustedUrl: SafeUrl;
     shouldNavigate$ = new BehaviorSubject(false);
-    private type: string;
-
+    playerName: string;
+    roomName: string;
     constructor(
         private readonly imageHttp: ImageHttpService,
         private sanitizer: DomSanitizer,
         // eslint-disable-next-line max-len
         private router: Router,
-        private game: GameSelectorService, // private sheetService: SheetHttpService, // private storage: LocalStorageService,
+        private socketService: SocketClientService,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
                 const playerName = window.prompt('What is your name?');
                 const validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
                 if (!validName) return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");
-                this.router.navigate(['/game', this.sheet._id, playerName, this.type]);
+                this.playerName = playerName;
+                if (!this.sheet.isJoinable) {
+                    this.createSoloGame(playerName);
+                }
+
+                this.router.navigate(['/game', this.sheet._id, this.playerName, this.roomName]);
             }
         });
     }
@@ -47,29 +52,49 @@ export class GameCardComponent implements OnInit {
     }
 
     navigate(type: boolean) {
-        this.game.create = type;
-        this.game.currentGame = this.sheet;
         this.shouldNavigate$.next(type);
     }
     play() {
-        this.type = 'solo';
         this.navigate(true);
     }
     create() {
+        const playerName = window.prompt('What is your name?');
+        const validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
+        if (!validName) return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");
         this.navigate(false);
-        this.createEvent.emit(this.sheet._id);
+        this.createEvent.emit({ playerName, sheetId: this.sheet._id });
     }
 
     join() {
-        this.type = '1v1';
         const playerName = window.prompt('What is your name?');
         const validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
         if (!validName) return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");
         const joinGame: JoinGame = { playerName, sheetId: this.sheet._id };
-        console.log('a');
         this.joinEvent.emit(joinGame);
     }
+
     onDelete() {
         this.delete.emit();
+    }
+    private createSoloGame(playerName: string) {
+        const length = 10;
+        this.roomName = this.generateRandomId(length);
+        const data = {
+            name: playerName,
+            sheetId: this.sheet._id,
+            roomName: this.roomName,
+        };
+        console.log('creating solo game for ', playerName, ' in room ', this.roomName, ' with sheet ', this.sheet._id, '');
+        this.socketService.send('createSoloGame', data);
+    }
+    private generateRandomId(length: number): string {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
     }
 }

@@ -1,11 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
+import { ChatEvents } from '@app/interfaces/chat-events';
 import { JoinGame } from '@app/interfaces/join-game';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
+import { PlayRoom } from '@common/play-room';
 import { Sheet } from '@common/sheet';
+import { BehaviorSubject } from 'rxjs';
 import { SHEETS_PER_PAGE } from 'src/constants';
 @Component({
     selector: 'app-game-card-grid',
@@ -17,22 +21,31 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     @Output() sheets: Sheet[] = [];
     @Input() isConfig: boolean;
     @Input() playerName: string;
+    name: string;
     currentPage = 0;
     currentSheetId: string;
-
+    playRoom: PlayRoom;
+    shouldNavigate$ = new BehaviorSubject(false);
     constructor(
         private readonly sheetHttpService: SheetHttpService,
         private socketService: SocketClientService,
         private readonly dialog: DialogComponent,
         private dialogService: DialogService,
-    ) {}
+        private router: Router,
+    ) {
+        this.shouldNavigate$.subscribe((shouldNavigate) => {
+            if (shouldNavigate) this.router.navigate(['/game', this.playRoom.sheet._id, this.name, this.playRoom.roomName]);
+        });
+    }
 
     get totalPages(): number {
         return Math.ceil(this.sheets.length / SHEETS_PER_PAGE);
     }
-
+    @HostListener('window:beforeunload', ['$event'])
+    unloadHandler() {
+        this.ngOnDestroy();
+    }
     ngOnInit(): void {
-        this.connect();
         this.sheetHttpService.getAllSheets().subscribe({
             next: (response) => {
                 this.sheets = response;
@@ -47,9 +60,18 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
                 this.socketService.send('cancelGameCreation', this.currentSheetId);
             }
         });
+        this.dialogService.playerRejected$.subscribe((playerName: string) => {
+            if (playerName) this.socketService.send('playerRejected', { playerName, sheetId: this.currentSheetId });
+        });
+        this.dialogService.playerConfirmed$.subscribe((playerName: string) => {
+            console.log('playerConfirmed');
+            if (playerName) this.socketService.send('playerConfirmed', { player1: this.name, player2: playerName, sheetId: this.currentSheetId });
+        });
         this.connect();
     }
-
+    navigate(type: boolean) {
+        this.shouldNavigate$.next(type);
+    }
     connect() {
         this.socketService.connect();
         this.socketService.socket.emit('joinGridRoom');
@@ -72,6 +94,23 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
                 this.sheets.splice(this.sheets.indexOf(foundSheet), 1);
             }
         });
+        this.socketService.on('MultiRoomCreated', (res: { player2: string; roomName: string }) => {
+            if (this.name === res.player2) {
+                this.socketService.send('player2Joined', res);
+                console.log(res);
+            }
+        });
+        this.socketService.on('Rejection', (res: { playerName: string; sheetId: string }) => {
+            if (this.name === res.playerName) {
+                const sheetId = res.sheetId;
+                this.socketService.send('rejectionConfirmed', sheetId);
+            }
+        });
+        this.socketService.on(ChatEvents.JoinedRoom, (room: PlayRoom) => {
+            this.playRoom = room;
+            console.log('JoinedRoom' + room);
+            this.navigate(true);
+        });
     }
 
     cancel(sheetId: string) {
@@ -81,13 +120,15 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         }
     }
 
-    onChildEvent(sheetId: string): void {
-        this.currentSheetId = sheetId;
-        this.socketService.send('gameJoinable', sheetId);
+    onChildEvent(joinGame: JoinGame): void {
+        this.currentSheetId = joinGame.sheetId;
+        this.name = joinGame.playerName;
+        this.socketService.send('gameJoinable', joinGame.sheetId);
         this.dialog.openLoadingDialog();
     }
 
     onJoinEvent(joinGame: JoinGame): void {
+        this.name = joinGame.playerName;
         this.socketService.send('joinGame', { playerName: joinGame.playerName, sheetId: joinGame.sheetId });
     }
 

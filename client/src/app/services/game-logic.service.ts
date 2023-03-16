@@ -18,8 +18,6 @@ import { SheetHttpService } from './sheet-http.service';
 })
 export class GameLogicService {
     clicks$: Subject<MouseEvent> = new Subject();
-    differencesFound: number = 0;
-    numberDifferences: number;
     audio: AudioService;
     diff: Vec2[];
     originalImage: SafeUrl;
@@ -27,11 +25,12 @@ export class GameLogicService {
     sheet: Sheet;
     difficulty: string;
     clickEnabled = true;
-    foundDifferences: Vec2[][] = [];
     allowed = true;
     result: boolean = false;
     currentClick: MouseEvent;
     playRoom: string;
+    numberDifferences: number;
+    differencesFound: number;
 
     constructor(
         private leftCanvas: CanvasHelperService,
@@ -45,7 +44,7 @@ export class GameLogicService {
         this.audio = new AudioService();
     }
 
-    async start(gameType: string, playerName: string) {
+    async start() {
         return new Promise<string>((resolve) => {
             const sheetId = this.activatedRoute.snapshot.paramMap.get('id');
             if (sheetId) {
@@ -62,12 +61,8 @@ export class GameLogicService {
                         this.rightCanvas.drawImageOnCanvas(blob);
                     });
                     this.handleResponses();
+                    this.playRoom = this.activatedRoute.snapshot.paramMap.get('roomId') as string;
 
-                    if (gameType === 'solo') {
-                        this.createSoloGame(playerName);
-                    }
-                    this.differencesFoundService.setNumberOfDifferences(this.numberDifferences);
-                    this.differencesFoundService.setNumberOfDifferences(this.numberDifferences);
                     resolve(this.sheet.difficulty);
                 });
             }
@@ -83,14 +78,6 @@ export class GameLogicService {
             playerName: name,
         };
         this.socketService.send('click', data);
-    }
-
-    createSoloGame(playerName: string) {
-        const data = {
-            name: playerName,
-            sheetId: this.sheet._id,
-        };
-        this.socketService.send('createSoloGame', data);
     }
 
     handleResponses() {

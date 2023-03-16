@@ -39,6 +39,7 @@ export class DifferenceDetectorService {
             for (let j = 0; j < matrix[i].length; j++) {
                 if (matrix[i][j] === 1) {
                     this.differences.push(this.getCluster(matrix, i, j));
+                    console.log('Cluster found');
                 }
             }
         }
