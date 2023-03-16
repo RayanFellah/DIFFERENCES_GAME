@@ -104,6 +104,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             }
         });
         this.socketService.on(ChatEvents.JoinedRoom, (room: PlayRoom) => {
+            // this.dialog.closeLoading();
             this.playRoom = room;
             this.navigate(true);
         });
