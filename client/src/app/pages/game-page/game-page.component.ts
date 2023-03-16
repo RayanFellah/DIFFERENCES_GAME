@@ -18,6 +18,7 @@ export class GamePageComponent implements OnInit {
     chatMessages: ChatMessage[] = [];
     gameType: string | null;
     sheetId: string | null;
+    roomName: string | null;
     constructor(private activatedRoute: ActivatedRoute, private socketService: SocketClientService) {}
 
     ngOnInit() {
@@ -26,6 +27,9 @@ export class GamePageComponent implements OnInit {
         else this.playerName = name;
         this.gameType = this.activatedRoute.snapshot.paramMap.get('type');
         this.sheetId = this.activatedRoute.snapshot.paramMap.get('id');
+        this.roomName = this.activatedRoute.snapshot.paramMap.get('roomId');
+        console.log(this.socketService.socket.id);
+        this.handleResponses();
     }
     onDifficultyChange(eventData: string) {
         this.difficulty = eventData;
@@ -33,7 +37,8 @@ export class GamePageComponent implements OnInit {
 
     sendMessage(message: ChatMessage) {
         this.chatMessages.push(message);
-        this.socketService.send('roomMessage', message);
+        this.socketService.send('roomMessage', { message, roomName: this.roomName });
+        console.log('sending' + message.content);
     }
     createSoloGame() {
         const data = { name: this.playerName, sheet: this.sheetId };
@@ -42,6 +47,7 @@ export class GamePageComponent implements OnInit {
 
     handleResponses() {
         this.socketService.on('roomMessage', (message: ChatMessage) => {
+            console.log('received' + message.content);
             message.type = 'opponent';
             this.chatMessages.push(message);
         });

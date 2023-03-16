@@ -12,14 +12,15 @@ export class ChatZoneComponent implements OnInit {
     @Input() chatMessages: ChatMessage[] = [];
     @Output() messageEvent = new EventEmitter<ChatMessage>();
     messageContent: string = '';
-    newMessage: ChatMessage = { content: this.messageContent, type: 'player', sender: '' };
+    newMessage: ChatMessage;
 
     ngOnInit() {
         this.newMessage.sender = this.playerName;
     }
 
     sendMessage() {
+        this.newMessage = { content: this.messageContent, type: 'player', sender: '' };
         this.messageEvent.emit(this.newMessage);
-        this.newMessage.content = '';
+        this.messageContent = '';
     }
 }

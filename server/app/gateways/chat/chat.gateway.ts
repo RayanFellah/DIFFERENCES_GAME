@@ -89,8 +89,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage(ChatEvents.RoomMessage)
     roomMessage(socket: Socket, payload) {
-        if (socket.rooms.has(payload.roomName) && payload.message.length > 0) {
-            this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, { sender: payload.playerName, content: payload.message });
+        console.log(payload);
+        console.log(socket.rooms);
+        console.log(payload.roomName);
+        if (payload.message.content.length > 0) {
+            socket.broadcast.to(payload.roomName).emit('roomMessage', { sender: '', content: payload.message.content, type: '' });
         }
     }
 
@@ -144,6 +147,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const room = this.rooms.find((res) => res.roomName === roomName);
         room.player2 = { name: player2, socketId: socket.id, differencesFound: 0 };
         socket.join(room.roomName);
+        console.log(room.roomName);
+        console.log(socket.rooms);
         this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
     }
 

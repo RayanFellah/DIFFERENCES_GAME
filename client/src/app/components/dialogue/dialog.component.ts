@@ -37,4 +37,8 @@ export class DialogComponent {
     openLoadingDialog(): void {
         this.loadingDialogRef = this.dialog.open(LoadingDialogComponent, { data: { playerNames: this.playerNames }, panelClass: 'custom-modalbox' });
     }
+
+    closeLoading(): void {
+        this.loadingDialogRef.close();
+    }
 }
