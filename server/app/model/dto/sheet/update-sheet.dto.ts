@@ -10,7 +10,7 @@ export class UpdateSheetDto {
     @ApiProperty()
     @IsOptional()
     @IsString()
-    topScore?: string;
+    topScore?: number;
 
     @ApiProperty()
     @IsString()
