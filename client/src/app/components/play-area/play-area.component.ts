@@ -16,13 +16,11 @@ import { HEIGHT, WIDTH } from 'src/constants';
     styleUrls: ['./play-area.component.scss'],
 })
 export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
-    @Output() differenceFound: EventEmitter<boolean> = new EventEmitter();
     @Output() difficulty = new EventEmitter();
     @Input() playerName: string;
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
 
-    // differenceFound: Subject<string> = new Subject<string>();
     logic: GameLogicService;
     clickEnabled = true;
     room: PlayRoom;
@@ -45,11 +43,6 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
     get height(): number {
         return this.canvasSize.y;
     }
-    ngAfterViewChecked() {
-        if (!this.cheatMode.cheatModeActivated && !this.logic.isBlinking) {
-            this.logic.updateImagesInformation();
-        }
-    }
     async ngAfterViewInit(): Promise<void> {
         this.logic = new GameLogicService(
             new CanvasHelperService(this.canvas1.nativeElement),
@@ -64,6 +57,11 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
         await this.logic.start().then((difficulty: string) => {
             this.difficulty.emit(difficulty);
         });
+    }
+    ngAfterViewChecked() {
+        if (!this.cheatMode.cheatModeActivated && !this.logic.isBlinking) {
+            this.logic.updateImagesInformation();
+        }
     }
 
     handleClick(event: MouseEvent) {

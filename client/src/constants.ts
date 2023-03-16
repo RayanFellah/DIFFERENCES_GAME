@@ -10,3 +10,5 @@ export const COLOR: number[] = [0, 0, 0, 0];
 export const FONT_STYLE = 'Arial 20px';
 export const RGBA_LENGTH = 4;
 export const BLACK_COLOR = 'black';
+export const ONE_SECOND = 1000;
+export const BLINK_DURATION = 400;

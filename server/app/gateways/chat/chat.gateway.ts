@@ -45,7 +45,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     @SubscribeMessage('createSoloGame')
-    async createSoloRoom(socket: Socket, payload) {
+    async createSoloRoom(socket: Socket, payload: { name: string; sheetId: string; roomName: string }) {
         const playSheet = await this.sheetService.getSheet(payload.sheetId);
         const diffs = await this.gameService.getAllDifferences(playSheet);
         const newRoom: PlayRoom = {

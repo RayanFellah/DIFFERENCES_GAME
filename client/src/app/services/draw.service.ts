@@ -24,7 +24,7 @@ export class DrawingService {
     private tempCanvas: HTMLCanvasElement;
     private tempContext: CanvasRenderingContext2D;
     constructor(private canvas: HTMLCanvasElement) {
-        this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
+        this.context = canvas.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D;
     }
     static duplicate(canvas1: HTMLCanvasElement, canvas2: HTMLCanvasElement) {
         const dataImage1 = canvas1.getContext('2d')?.getImageData(0, 0, canvas1.width, canvas1.height).data;

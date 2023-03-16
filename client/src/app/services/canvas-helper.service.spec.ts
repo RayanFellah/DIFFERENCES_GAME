@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { TestBed } from '@angular/core/testing';
-
 import { CanvasHelperService } from './canvas-helper.service';
 
 describe('CanvasHelperService', () => {

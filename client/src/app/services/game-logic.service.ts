@@ -7,7 +7,7 @@ import { Vec2 } from '@app/interfaces/vec2';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { Sheet } from '@common/sheet';
 import { Subject } from 'rxjs';
-import { RGBA_LENGTH } from 'src/constants';
+import { BLINK_DURATION, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
@@ -68,7 +68,7 @@ export class GameLogicService {
                     });
                     this.handleResponses();
                     this.playRoom = this.activatedRoute.snapshot.paramMap.get('roomId') as string;
-
+                    this.cheatMode.getDifferences(this.sheet);
                     resolve(this.sheet.difficulty);
                 });
             }
@@ -87,9 +87,9 @@ export class GameLogicService {
     }
 
     handleResponses() {
-        this.socketService.on('found', (coords: Vec2[]) => {
-            // this.makeBlink(coords);
-            this.handleClick(this.currentClick, coords);
+        this.socketService.on('found', (res: { coords: Vec2[]; player: string; diffsLeft: number }) => {
+            this.makeBlink(res.coords);
+            this.handleClick(this.currentClick, res.coords);
         });
 
         this.socketService.on('roomCreated', (res: string) => {
@@ -97,27 +97,31 @@ export class GameLogicService {
         });
 
         this.socketService.on('gameDone', (message: string) => {
-            console.log(message);
+            setTimeout(() => {
+                alert(message);
+            }, BLINK_DURATION);
         });
     }
 
     makeBlink(diff: Vec2[]) {
-        if (this.leftCanvas.context) {
-            const leftDiffColor = this.leftCanvas.getColor();
-            const rightDiffColor = this.rightCanvas.getColor();
-            const intervalId = setInterval(() => {
-                this.isBlinking = true;
-                this.leftCanvas.updateImage(diff, leftDiffColor, rightDiffColor);
-                this.rightCanvas.updateImage(diff, leftDiffColor, rightDiffColor);
-            }, 1);
+        if (diff) {
+            if (this.leftCanvas.context) {
+                const leftDiffColor = this.leftCanvas.getColor();
+                const rightDiffColor = this.rightCanvas.getColor();
+                const intervalId = setInterval(() => {
+                    this.isBlinking = true;
+                    this.leftCanvas.updateImage(diff, leftDiffColor, rightDiffColor);
+                    this.rightCanvas.updateImage(diff, leftDiffColor, rightDiffColor);
+                }, 1);
 
-            setTimeout(() => {
-                this.leftCanvas.context!.putImageData(this.originalImageData, 0, 0);
-                this.replaceDifference(diff, this.originalImageData);
-                this.isBlinking = false;
-                this.updateImagesInformation();
-                clearInterval(intervalId);
-            }, 400);
+                setTimeout(() => {
+                    this.leftCanvas.context!.putImageData(this.originalImageData, 0, 0);
+                    this.replaceDifference(diff, this.originalImageData);
+                    this.isBlinking = false;
+                    this.updateImagesInformation();
+                    clearInterval(intervalId);
+                }, BLINK_DURATION);
+            }
         }
     }
     updateImagesInformation() {
@@ -138,7 +142,7 @@ export class GameLogicService {
         const canvasClicked = event.target as HTMLCanvasElement;
         const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
         if (diff) {
-            // this.makeBlink(this.diff);
+            this.makeBlink(this.diff);
             this.audio.playSuccessSound();
             this.differencesFound++;
             this.differencesFoundService.setAttribute(this.differencesFound);
@@ -153,11 +157,5 @@ export class GameLogicService {
     cheat() {
         this.cheatMode.getDifferences(this.sheet);
         this.cheatMode.cheatBlink(this.leftCanvas, this.rightCanvas, this.originalImageData, this.modifiedImageData);
-    }
-    private wait() {
-        this.allowed = false;
-        setTimeout(() => {
-            this.allowed = true;
-        }, 1000);
     }
 }

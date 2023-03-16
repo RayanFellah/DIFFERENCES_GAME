@@ -2,7 +2,7 @@ import { Inject, Injectable, OnDestroy } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 import { finalize, fromEvent, OperatorFunction, switchMap, tap } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { FONT_STYLE, HEIGHT, WIDTH } from 'src/constants';
+import { FONT_STYLE, HEIGHT, ONE_SECOND, WIDTH } from 'src/constants';
 @Injectable({
     providedIn: 'root',
 })
@@ -15,7 +15,7 @@ export class CanvasHelperService implements OnDestroy {
     url: string;
     disable: boolean = false;
     constructor(@Inject(HTMLCanvasElement) private canvasRef: HTMLCanvasElement) {
-        this.context = canvasRef.getContext('2d');
+        this.context = canvasRef.getContext('2d', { willReadFrequently: true });
         if (this.context) this.tempImageData = this.context.getImageData(0, 0, WIDTH, HEIGHT);
     }
 
@@ -45,7 +45,7 @@ export class CanvasHelperService implements OnDestroy {
     }
 
     getColor() {
-        this.tempImageData = this.context!.getImageData(0, 0, WIDTH, HEIGHT);
+        this.tempImageData = this.context?.getImageData(0, 0, WIDTH, HEIGHT) as ImageData;
         return this.tempImageData;
     }
 
@@ -81,7 +81,7 @@ export class CanvasHelperService implements OnDestroy {
         setTimeout(() => {
             if (temp) this.context?.putImageData(temp, 0, 0);
             this.disable = false;
-        }, 1000);
+        }, ONE_SECOND);
     }
     drawingOnImage() {
         const mouseDownStream = fromEvent(this.canvasRef, 'mousedown');

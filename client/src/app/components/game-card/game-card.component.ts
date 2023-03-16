@@ -84,7 +84,6 @@ export class GameCardComponent implements OnInit {
             sheetId: this.sheet._id,
             roomName: this.roomName,
         };
-        console.log('creating solo game for ', playerName, ' in room ', this.roomName, ' with sheet ', this.sheet._id, '');
         this.socketService.send('createSoloGame', data);
     }
     private generateRandomId(length: number): string {
