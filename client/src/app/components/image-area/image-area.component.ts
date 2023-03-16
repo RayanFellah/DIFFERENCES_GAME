@@ -54,8 +54,8 @@ export class ImageAreaComponent implements OnInit, OnDestroy, AfterViewInit {
     clearCanvas() {
         if (this.getBackgroundContext()) this.setDefaultState();
     }
-    draw(event: MouseEvent, keyboardEvent?: KeyboardEvent) {
-        this.drawingTool.draw(event, this.divContainer.nativeElement, keyboardEvent);
+    draw(event: MouseEvent) {
+        this.drawingTool.draw(event, this.divContainer.nativeElement);
     }
     stop(event: MouseEvent) {
         this.drawingTool.stop(event);

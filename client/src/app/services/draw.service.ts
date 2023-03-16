@@ -12,14 +12,15 @@ export class DrawingService {
     context: CanvasRenderingContext2D;
     drawColor = DEFAULT_DRAWING_COLOR;
     pencilWidth = DEFAULT_PENCIL_SIZE;
+    shiftKeyPressed: boolean = false;
     private startPos: Vec2;
     private isDrawing = false;
     private isDrawingRect = false;
     private isErasing = false;
     private restoreArray: ImageData[] = [];
     private redoArray: ImageData[] = [];
-    private index = INITIAL_INDEX;
-    private indexRedo = INITIAL_INDEX;
+    private restoreIndex = INITIAL_INDEX;
+    private redoIndex = INITIAL_INDEX;
     private tempCanvas: HTMLCanvasElement;
     private tempContext: CanvasRenderingContext2D;
     constructor(private canvas: HTMLCanvasElement) {
@@ -69,29 +70,28 @@ export class DrawingService {
         this.isErasing = false;
         this.startPos = { posX: event.offsetX, posY: event.offsetY };
         this.tempCanvas = CanvasHelperService.createCanvas(this.canvas.width, this.canvas.height);
+        this.tempCanvas.style.border = '1px solid black';
         this.tempContext = this.tempCanvas.getContext('2d') as CanvasRenderingContext2D;
         container?.insertAdjacentElement('afterbegin', this.tempCanvas);
         this.tempCanvas.style.position = 'absolute';
-        this.tempCanvas.style.top = '9.1%';
-        this.tempCanvas.style.left = '0.5%';
+        this.tempCanvas.style.top = '7.1%';
         this.tempCanvas.style.zIndex = '1';
         this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
     }
 
-    drawRectangle(event: MouseEvent, keyboardEvent?: KeyboardEvent) {
+    drawRectangle(event: MouseEvent) {
         if (!this.isDrawingRect) return;
         if (this.context) this.context.fillStyle = this.drawColor;
         if (this.tempContext) this.tempContext.fillStyle = this.drawColor;
         const width = event.offsetX - this.startPos.posX;
         const height = event.offsetY - this.startPos.posY;
-        if (keyboardEvent && keyboardEvent.shiftKey) {
-            this.context.fillRect(this.startPos.posX, this.startPos.posY, Math.min(width, height), Math.min(width, height));
+        this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
+        if (this.shiftKeyPressed) {
+            this.tempContext.fillRect(this.startPos.posX, this.startPos.posY, Math.min(width, height), Math.min(width, height));
         } else {
-            this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
             this.tempContext.fillRect(this.startPos.posX, this.startPos.posY, width, height);
         }
     }
-
     erase(event: MouseEvent) {
         if (event.type === 'mousedown') {
             this.isErasing = true;
@@ -118,38 +118,39 @@ export class DrawingService {
         }
         if (this.isErasing) {
             this.context.globalCompositeOperation = 'source-over';
+            this.context.lineCap = 'square';
             this.isErasing = false;
         }
         this.context?.closePath();
         if (event.type !== 'mouseout') {
             this.restoreArray.push(this.context.getImageData(0, 0, this.canvas.width, this.canvas.height));
-            this.index += 1;
+            this.restoreIndex += 1;
         }
     }
     reset() {
         this.context?.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.restoreArray = [];
-        this.index = -1;
+        this.restoreIndex = -1;
     }
 
     undo() {
-        if (this.index < 0) return;
-        if (this.index === 0) {
-            this.indexRedo += 1;
+        if (this.restoreIndex < 0) return;
+        if (this.restoreIndex === 0) {
+            this.redoIndex += 1;
             this.redoArray.push(this.restoreArray.pop() as ImageData);
             this.reset();
         } else {
-            this.index -= 1;
-            this.indexRedo += 1;
-            this.context?.putImageData(this.restoreArray[this.index], 0, 0);
+            this.restoreIndex -= 1;
+            this.redoIndex += 1;
+            this.context?.putImageData(this.restoreArray[this.restoreIndex], 0, 0);
             this.redoArray.push(this.restoreArray.pop() as ImageData);
         }
     }
     redo() {
-        if (this.indexRedo >= 0) {
-            this.context?.putImageData(this.redoArray[this.indexRedo], 0, 0);
-            this.indexRedo -= 1;
-            this.index += 1;
+        if (this.redoIndex >= 0) {
+            this.context?.putImageData(this.redoArray[this.redoIndex], 0, 0);
+            this.redoIndex -= 1;
+            this.restoreIndex += 1;
             this.restoreArray.push(this.redoArray.pop() as ImageData);
         }
     }

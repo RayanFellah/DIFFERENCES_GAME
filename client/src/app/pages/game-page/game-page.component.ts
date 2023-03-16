@@ -1,5 +1,6 @@
-import { Component, OnInit, Output } from '@angular/core';
+import { Component, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 
@@ -13,6 +14,7 @@ import { SocketClientService } from '@app/services/socket-client/socket-client.s
  * la gestion des clicks se fera dans le service de gamelogic, et la gestion du chat dans le chatboxcomponent
  */
 export class GamePageComponent implements OnInit {
+    @ViewChild(PlayAreaComponent) playArea: PlayAreaComponent;
     @Output() playerName: string;
     difficulty: string;
     chatMessages: ChatMessage[] = [];

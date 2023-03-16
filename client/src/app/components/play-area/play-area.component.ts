@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
+import { CheatModeService } from '@app/services/cheat-mode.service';
 import { DifferencesFoundService } from '@app/services/differences-found.service';
 import { GameLogicService } from '@app/services/game-logic.service';
 import { ImageHttpService } from '@app/services/image-http.service';
@@ -14,7 +15,7 @@ import { HEIGHT, WIDTH } from 'src/constants';
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
 })
-export class PlayAreaComponent implements AfterViewInit {
+export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
     @Output() differenceFound: EventEmitter<boolean> = new EventEmitter();
     @Output() difficulty = new EventEmitter();
     @Input() playerName: string;
@@ -34,6 +35,7 @@ export class PlayAreaComponent implements AfterViewInit {
         private differencesFoundService: DifferencesFoundService,
         private sheetService: SheetHttpService,
         private activatedRoute: ActivatedRoute,
+        private cheatMode: CheatModeService,
     ) {}
 
     get width(): number {
@@ -43,7 +45,11 @@ export class PlayAreaComponent implements AfterViewInit {
     get height(): number {
         return this.canvasSize.y;
     }
-
+    ngAfterViewChecked() {
+        if (!this.cheatMode.cheatModeActivated && !this.logic.isBlinking) {
+            this.logic.updateImagesInformation();
+        }
+    }
     async ngAfterViewInit(): Promise<void> {
         this.logic = new GameLogicService(
             new CanvasHelperService(this.canvas1.nativeElement),
@@ -53,6 +59,7 @@ export class PlayAreaComponent implements AfterViewInit {
             this.activatedRoute,
             this.sheetService,
             this.socketService,
+            this.cheatMode,
         );
         await this.logic.start().then((difficulty: string) => {
             this.difficulty.emit(difficulty);
@@ -61,5 +68,9 @@ export class PlayAreaComponent implements AfterViewInit {
 
     handleClick(event: MouseEvent) {
         this.logic.setClick(event, this.playerName);
+    }
+
+    blink() {
+        this.logic.cheat();
     }
 }
