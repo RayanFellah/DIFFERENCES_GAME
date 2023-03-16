@@ -86,7 +86,6 @@ export class DrawingService {
         const width = event.offsetX - this.startPos.posX;
         const height = event.offsetY - this.startPos.posY;
         this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
-        console.log(this.shiftKeyPressed);
         if (this.shiftKeyPressed) {
             this.tempContext.fillRect(this.startPos.posX, this.startPos.posY, Math.min(width, height), Math.min(width, height));
         } else {
