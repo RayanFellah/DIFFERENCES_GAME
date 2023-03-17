@@ -87,7 +87,7 @@ export class GameLogicService {
     }
 
     handleResponses() {
-        this.socketService.on('found', (res: { coords: Vec2[]; player: string; diffsLeft: number }) => {
+        this.socketService.on('clickFeedBack', (res: { coords: Vec2[]; player: string; diffsLeft: number }) => {
             this.makeBlink(res.coords);
             this.handleClick(this.currentClick, res.coords);
         });
@@ -139,6 +139,7 @@ export class GameLogicService {
         this.rightCanvas.context!.putImageData(this.modifiedImageData, 0, 0);
     }
     handleClick(event: MouseEvent, diff: Vec2[] | undefined) {
+        if (!event) return;
         const canvasClicked = event.target as HTMLCanvasElement;
         const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
         if (diff) {

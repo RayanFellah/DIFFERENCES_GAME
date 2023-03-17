@@ -66,15 +66,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const clickCoord: Coord = { posX: payload.x, posY: payload.y };
         const room = this.rooms.find((res) => res.roomName === payload.roomName);
         const player = room.player1.name === payload.playerName ? room.player1 : room.player2;
+        let isError = true;
 
         for (const diff of room.differences) {
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
+                    isError = false;
                     this.server
                         .to(payload.roomName)
                         .emit('roomMessage', { sender: '', content: `${payload.playerName} avez trouvé une différence!`, type: 'game' });
                     player.differencesFound++;
-                    this.server.to(payload.roomName).emit('found', {
+                    this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
                         player: payload.playerName,
                         diffsLeft: room.differences.length - player.differencesFound,
@@ -83,11 +85,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 }
             }
         }
+        if (isError) {
+            console.log('e88o8');
+            this.server.to(payload.roomName).emit('clickFeedBack', {
+                coords: undefined,
+                player: payload.playerName,
+                diffsLeft: room.differences.length - player.differencesFound,
+            });
+        }
         if (player.differencesFound === room.numberOfDifferences) {
             this.server.to(payload.roomName).emit('gameDone', `${payload.playerName} has won!`);
             return;
         }
-        this.server.to(payload.roomName).emit('error', payload.playerName);
     }
 
     @SubscribeMessage(ChatEvents.RoomMessage)
