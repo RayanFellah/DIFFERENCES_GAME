@@ -121,9 +121,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         // add the socket to the set of sockets that have received the event
         this.sentToSockets.add(socket.id);
     }
+    @SubscribeMessage('cancelJoinGame')
+    cancelJoinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
+        socket.broadcast.to(`GameRoom${sheetId}`).emit('UserCancelled', { playerName });
+        socket.leave(`GameRoom${sheetId}`);
+    }
     @SubscribeMessage('playerRejected')
     playerRejected(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
         socket.broadcast.to(`GameRoom${sheetId}`).emit('Rejection', { playerName, sheetId });
+    }
+    @SubscribeMessage('quitRoom')
+    quitRoom(socket: Socket, sheetId: string) {
+        socket.leave(`GameRoom${sheetId}`);
     }
     @SubscribeMessage('playerConfirmed')
     async playerConfirmed(socket: Socket, { player1, player2, sheetId }: { player1: string; player2: string; sheetId: string }) {
@@ -147,8 +156,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const room = this.rooms.find((res) => res.roomName === roomName);
         room.player2 = { name: player2, socketId: socket.id, differencesFound: 0 };
         socket.join(room.roomName);
-        console.log(room.roomName);
-        console.log(socket.rooms);
+
         this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
     }
 
