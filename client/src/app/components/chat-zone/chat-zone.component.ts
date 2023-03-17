@@ -1,12 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ChatMessage } from '@app/interfaces/chat-message';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChatMessage } from '@common/chat-message';
 
 @Component({
     selector: 'app-chat-zone',
     templateUrl: './chat-zone.component.html',
     styleUrls: ['./chat-zone.component.scss'],
 })
-export class ChatZoneComponent implements OnInit {
+export class ChatZoneComponent {
     @Input() playerName: string;
     @Input() opponentName: string;
     @Input() chatMessages: ChatMessage[] = [];
@@ -14,12 +14,8 @@ export class ChatZoneComponent implements OnInit {
     messageContent: string = '';
     newMessage: ChatMessage;
 
-    ngOnInit() {
-        this.newMessage.sender = this.playerName;
-    }
-
     sendMessage() {
-        this.newMessage = { content: this.messageContent, type: 'player', sender: '' };
+        this.newMessage = { content: this.messageContent, type: 'player' };
         this.messageEvent.emit(this.newMessage);
         this.messageContent = '';
     }

@@ -60,10 +60,10 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
                 this.socketService.send('cancelGameCreation', this.currentSheetId);
             }
         });
-        this.dialogService.playerRejected$.subscribe((playerName: string) => {
+        this.dialogService.playerRejected$.subscribe((playerName: string | null) => {
             if (playerName) this.socketService.send('playerRejected', { playerName, sheetId: this.currentSheetId });
         });
-        this.dialogService.playerConfirmed$.subscribe((playerName: string) => {
+        this.dialogService.playerConfirmed$.subscribe((playerName: string | null) => {
             if (playerName) this.socketService.send('playerConfirmed', { player1: this.name, player2: playerName, sheetId: this.currentSheetId });
         });
         this.connect();
@@ -159,6 +159,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        this.dialogService.reset();
         if (this.currentSheetId) this.socketService.send('cancelGameCreation', this.currentSheetId);
     }
 }

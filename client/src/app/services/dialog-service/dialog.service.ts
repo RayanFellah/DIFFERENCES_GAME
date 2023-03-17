@@ -7,10 +7,10 @@ import { BehaviorSubject } from 'rxjs';
 export class DialogService {
     cancel = new BehaviorSubject<boolean>(false);
     cancel$ = this.cancel.asObservable();
-    playerRejected = new BehaviorSubject<string>('');
+    playerRejected = new BehaviorSubject<string | null>(null);
     playerRejected$ = this.playerRejected.asObservable();
 
-    playerConfirmed = new BehaviorSubject<string>('');
+    playerConfirmed = new BehaviorSubject<string | null>(null);
     playerConfirmed$ = this.playerConfirmed.asObservable();
 
     playerName = new BehaviorSubject<string[]>([]);
@@ -33,5 +33,12 @@ export class DialogService {
     emitConfirmation(playerName: string) {
         this.playerName.next([]);
         this.playerConfirmed.next(playerName);
+    }
+
+    reset() {
+        this.cancel.next(false);
+        this.playerConfirmed.next(null);
+        this.playerRejected.next(null);
+        this.playerName.next([]);
     }
 }
