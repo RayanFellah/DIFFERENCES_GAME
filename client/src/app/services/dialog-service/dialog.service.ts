@@ -11,7 +11,7 @@ export class DialogService {
     cancelJoin = new BehaviorSubject<boolean>(false);
     cancelJoin$ = this.cancelJoin.asObservable();
 
-    playerRejected = new BehaviorSubject<string>('');
+    playerRejected = new BehaviorSubject<string | null>('');
     playerRejected$ = this.playerRejected.asObservable();
 
     playerConfirmed = new BehaviorSubject<string | null>(null);
