@@ -201,7 +201,7 @@ export class CreationPageComponent implements OnInit {
     duplicate(image1: ImageAreaComponent, image2: ImageAreaComponent) {
         DrawingService.duplicate(image1.fCanvas.nativeElement, image2.fCanvas.nativeElement);
     }
-    switch(image1: ImageAreaComponent, image2: ImageAreaComponent) {
-        DrawingService.switch(image1.fCanvas.nativeElement, image2.fCanvas.nativeElement);
+    switch() {
+        DrawingService.switch(this.rightImageArea.fCanvas.nativeElement, this.leftImageArea.fCanvas.nativeElement);
     }
 }

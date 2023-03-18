@@ -24,7 +24,6 @@ export class GameLogicService {
 
     async getAllDifferences(gameSheet: Partial<Sheet>) {
         const diffDetector = await this.getDifferenceDetector(gameSheet);
-        console.log(gameSheet);
         return await diffDetector.getAllClusters(gameSheet.radius);
     }
 
