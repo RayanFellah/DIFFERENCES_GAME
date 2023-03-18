@@ -1,6 +1,6 @@
 image: registry.gitlab.com/nikolayradoev/docker-images/chrome-mongo-node:20231
 before_script:
-    - npm install
+    - npm installgit add .
 
 cache:
     key: '${CI_COMMIT_REF_SLUG}-client'

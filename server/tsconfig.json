@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "types": ["@nestjs/common"],
+        "types": ["@nestjs/common", "multer"],
         "module": "commonjs",
         "declaration": true,
         "removeComments": true,
