@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "types": ["@nestjs/common"],
-
         "module": "commonjs",
         "declaration": true,
         "removeComments": true,
@@ -21,7 +20,8 @@
         "noFallthroughCasesInSwitch": false,
         "paths": {
             "@common/*": ["../common/*"],
-            "@app/*": ["./app/*"]
+            "@app/*": ["./app/*"],
+            "@nestjs/common": ["node_modules/@nestjs/common"]
         }
     }
 }
