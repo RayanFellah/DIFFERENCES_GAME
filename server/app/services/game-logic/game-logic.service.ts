@@ -17,6 +17,7 @@ export class GameLogicService {
         image1.setFile(image1Buffer);
         const image2 = new ImageToMatrixService();
         const image2Path = path.join(process.cwd(), 'uploads', gameSheet.modifiedImagePath);
+        // eslint-disable-next-line import/namespace
         const image2Buffer = await (await Jimp.read(image2Path)).getBufferAsync(Jimp.MIME_BMP);
         image2.setFile(image2Buffer);
         return new DifferenceDetectorService(new RadiusEnlargementService(), new DifferenceService(), image1, image2);
@@ -24,7 +25,6 @@ export class GameLogicService {
 
     async getAllDifferences(gameSheet: Partial<Sheet>) {
         const diffDetector = await this.getDifferenceDetector(gameSheet);
-        console.log(gameSheet);
         return await diffDetector.getAllClusters(gameSheet.radius);
     }
 

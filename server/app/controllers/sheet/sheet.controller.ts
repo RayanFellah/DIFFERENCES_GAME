@@ -11,6 +11,7 @@ import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from 
 import { Response } from 'express';
 import { createWriteStream } from 'fs';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
 const randomString = require('randomstring');
 @ApiTags('Sheets')
 @Controller('sheet')
@@ -135,7 +136,6 @@ export class SheetController {
     async deleteSheet(@Param('id') id: string, @Res() response: Response) {
         try {
             await this.sheetService.deleteSheet(id);
-            console.log('deleted sheet' + id);
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);

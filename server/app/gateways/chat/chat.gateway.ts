@@ -133,7 +133,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     @SubscribeMessage('playerConfirmed')
     async playerConfirmed(socket: Socket, { player1, player2, sheetId }: { player1: string; player2: string; sheetId: string }) {
-        console.log('herre');
         const playSheet = await this.sheetService.getSheet(sheetId);
         const diffs = await this.gameService.getAllDifferences(playSheet);
         const newRoom: PlayRoom = {
