@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { scores } from '../../../../../common/score';
 
-
 @Component({
     selector: 'app-game-score',
     templateUrl: './game-score.component.html',
     styleUrls: ['./game-score.component.scss'],
 })
 export class GameScoreComponent implements OnInit {
-    public scores = scores;
+    scores = scores;
 
     formatScores = () => {
         return this.scores.map((score) => {
