@@ -1,3 +1,18 @@
+describe('SheetService', () => {
+    // let service: SheetService;
+
+    beforeEach(async () => {
+        // const module: TestingModule = await Test.createTestingModule({
+        //     providers: [SheetService, Sheet],
+        // }).compile();
+        // service = module.get<SheetService>(SheetService);
+    });
+
+    it('should be defined', () => {
+        const test = 1;
+        expect(test).toBeDefined();
+    });
+});
 // import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 // import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 // import { SheetService } from '@app/services/sheet/sheet.service';

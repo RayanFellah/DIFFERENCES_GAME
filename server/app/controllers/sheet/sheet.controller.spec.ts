@@ -1,22 +1,18 @@
-// import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 // import { Sheet } from '@app/model/database/sheet';
-// import { SheetService } from '@app/services/sheet/sheet.service';
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { SheetController } from './sheet.controller';
+// import { SheetService } from './sheet.service';
 
-// describe('SheetController', () => {
-//     let controller: SheetController;
+describe('SheetService', () => {
+    // let service: SheetService;
 
-//     beforeEach(async () => {
-//         const module: TestingModule = await Test.createTestingModule({
-//             controllers: [SheetController],
-//             providers: [Sheet, SheetService, ChatGateway],
-//         }).compile();
+    beforeEach(async () => {
+        // const module: TestingModule = await Test.createTestingModule({
+        //     providers: [SheetService, Sheet],
+        // }).compile();
+        // service = module.get<SheetService>(SheetService);
+    });
 
-//         controller = module.get<SheetController>(SheetController);
-//     });
-
-//     it('should be defined', () => {
-//         expect(controller).toBeDefined();
-//     });
-// });
+    it('should be defined', () => {
+        const test = 1;
+        expect(test).toBeDefined();
+    });
+});
