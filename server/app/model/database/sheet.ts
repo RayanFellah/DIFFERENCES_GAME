@@ -40,6 +40,10 @@ export class Sheet {
     @ApiProperty()
     @Prop({ required: true })
     differences: number;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    isJoinable: boolean;
 }
 
 export const sheetSchema = SchemaFactory.createForClass(Sheet);

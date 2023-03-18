@@ -1,11 +1,12 @@
-import { AfterViewInit, Component, ElementRef, Output, EventEmitter, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
+import { CheatModeService } from '@app/services/cheat-mode.service';
 import { DifferencesFoundService } from '@app/services/differences-found.service';
-import { GameHttpService } from '@app/services/game-http.service';
 import { GameLogicService } from '@app/services/game-logic.service';
-import { GameSelectorService } from '@app/services/game-selector.service';
 import { ImageHttpService } from '@app/services/image-http.service';
-import { LocalStorageService } from '@app/services/local-storage.service';
+import { SheetHttpService } from '@app/services/sheet-http.service';
+import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { PlayRoom } from '@common/play-room';
 import { HEIGHT, WIDTH } from 'src/constants';
 // import { EventEmitter } from 'events';
@@ -14,12 +15,12 @@ import { HEIGHT, WIDTH } from 'src/constants';
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
 })
-export class PlayAreaComponent implements AfterViewInit {
-    @Output() differenceFound: EventEmitter<boolean> = new EventEmitter();
+export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
+    @Output() difficulty = new EventEmitter();
+    @Input() playerName: string;
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
 
-    // differenceFound: Subject<string> = new Subject<string>();
     logic: GameLogicService;
     clickEnabled = true;
     room: PlayRoom;
@@ -27,11 +28,12 @@ export class PlayAreaComponent implements AfterViewInit {
     private canvasSize = { x: WIDTH, y: HEIGHT };
 
     constructor(
+        private socketService: SocketClientService,
         private imageHttp: ImageHttpService,
-        private gameHttp: GameHttpService,
-        private readonly gameSelector: GameSelectorService,
         private differencesFoundService: DifferencesFoundService,
-        public localStorage: LocalStorageService,
+        private sheetService: SheetHttpService,
+        private activatedRoute: ActivatedRoute,
+        private cheatMode: CheatModeService,
     ) {}
 
     get width(): number {
@@ -41,27 +43,32 @@ export class PlayAreaComponent implements AfterViewInit {
     get height(): number {
         return this.canvasSize.y;
     }
-
     async ngAfterViewInit(): Promise<void> {
         this.logic = new GameLogicService(
             new CanvasHelperService(this.canvas1.nativeElement),
             new CanvasHelperService(this.canvas2.nativeElement),
-            this.gameHttp,
             this.imageHttp,
-            this.gameSelector,
             this.differencesFoundService,
+            this.activatedRoute,
+            this.sheetService,
+            this.socketService,
+            this.cheatMode,
         );
-        const toParse = await this.localStorage.getData('currentRoom');
-        if (toParse) {
-            this.room = JSON.parse(toParse);
+        await this.logic.start().then((difficulty: string) => {
+            this.difficulty.emit(difficulty);
+        });
+    }
+    ngAfterViewChecked() {
+        if (!this.cheatMode.cheatModeActivated && !this.logic.isBlinking) {
+            this.logic.updateImagesInformation();
         }
-        this.logic.sheet = this.room.sheet;
-        console.log(this.logic.sheet);
-        this.logic.start();
     }
 
-    async handleClick(event: MouseEvent) {
-        const found = this.logic.sendCLick(event);
-        this.differenceFound.emit(found);
+    handleClick(event: MouseEvent) {
+        this.logic.setClick(event, this.playerName);
+    }
+
+    blink() {
+        this.logic.cheat();
     }
 }

@@ -6,9 +6,9 @@
         <button type="button" mat-button color="primary">
             <input id="colorInput" matInput type="color" (input)="changeColor($event)" />
         </button>
-        <mat-slider min="1" max="50" color="primary">
+        <button type="button" mat-button color="primary">
             <input type="range" value="2" min="1" max="50" (input)="changePencilWidth($event)" />
-        </mat-slider>
+        </button>
         <button type="button" mat-button color="primary" [ngClass]="tools.eraser ? 'buttonClicked' : ''" (click)="setUsedTool('eraser')">
             <mat-icon>remove </mat-icon>
         </button>

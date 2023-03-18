@@ -19,6 +19,10 @@ export class GameHttpService {
         return this.http.get<{ numberDifferences: number; difficulty: string }>(`${this.baseUrl}/game/current/differences`);
     }
 
+    getAllDifferences(id: string) {
+        return this.http.get<Vec2[][]>(`${this.baseUrl}/game/current/allDifferences/${id}`);
+    }
+
     // sendPlaySheet(sheet: Sheet) {
     //     // eslint-disable-next-line no-underscore-dangle
     //     console.log(sheet._id);

@@ -9,10 +9,11 @@
         (mousemove)="draw($event)"
         (mouseup)="stop($event)"
         (mouseout)="stop($event)"
+        (keyup.shift)="drawingTool.drawingService.shiftKeyPressed = false"
+        (keydown.shift)="drawingTool.drawingService.shiftKeyPressed = true"
         (keydown)="keyEvents($event)"
         #foreground
     >
     </canvas>
     <canvas id="background" [attr.width]="width" [attr.height]="height" #background> </canvas>
 </div>
-<button type="button" (click)="mergeCanvas()">a</button>

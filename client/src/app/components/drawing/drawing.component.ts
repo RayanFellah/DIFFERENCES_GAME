@@ -37,7 +37,7 @@ export class DrawingComponent implements OnInit, AfterViewInit {
         this.tools[toolName] = !this.tools[toolName];
     }
 
-    draw(event: MouseEvent, component: HTMLDivElement, keyboardEvent?: KeyboardEvent) {
+    draw(event: MouseEvent, component: HTMLDivElement) {
         if (this.tools.pencil) {
             this.canvas.style.cursor = "url('./assets/pencil.png'), auto";
             this.drawingService.drawPencil(event);
@@ -48,7 +48,7 @@ export class DrawingComponent implements OnInit, AfterViewInit {
             }
             if (event.type === 'mousemove') {
                 this.canvas.style.cursor = 'crosshair';
-                this.drawingService.drawRectangle(event, keyboardEvent);
+                this.drawingService.drawRectangle(event);
             }
         }
         if (this.tools.eraser) {
@@ -56,27 +56,34 @@ export class DrawingComponent implements OnInit, AfterViewInit {
             this.drawingService.erase(event);
         }
     }
+
     stop(event: MouseEvent) {
         this.drawingService.stop(event);
         this.canvas.style.cursor = 'default';
     }
+
     changeColor(event: Event) {
         const color = (event.target as HTMLInputElement).value;
         this.drawingService.drawColor = color;
     }
+
     changePencilWidth(event: Event) {
         const pencilWidth = (event.target as HTMLInputElement).value;
         this.drawingService.pencilWidth = parseInt(pencilWidth, 10);
     }
+
     reset() {
         this.drawingService.reset();
     }
+
     undo() {
         this.drawingService.undo();
     }
+
     redo() {
         this.drawingService.redo();
     }
+
     keyEvents(keyEvent: KeyboardEvent) {
         if (keyEvent.ctrlKey && keyEvent.shiftKey && keyEvent.key === 'Z') {
             this.redo();

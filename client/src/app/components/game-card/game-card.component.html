@@ -6,11 +6,11 @@
     <mat-card-content> <img [src]="trustedUrl" alt="Image" /> </mat-card-content>
 
     <mat-card-actions>
-        <button mat-stroked-button color="primary" (click)="jouer()">
+        <button mat-stroked-button color="primary" (click)="play()">
             {{ isConfig ? 'Réinitialiser' : 'Jouer' }}
         </button>
-        <button mat-stroked-button color="accent" (click)="isConfig ? onDelete() : jouer()">
-            {{ isConfig ? 'Supprimer' : 'Joindre' }}
+        <button mat-stroked-button color="accent" (click)="isConfig ? onDelete() : sheet.isJoinable ? join() : create()">
+            {{ isConfig ? 'Supprimer' : sheet.isJoinable ? 'Joindre' : 'Créer' }}
         </button>
     </mat-card-actions>
 </mat-card>

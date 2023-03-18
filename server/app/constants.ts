@@ -4,3 +4,6 @@ export const WIDTH = 640;
 export const HEIGHT = 480;
 export const MIN_DIFFERENCES = 2;
 export const MAX_DIFFERENCES = 10;
+export const ID_LENGTH = 7;
+export const SOLO_MODE = 'solo';
+export const MULTIPLAYER_MODE = 'multi';

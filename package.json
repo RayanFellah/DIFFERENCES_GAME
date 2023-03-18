@@ -1,5 +1,9 @@
 {
-  "dependencies": {
-    "eslint": "^8.35.0"
-  }
+    "dependencies": {
+        "@ionic/storage": "^3.0.6",
+        "@nestjs/common": "^9.3.10",
+        "@nestjs/config": "^2.3.1",
+        "randomstring": "^1.2.3",
+        "winston": "^3.8.2"
+    }
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class UpdateSheetDto {
     @ApiProperty()
@@ -14,10 +14,15 @@ export class UpdateSheetDto {
 
     @ApiProperty()
     @IsString()
-    id: string;
+    _id: string;
 
     @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
     difficulty?: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsBoolean()
+    isJoinable?: boolean;
 }

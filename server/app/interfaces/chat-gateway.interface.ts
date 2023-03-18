@@ -1,6 +1,8 @@
+import { Sheet } from '@common/sheet';
+
 export interface ChatGatewayPayload {
     playerName: string;
     roomName: string;
     message: string;
-    sheet?: any;
+    sheet?: Sheet;
 }
