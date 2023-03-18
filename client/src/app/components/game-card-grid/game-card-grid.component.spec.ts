@@ -1,9 +1,9 @@
+import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { of } from 'rxjs';
-
 import { GameCardGridComponent } from './game-card-grid.component';
 
 describe('GameCardGridComponent', () => {
@@ -17,8 +17,10 @@ describe('GameCardGridComponent', () => {
         sheetHttpServiceSpy.getAllSheets.and.returnValue(of([]));
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open', 'closeAll']);
     });
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
+            imports: [RouterModule.forRoot([]), HttpClientModule],
             declarations: [GameCardGridComponent],
             providers: [
                 { provide: SheetHttpService, useValue: sheetHttpServiceSpy },

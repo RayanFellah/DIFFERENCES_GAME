@@ -3,7 +3,6 @@ import { ImageToMatrixService } from '@app/services/image-to-matrix/image-to-mat
 import { RadiusEnlargementService } from '@app/services/radius-enlargement/radius-enlargement.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DifferenceDetectorService } from './difference-detector.service';
-
 describe('DifferenceDetectorService', () => {
     let service: DifferenceDetectorService;
 

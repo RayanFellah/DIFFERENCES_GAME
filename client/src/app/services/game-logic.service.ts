@@ -12,7 +12,6 @@ import { BLINK_DURATION, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
-import { DifferencesFoundService } from './differences-found.service';
 import { ImageHttpService } from './image-http.service';
 import { SheetHttpService } from './sheet-http.service';
 
@@ -42,7 +41,6 @@ export class GameLogicService {
         private leftCanvas: CanvasHelperService,
         private rightCanvas: CanvasHelperService,
         private readonly imageHttp: ImageHttpService,
-        private differencesFoundService: DifferencesFoundService,
         public activatedRoute: ActivatedRoute,
         private sheetHttp: SheetHttpService,
         private socketService: SocketClientService,
@@ -168,7 +166,6 @@ export class GameLogicService {
                 this.audio.playSuccessSound();
             }
             this.differencesFound++;
-            this.differencesFoundService.setAttribute(this.differencesFound);
             this.cheatMode.removeDifference(diff);
             return diff;
         } else if (player === this.socketService.socket.id) {

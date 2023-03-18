@@ -14,11 +14,11 @@ import { ChatEvents } from './chat.gateway.events';
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
-    @WebSocketServer() private server: Server;
+    @WebSocketServer() server: Server;
 
     sentToSockets = new Set<string>();
+    rooms: PlayRoom[] = [];
     private readonly room = PRIVATE_ROOM_ID;
-    private rooms: PlayRoom[] = [];
 
     constructor(private readonly logger: Logger, private readonly sheetService: SheetService, private gameService: GameLogicService) {}
 

@@ -2,7 +2,6 @@ import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, I
 import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
-import { DifferencesFoundService } from '@app/services/differences-found.service';
 import { GameLogicService } from '@app/services/game-logic.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
@@ -30,7 +29,6 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
     constructor(
         private socketService: SocketClientService,
         private imageHttp: ImageHttpService,
-        private differencesFoundService: DifferencesFoundService,
         private sheetService: SheetHttpService,
         private activatedRoute: ActivatedRoute,
         private cheatMode: CheatModeService,
@@ -48,7 +46,6 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
             new CanvasHelperService(this.canvas1.nativeElement),
             new CanvasHelperService(this.canvas2.nativeElement),
             this.imageHttp,
-            this.differencesFoundService,
             this.activatedRoute,
             this.sheetService,
             this.socketService,
