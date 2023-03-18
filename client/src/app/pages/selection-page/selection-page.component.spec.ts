@@ -29,9 +29,9 @@
 
 //   it('should set sheets property when getAllSheets() returns data', () => {
 //     const sheets: Sheet[] = [
-//         { 
-//             _id: '1', 
-//             title: 'Sheet 1', 
+//         {
+//             _id: '1',
+//             title: 'Sheet 1',
 //             originalImagePath: 'path1',
 //             modifiedImagePath: 'path2',
 //             difficulty: 'easy',
@@ -40,9 +40,9 @@
 //             differences: 5,
 //             isJoinable: true,
 //         },
-//         { 
-//             _id: '2', 
-//             title: 'Sheet 2', 
+//         {
+//             _id: '2',
+//             title: 'Sheet 2',
 //             originalImagePath: 'path3',
 //             modifiedImagePath: 'path4',
 //             difficulty: 'hard',
@@ -65,6 +65,3 @@
 //     expect(window.alert).toHaveBeenCalledWith(`Le serveur ne répond pas et a retourné : ${errorMessage}`);
 //   });
 // });
-
-
-

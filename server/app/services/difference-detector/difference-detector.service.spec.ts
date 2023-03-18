@@ -4,18 +4,17 @@ import { RadiusEnlargementService } from '../radius-enlargement/radius-enlargeme
 import { DifferenceService } from '../difference/difference.service';
 import { ImageToMatrixService } from '../image-to-matrix/image-to-matrix.service';
 describe('DifferenceDetectorService', () => {
-  let service: DifferenceDetectorService;
+    let service: DifferenceDetectorService;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [DifferenceDetectorService,RadiusEnlargementService,DifferenceService,ImageToMatrixService],
-    }).compile();
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [DifferenceDetectorService, RadiusEnlargementService, DifferenceService, ImageToMatrixService],
+        }).compile();
 
-    service = module.get<DifferenceDetectorService>(DifferenceDetectorService);
-  });
+        service = module.get<DifferenceDetectorService>(DifferenceDetectorService);
+    });
 
-  it('should be defined', () => {
-
-    expect(service).toBeDefined();
-  });
+    it('should be defined', () => {
+        expect(service).toBeDefined();
+    });
 });

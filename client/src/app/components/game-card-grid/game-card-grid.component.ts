@@ -68,7 +68,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         });
         this.connect();
         const startIndex = this.currentPage * SHEETS_PER_PAGE;
-         this.sheets.slice(startIndex, startIndex + SHEETS_PER_PAGE);
+        this.sheets.slice(startIndex, startIndex + SHEETS_PER_PAGE);
     }
     navigate(type: boolean) {
         this.shouldNavigate$.next(type);
@@ -85,7 +85,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.socketService.on('Cancelled', (sheetId: string) => {
             this.cancel(sheetId);
         });
-         
+
         this.socketService.on('UserJoined', (joinGame: JoinGame) => {
             this.dialogService.emitPlayerNames(joinGame.playerName);
         });

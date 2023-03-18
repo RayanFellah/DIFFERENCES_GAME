@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 })
 export class DifferencesFoundService {
     numberOfDifferences: number = 0;
-     differencesFoundSubject = new Subject<number>();
+    differencesFoundSubject = new Subject<number>();
     setAttribute(value: number) {
         this.differencesFoundSubject.next(value - 1);
     }
