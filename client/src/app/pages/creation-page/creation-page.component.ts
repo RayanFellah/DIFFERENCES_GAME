@@ -181,18 +181,18 @@ export class CreationPageComponent implements OnInit {
             formData.append('originalImagePath', this.originalImagePath?.value);
             formData.append('modifiedImagePath', this.modifiedImagePath?.value);
             formData.append('radius', this.radiusSize?.value);
-            this.http.createSheet(formData).subscribe(
-                (next?) => {
-                    this.dialog.openImageDialog(next.image);
+            this.http.createSheet(formData).subscribe({
+                next: (response) => {
+                    this.dialog.openImageDialog(response.image);
                     this.createGame.reset();
                     this.navigate();
                     // Handle success
                 },
-                (error?) => {
+                error: (error) => {
                     this.snackBar.openSnackBar(`${error.error} `, 'Fermer');
                     // Handle error
                 },
-            );
+            });
         } else {
             // mark all controls as touched to show errors
             this.createGame.markAllAsTouched();

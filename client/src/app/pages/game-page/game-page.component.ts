@@ -27,7 +27,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.difficulty = eventData;
     }
     handleResponses() {
-        this.socketService.on('roomMessage', (message: ChatMessage) => {
+        this.socketService.on<ChatMessage>('roomMessage', (message: ChatMessage) => {
             message.type = message.type !== 'game' ? 'opponent' : 'game';
             this.chatMessages.push(message);
         });

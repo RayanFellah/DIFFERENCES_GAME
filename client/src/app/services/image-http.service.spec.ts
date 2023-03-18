@@ -46,7 +46,8 @@ describe('ImageHttpService', () => {
                 status: 200,
             };
             service.getDifferences(formData).subscribe((response) => {
-                expect(response.status).toEqual(200);
+                const expected = 200;
+                expect(response.status).toEqual(expected);
             });
             const req = httpTestingController.expectOne(`${environment.serverUrl}/image/compare`);
             expect(req.request.method).toEqual('POST');
