@@ -38,6 +38,7 @@ import { CreationPageComponent } from './pages/creation-page/creation-page.compo
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
+import { GameScoreComponent } from './components/game-score/game-score.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -69,6 +70,7 @@ import { EventService } from './services/event-service.service';
         ConstantsDialogComponent,
         LoadingDialogComponent,
         GameCardComponent,
+        GameScoreComponent,
     ],
     imports: [
         AppMaterialModule,
