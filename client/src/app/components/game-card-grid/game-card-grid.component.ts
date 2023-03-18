@@ -66,6 +66,11 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.dialogService.playerConfirmed$.subscribe((playerName: string | null) => {
             if (playerName) this.socketService.send('playerConfirmed', { player1: this.name, player2: playerName, sheetId: this.currentSheetId });
         });
+        this.dialogService.cancelJoin$.subscribe((isCancelled: boolean) => {
+            if (isCancelled && this.currentSheetId) {
+                this.socketService.send('cancelJoinGame', { playerName: this.name, sheetId: this.currentSheetId });
+            }
+        });
         this.connect();
         const startIndex = this.currentPage * SHEETS_PER_PAGE;
         this.sheets.slice(startIndex, startIndex + SHEETS_PER_PAGE);
@@ -89,6 +94,9 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.socketService.on('UserJoined', (joinGame: JoinGame) => {
             this.dialogService.emitPlayerNames(joinGame.playerName);
         });
+        this.socketService.on('UserCancelled', ({ playerName }: { playerName: string }) => {
+            this.dialogService.emitRejection(playerName);
+        });
         this.socketService.on('sheetDeleted', (sheetId: string) => {
             const foundSheet = this.sheets.find((sheet) => sheet._id === sheetId);
             if (foundSheet) {
@@ -98,17 +106,23 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.socketService.on('MultiRoomCreated', (res: { player2: string; roomName: string }) => {
             if (this.name === res.player2) {
                 this.socketService.send('player2Joined', res);
+            } else {
+                this.dialog.closeJoinLoadingDialog();
+                this.socketService.send('quitRoom', this.currentSheetId);
             }
         });
         this.socketService.on('Rejection', (res: { playerName: string; sheetId: string }) => {
             if (this.name === res.playerName) {
                 const sheetId = res.sheetId;
                 this.socketService.send('rejectionConfirmed', sheetId);
+                this.dialog.closeJoinLoadingDialog();
             }
         });
         this.socketService.on(ChatEvents.JoinedRoom, (room: PlayRoom) => {
             // this.dialog.closeLoading();
             this.playRoom = room;
+            if (this.name === room.player1.name) this.dialog.closeLoadingDialog();
+            if (this.name === room.player2.name) this.dialog.closeJoinLoadingDialog();
             this.navigate(true);
         });
     }
@@ -128,8 +142,10 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     }
 
     onJoinEvent(joinGame: JoinGame): void {
+        this.currentSheetId = joinGame.sheetId;
         this.name = joinGame.playerName;
         this.socketService.send('joinGame', { playerName: joinGame.playerName, sheetId: joinGame.sheetId });
+        this.dialog.openJoinLoadingDialog();
     }
 
     makeJoinable(sheetID: string) {

@@ -5,7 +5,7 @@
         <div *ngIf="data.playerNames.length > 0">
             <div *ngFor="let name of data.playerNames">
                 <p>Joueur : {{ name }}</p>
-                <button mat-mini-fab (click)="confirm(name)"><mat-icon>check</mat-icon></button>
+                <button mat-mini-fab color="primary" (click)="confirm(name)"><mat-icon>check</mat-icon></button>
 
                 <button mat-mini-fab (click)="reject(name)"><mat-icon>close</mat-icon></button>
             </div>

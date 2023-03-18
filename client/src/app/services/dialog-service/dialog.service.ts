@@ -7,7 +7,11 @@ import { BehaviorSubject } from 'rxjs';
 export class DialogService {
     cancel = new BehaviorSubject<boolean>(false);
     cancel$ = this.cancel.asObservable();
-    playerRejected = new BehaviorSubject<string | null>(null);
+
+    cancelJoin = new BehaviorSubject<boolean>(false);
+    cancelJoin$ = this.cancelJoin.asObservable();
+
+    playerRejected = new BehaviorSubject<string>('');
     playerRejected$ = this.playerRejected.asObservable();
 
     playerConfirmed = new BehaviorSubject<string | null>(null);
@@ -15,9 +19,13 @@ export class DialogService {
 
     playerName = new BehaviorSubject<string[]>([]);
     playerNames$ = this.playerName.asObservable();
+
     emitCancellation() {
         this.playerName.next([]);
         this.cancel.next(true);
+    }
+    emitJoinCancellation() {
+        this.cancelJoin.next(true);
     }
     emitRejection(playerName: string) {
         const currentNames = this.playerName.getValue();
