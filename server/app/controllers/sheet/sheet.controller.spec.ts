@@ -17,7 +17,7 @@ describe('SheetController', () => {
         {
           provide: SheetService,
           useValue: {
-            sheetModel: {} // Dummy SheetModel instance
+           
           }
         },
         {

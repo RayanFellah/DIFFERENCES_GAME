@@ -27,4 +27,8 @@ export class Sheet {
 
     @ApiProperty()
     isJoinable: boolean;
+
+    
+    @ApiProperty()
+    topScore: number;
 }
