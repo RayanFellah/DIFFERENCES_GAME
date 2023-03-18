@@ -4,8 +4,6 @@ import { GameScoreComponent } from './game-score.component';
 describe('GameScoreComponent', () => {
     let component: GameScoreComponent;
     let fixture: ComponentFixture<GameScoreComponent>;
-    let component: GameScoreComponent;
-    let fixture: ComponentFixture<GameScoreComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({

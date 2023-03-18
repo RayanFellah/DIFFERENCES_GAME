@@ -1,6 +1,6 @@
-// import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-// import { CheatModeService } from './cheat-mode.service';
+import { CheatModeService } from './cheat-mode.service';
 
 describe('CheatModeService', () => {
     let service: CheatModeService;
