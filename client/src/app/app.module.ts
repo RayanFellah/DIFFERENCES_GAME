@@ -27,9 +27,11 @@ import { DrawingComponent } from './components/drawing/drawing.component';
 import { FileUploadComponent } from './components/file-upload/file-upload.component';
 import { GameCardGridComponent } from './components/game-card-grid/game-card-grid.component';
 import { GameCardComponent } from './components/game-card/game-card.component';
+import { GameScoreComponent } from './components/game-score/game-score.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ImageAreaComponent } from './components/image-area/image-area.component';
 import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
+import { JoinLoadingDialogComponent } from './components/join-loading-dialog/join-loading-dialog.component';
 import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
 import { RadiusSizerComponent } from './components/radius-sizer/radius-sizer.component';
 import { FileValueAccessorDirective } from './directives/file-value-accessor.directive';
@@ -38,7 +40,6 @@ import { CreationPageComponent } from './pages/creation-page/creation-page.compo
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
-import { GameScoreComponent } from './components/game-score/game-score.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -71,6 +72,7 @@ import { GameScoreComponent } from './components/game-score/game-score.component
         LoadingDialogComponent,
         GameCardComponent,
         GameScoreComponent,
+        JoinLoadingDialogComponent,
     ],
     imports: [
         AppMaterialModule,
