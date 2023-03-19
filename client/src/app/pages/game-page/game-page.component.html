@@ -1,4 +1,4 @@
-<div tabindex="0" (keydown.t)="playArea.blink()">
+<div tabindex="0" autofocus (keydown.t)="playArea.blink()">
     <app-header></app-header>
     <button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
         <mat-icon>exit_to_app</mat-icon>
@@ -21,11 +21,11 @@
     </div>
     <h2>Difficulté: {{ difficulty }}</h2>
     <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area-container"></app-play-area>
-    <app-chat-zone
-        class="chat-zone-container"
-        [playerName]="playerName"
-        [opponent]="opponent ? opponent.name : ''"
-        [chatMessages]="this.chatMessages"
-        (messageEvent)="sendMessage($event)"
-    ></app-chat-zone>
 </div>
+<app-chat-zone
+    class="chat-zone-container"
+    [playerName]="playerName"
+    [opponent]="opponent ? opponent.name : ''"
+    [chatMessages]="this.chatMessages"
+    (messageEvent)="sendMessage($event)"
+></app-chat-zone>

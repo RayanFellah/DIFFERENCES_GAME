@@ -158,7 +158,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         };
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
-        this.server.to(`GameRoom${sheetId}`).emit('MultiRoomCreated', { player2, roomName: newRoom.roomName });
+        socket.broadcast.to(`GameRoom${sheetId}`).emit('MultiRoomCreated', { player2, roomName: newRoom.roomName });
         this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
     }
     @SubscribeMessage('player2Joined')
@@ -226,7 +226,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     handleDisconnect(socket: Socket) {
         if (!socket) return;
         this.logger.log(`Client disconnected: ${socket.id}`);
-        const room = this.rooms.find((iterRoom) => iterRoom.player1.socketId === socket.id || iterRoom.player2.socketId === socket.id);
+        const room = this.rooms.find((iterRoom) => iterRoom.player1.socketId === socket.id || iterRoom.player2?.socketId === socket.id);
         if (!room) return;
         socket.leave(room.roomName);
         if (!room.isGameDone) this.server.to(room.roomName).emit('playerLeft', 'opponent has left the game, you won!');
