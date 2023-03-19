@@ -5,6 +5,7 @@ import { ImageDialogComponent } from '@app/components/image-dialog/image-dialog.
 import { LoadingDialogComponent } from '@app/components/loading-dialog/loading-dialog.component';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { HEIGHT, WIDTH } from 'src/constants';
+import { JoinLoadingDialogComponent } from '../join-loading-dialog/join-loading-dialog.component';
 import { DialogComponent } from './dialog.component';
 
 describe('DialogComponent', () => {
@@ -63,7 +64,7 @@ describe('DialogComponent', () => {
 
     describe('openLoadingDialog', () => {
         it('should open loading dialog with initial player names', () => {
-            component.playerNames = ['John', 'Jane'];
+            component.playerNames = ['zied', 'skander'];
             component.openLoadingDialog();
             expect(mockMatDialog.open).toHaveBeenCalledWith(LoadingDialogComponent, {
                 data: { playerNames: component.playerNames },
@@ -72,11 +73,19 @@ describe('DialogComponent', () => {
         });
     });
 
-    // describe('closeLoading', () => {
-    //     it('should close the loading dialog', () => {
-    //         component['loadingDialogRef'] = { close: jasmine.createSpy('close') } as unknown as MatDialogRef<LoadingDialogComponent>;
-    //         component.closeLoading();
-    //         expect(component.loadingDialogRef.close).toHaveBeenCalled();
-    //     });
-    // });
+    describe('closeLoading', () => {
+        it('should close the loading dialog', () => {
+            component['loadingDialogRef'] = { close: jasmine.createSpy('close') } as unknown as MatDialogRef<LoadingDialogComponent>;
+            component.closeLoadingDialog();
+            expect(component['loadingDialogRef'].close).toHaveBeenCalled();
+        });
+    });
+
+    describe('closeJoinLoadingDialog', () => {
+        it('should close the Join Loading dialog', () => {
+            component['joinLoadingDialogRef'] = { close: jasmine.createSpy('close') } as unknown as MatDialogRef<JoinLoadingDialogComponent>;
+            component.closeJoinLoadingDialog();
+            expect(component['joinLoadingDialogRef'].close).toHaveBeenCalled();
+        });
+    });
 });
