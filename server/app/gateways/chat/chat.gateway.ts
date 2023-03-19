@@ -40,7 +40,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
         this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
-        console.log(newRoom);
     }
 
     @SubscribeMessage('click')
@@ -58,7 +57,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                         .to(payload.roomName)
                         .emit('roomMessage', { sender: '', content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
                     player.differencesFound++;
-                    console.log(player.differencesFound);
                     this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
                         player,
