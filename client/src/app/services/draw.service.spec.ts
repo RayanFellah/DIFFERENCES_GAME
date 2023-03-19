@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { BLACK_COLOR, HEIGHT, WIDTH } from 'src/constants';
+import { BLACK_COLOR, HEIGHT, TEN, WIDTH } from 'src/constants';
 import { CanvasHelperService } from './canvas-helper.service';
 import { DrawingService } from './draw.service';
 
@@ -59,11 +59,13 @@ describe('DrawingService', () => {
     });
 
     it('should set restoreIndex to -1 at start', () => {
-        expect(service['restoreIndex']).toEqual(-1);
+        const startIndex = -1;
+        expect(service['restoreIndex']).toEqual(startIndex);
     });
 
     it('should set redoIndex to -1 at start', () => {
-        expect(service['redoIndex']).toEqual(-1);
+        const startIndex = -1;
+        expect(service['redoIndex']).toEqual(startIndex);
     });
 
     it('should have a canvas context', () => {
@@ -123,8 +125,8 @@ describe('DrawingService', () => {
         service.shiftKeyPressed = true;
         service.startDrawingRect(event);
         service.drawRectangle(event);
-        spyFillRect(10, 10, 0, 0);
-        expect(spyFillRect).toHaveBeenCalledWith(10, 10, 0, 0);
+        spyFillRect(TEN, TEN, 0, 0);
+        expect(spyFillRect).toHaveBeenCalledWith(TEN, TEN, 0, 0);
     });
     it('should draw a line', () => {
         const eventMock = { type: 'mousedown', offsetX: 10, offsetY: 10 } as MouseEvent;
@@ -153,8 +155,6 @@ describe('DrawingService', () => {
     it('should draw a rectangle', () => {
         const divMock = document.createElement('div');
         const eventMock = { type: 'mousedown', offsetX: 10, offsetY: 10 } as MouseEvent;
-        // const spyBeginPath = spyOn(service.context, 'beginPath');
-        // const spyStroke = spyOn(service.context, 'stroke');
 
         service.startDrawingRect(eventMock, divMock);
         expect(service['isDrawingRect']).toBeTruthy();
@@ -191,16 +191,18 @@ describe('DrawingService', () => {
     });
 
     it('reset should clear canvas and reset restoreArray and restoreIndex', () => {
+        const startIndex = -1;
         service.reset();
         expect(service['restoreArray']).toEqual([]);
-        expect(service['restoreIndex']).toEqual(-1);
+        expect(service['restoreIndex']).toEqual(startIndex);
     });
 
     it('should do nothing if there is no image data to restore', () => {
+        const startingIndex = -1;
         const contextSpy = spyOn(service.context, 'putImageData');
         service.undo();
         expect(contextSpy).not.toHaveBeenCalled();
-        expect(service['restoreIndex']).toEqual(-1);
+        expect(service['restoreIndex']).toEqual(startingIndex);
     });
     it('undo should call putImageData() with the previous image data when restoreIndex > 0', () => {
         const imageData1 = new ImageData(1, 1);

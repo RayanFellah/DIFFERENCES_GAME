@@ -56,9 +56,10 @@ describe('CanvasHelperService', () => {
         expect(imageData instanceof ImageData).toBe(true);
     });
     it('updateImage should update image with the new color', () => {
+        const testColorNumber = 255;
         const coords: Vec2[] = [{ posX: 0, posY: 0 }];
-        const color1 = new ImageData(new Uint8ClampedArray([255, 255, 255, 255]), 1, 1);
-        const color2 = new ImageData(new Uint8ClampedArray([0, 0, 0, 255]), 1, 1);
+        const color1 = new ImageData(new Uint8ClampedArray([testColorNumber, testColorNumber, testColorNumber, testColorNumber]), 1, 1);
+        const color2 = new ImageData(new Uint8ClampedArray([0, 0, 0, testColorNumber]), 1, 1);
         const spy = spyOn(context, 'putImageData').and.callThrough();
 
         service.updateImage(coords, color1, color2);
@@ -66,8 +67,9 @@ describe('CanvasHelperService', () => {
         expect(spy).toHaveBeenCalled();
     });
     it('displayErrorMessage should display error message and restore previous image after one second', fakeAsync(() => {
+        const testColorNumber = 255;
         const errorMessage = 'ERROR';
-        const mockImageData = new ImageData(new Uint8ClampedArray([255, 0, 0, 255]), 1, 1);
+        const mockImageData = new ImageData(new Uint8ClampedArray([testColorNumber, 0, 0, testColorNumber]), 1, 1);
         const mockMouseEvent = new MouseEvent('click', { offsetX: 10, offsetY: 20 } as MouseEventInit);
 
         spyOn(service.context, 'getImageData' as never).and.returnValue(mockImageData as never);
