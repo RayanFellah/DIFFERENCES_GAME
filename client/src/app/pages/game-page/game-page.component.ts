@@ -28,7 +28,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.playerName = this.activatedRoute.snapshot.paramMap.get('name') as string;
         this.sheetId = this.activatedRoute.snapshot.paramMap.get('id');
         this.roomName = this.activatedRoute.snapshot.paramMap.get('roomId');
-        console.log(this.roomName);
         this.startTime = new Date();
         this.timer = true;
         this.handleResponses();
