@@ -8,6 +8,7 @@ import { ChatMessage } from '@common/chat-message';
 })
 export class ChatZoneComponent {
     @Input() playerName: string;
+    @Input() opponent: string;
     @Input() opponentName: string;
     @Input() chatMessages: ChatMessage[] = [];
     @Output() messageEvent = new EventEmitter<ChatMessage>();
@@ -15,8 +16,10 @@ export class ChatZoneComponent {
     newMessage: ChatMessage;
 
     sendMessage() {
-        this.newMessage = { content: this.messageContent, type: 'player' };
-        this.messageEvent.emit(this.newMessage);
-        this.messageContent = '';
+        if (this.messageContent.length > 0) {
+            this.newMessage = { content: this.messageContent, type: 'player' };
+            this.messageEvent.emit(this.newMessage);
+            this.messageContent = '';
+        }
     }
 }
