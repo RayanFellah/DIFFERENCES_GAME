@@ -14,7 +14,7 @@ import { HEIGHT, WIDTH } from 'src/constants';
 })
 export class DialogComponent {
     playerNames: string[] = [];
-    private loadingDialogRef: MatDialogRef<LoadingDialogComponent>;
+    loadingDialogRef: MatDialogRef<LoadingDialogComponent>;
     constructor(private dialog: MatDialog, private dialogService: DialogService) {
         this.dialogService.playerNames$.subscribe((playerNames: string[]) => {
             if (this.loadingDialogRef && this.loadingDialogRef.componentInstance) {
