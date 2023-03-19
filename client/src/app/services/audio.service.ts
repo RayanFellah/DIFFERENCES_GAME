@@ -6,7 +6,7 @@ const SUCCESS_SOUND_URL = './assets/success-audio.wav';
     providedIn: 'root',
 })
 export class AudioService {
-    public audioElement: HTMLAudioElement;
+    audioElement: HTMLAudioElement;
     constructor() {
         this.audioElement = new Audio();
     }
