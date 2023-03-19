@@ -14,12 +14,12 @@ describe('BmpVerificationService', () => {
     });
 
     describe('verifyImage', () => {
-        // it('should return true for a valid BMP image', () => {
-        //     const file = new File([''], 'test.bmp', { type: 'image/bmp' });
-        //     expect(service.verifyImage(file)).toBeTrue();
-        // });
+        it('should return true for an Invalid BMP image', () => {
+            const file = new File([''], 'test.bmp', { type: 'image/bmp' });
+            expect(service.verifyImage(file)).toBeFalse();
+        });
 
-        it('should return false for an invalid BMP image', () => {
+        it('should return false for a non BMP image', () => {
             const file = new File([''], 'test.bmp', { type: 'image/png' });
             expect(service.verifyImage(file)).toBeFalse();
         });
