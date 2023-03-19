@@ -26,9 +26,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     async createSoloRoom(socket: Socket, payload: { name: string; sheetId: string; roomName: string }) {
         const playSheet = await this.sheetService.getSheet(payload.sheetId);
         const diffs = await this.gameService.getAllDifferences(playSheet);
+        const player = { name: payload.name, socketId: socket.id, differencesFound: 0 };
         const newRoom: PlayRoom = {
             roomName: payload.roomName,
-            player1: { name: payload.name, socketId: socket.id, differencesFound: 0 },
+            player1: player,
             player2: undefined,
             sheet: playSheet,
             differences: diffs,
@@ -39,6 +40,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
         this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
+        console.log(newRoom);
     }
 
     @SubscribeMessage('click')
@@ -54,13 +56,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                     isError = false;
                     this.server
                         .to(payload.roomName)
-                        .emit('roomMessage', { sender: '', content: `${payload.playerName} avez trouvé une différence!`, type: 'game' });
+                        .emit('roomMessage', { sender: '', content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
                     player.differencesFound++;
+                    console.log(player.differencesFound);
                     this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
                         player,
                         diffsLeft: room.differences.length - player.differencesFound,
                     });
+                    this.server.to(payload.roomName).emit('foundDiff', player);
                     room.differences = room.differences.filter((it) => JSON.stringify(diff) !== JSON.stringify(it));
                 }
             }
@@ -162,6 +166,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     async rejectionConfirmed(socket: Socket, sheetId: string) {
         await socket.leave(`GameRoom${sheetId}`);
     }
+    @SubscribeMessage('getPlayers')
+    getPlayers(socket: Socket, roomName: string) {
+        const room = this.rooms.find((res) => res.roomName === roomName);
+        const players: Player[] = [room.player1, room.player2];
+
+        this.server.to(roomName).emit('players', players);
+    }
     @SubscribeMessage('deleteSheet')
     deleteSheet(socket: Socket, { sheetId }: { sheetId: string }) {
         this.sheetService.getSheet(sheetId).then((sheet) => {
@@ -230,7 +241,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         return result;
     }
     private emitTime() {
-        this.server.emit(ChatEvents.Clock, new Date().toLocaleTimeString());
+        this.server.emit(ChatEvents.Clock, new Date());
     }
     private deleteRoom(room: PlayRoom) {
         this.rooms = this.rooms.filter((res) => res.roomName !== room.roomName);

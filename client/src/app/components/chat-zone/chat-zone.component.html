@@ -1,5 +1,5 @@
 <mat-card class="chat-zone" (keyup.enter)="sendMessage()">
-    <mat-card-title class="op-name">{{ this.playerName }}</mat-card-title>
+    <mat-card-title class="op-name" *ngIf="opponent">{{ this.opponent }}</mat-card-title>
     <div class="chat-area" swScrollPosition="lorum-ipsum">
         <div *ngFor="let message of chatMessages">
             <div class="message-wrapper">
