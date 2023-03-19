@@ -1,4 +1,4 @@
-import { Sheet } from '@common/sheet';
+import { Sheet } from '@app/model/database/sheet';
 
 export interface ChatGatewayPayload {
     playerName: string;
