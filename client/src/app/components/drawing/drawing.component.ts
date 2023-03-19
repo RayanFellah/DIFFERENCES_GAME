@@ -37,7 +37,7 @@ export class DrawingComponent implements OnInit, AfterViewInit {
         this.tools[toolName] = !this.tools[toolName];
     }
 
-    draw(event: MouseEvent, component: HTMLDivElement) {
+    draw(event: MouseEvent, component?: HTMLDivElement) {
         if (this.tools.pencil) {
             this.canvas.style.cursor = "url('./assets/pencil.png'), auto";
             this.drawingService.drawPencil(event);

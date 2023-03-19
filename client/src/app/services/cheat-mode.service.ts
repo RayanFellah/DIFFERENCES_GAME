@@ -3,11 +3,10 @@
 import { Injectable } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 import { Sheet } from '@common/sheet';
-import { BLACK_COLOR, HEIGHT, RGBA_LENGTH, WIDTH } from 'src/constants';
+import { BLACK_COLOR, CHEAT_BLINK_INTERVAL, HEIGHT, RGBA_LENGTH, WIDTH } from 'src/constants';
 import { CanvasHelperService } from './canvas-helper.service';
 import { GameHttpService } from './game-http.service';
 
-const BLINK_INTERVAL = 125;
 @Injectable({
     providedIn: 'root',
 })
@@ -51,7 +50,7 @@ export class CheatModeService {
                 this.stopCheating(canvas1, canvas2, original, modified);
                 clearInterval(interval);
             }
-        }, BLINK_INTERVAL);
+        }, CHEAT_BLINK_INTERVAL);
     }
     stopCheating(canvas1: CanvasHelperService, canvas2: CanvasHelperService, original: ImageData, modified: ImageData) {
         canvas1.context?.putImageData(original, 0, 0);

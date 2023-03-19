@@ -14,7 +14,7 @@ export class DrawingService {
     pencilWidth = DEFAULT_PENCIL_SIZE;
     shiftKeyPressed: boolean = false;
     private startPos: Vec2;
-    private isDrawing = false;
+    private isDrawing: boolean = false;
     private isDrawingRect = false;
     private isErasing = false;
     private restoreArray: ImageData[] = [];
@@ -37,10 +37,10 @@ export class DrawingService {
         }
     }
     static switch(canvas1: HTMLCanvasElement, canvas2: HTMLCanvasElement) {
-        const image1 = canvas1.getContext('2d')?.getImageData(0, 0, canvas1.width, canvas1.height) as ImageData;
         const image2 = canvas2.getContext('2d')?.getImageData(0, 0, canvas2.width, canvas2.height) as ImageData;
-        canvas2.getContext('2d')?.putImageData(image1, 0, 0);
+        const image1 = canvas1.getContext('2d')?.getImageData(0, 0, canvas1.width, canvas1.height) as ImageData;
         canvas1.getContext('2d')?.putImageData(image2, 0, 0);
+        canvas2.getContext('2d')?.putImageData(image1, 0, 0);
     }
     drawPencil(event: MouseEvent) {
         if (event.type === 'mousedown') {

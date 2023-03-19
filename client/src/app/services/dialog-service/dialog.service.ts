@@ -29,7 +29,7 @@ export class DialogService {
     }
     emitRejection(playerName: string) {
         const currentNames = this.playerName.getValue();
-        const updateNames = currentNames.filter((name) => name !== playerName);
+        const updateNames = currentNames.filter((name: string) => name !== playerName);
         this.playerName.next(updateNames);
         this.playerRejected.next(playerName);
     }
