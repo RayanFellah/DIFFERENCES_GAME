@@ -23,14 +23,15 @@ import { ChatZoneComponent } from './components/chat-zone/chat-zone.component';
 import { ConfigButtonsComponent } from './components/config-buttons/config-buttons.component';
 import { ConstantsDialogComponent } from './components/constants-dialog/constants-dialog.component';
 import { DialogComponent } from './components/dialogue/dialog.component';
-import { DifferencesFoundComponent } from './components/differences-found/differences-found.component';
 import { DrawingComponent } from './components/drawing/drawing.component';
 import { FileUploadComponent } from './components/file-upload/file-upload.component';
 import { GameCardGridComponent } from './components/game-card-grid/game-card-grid.component';
 import { GameCardComponent } from './components/game-card/game-card.component';
+import { GameScoreComponent } from './components/game-score/game-score.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ImageAreaComponent } from './components/image-area/image-area.component';
 import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
+import { JoinLoadingDialogComponent } from './components/join-loading-dialog/join-loading-dialog.component';
 import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
 import { RadiusSizerComponent } from './components/radius-sizer/radius-sizer.component';
 import { FileValueAccessorDirective } from './directives/file-value-accessor.directive';
@@ -64,13 +65,14 @@ import { EventService } from './services/event-service.service';
         FileValueAccessorDirective,
         DialogComponent,
         ImageDialogComponent,
-        DifferencesFoundComponent,
         DrawingComponent,
         ChatZoneComponent,
         ConfigButtonsComponent,
         ConstantsDialogComponent,
         LoadingDialogComponent,
         GameCardComponent,
+        GameScoreComponent,
+        JoinLoadingDialogComponent,
     ],
     imports: [
         AppMaterialModule,

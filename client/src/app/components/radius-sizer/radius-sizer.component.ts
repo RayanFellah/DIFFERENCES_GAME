@@ -18,8 +18,8 @@ export class RadiusSizerComponent implements ControlValueAccessor {
     @Input() size: number | string;
     @Output() sizeChange = new EventEmitter<number>();
 
-    private onChange: (value: number) => void;
-    private onTouch: () => void;
+    onChange: (value: number) => void;
+    onTouch: () => void;
 
     dec() {
         if (this.size === NINE) this.resize(-SIX);
@@ -33,8 +33,12 @@ export class RadiusSizerComponent implements ControlValueAccessor {
     resize(delta: number) {
         this.size = Math.min(FIFTEEN, Math.max(0, +this.size + delta));
         this.sizeChange.emit(this.size);
-        this.onChange(this.size);
-        this.onTouch();
+        if (this.onChange) {
+            this.onChange(this.size);
+        }
+        if (this.onTouch) {
+            this.onTouch();
+        }
     }
     writeValue(value: number): void {
         this.size = value;

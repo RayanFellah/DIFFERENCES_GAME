@@ -32,7 +32,7 @@ export class Sheet {
 
     @ApiProperty()
     @Prop({ required: false })
-    topScore: string;
+    topScore: number;
 
     @ApiProperty()
     _id: string;

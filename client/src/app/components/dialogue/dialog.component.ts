@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConstantsDialogComponent } from '@app/components/constants-dialog/constants-dialog.component';
 import { ImageDialogComponent } from '@app/components/image-dialog/image-dialog.component';
+import { JoinLoadingDialogComponent } from '@app/components/join-loading-dialog/join-loading-dialog.component';
 import { LoadingDialogComponent } from '@app/components/loading-dialog/loading-dialog.component';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { HEIGHT, WIDTH } from 'src/constants';
@@ -15,6 +16,7 @@ import { HEIGHT, WIDTH } from 'src/constants';
 export class DialogComponent {
     playerNames: string[] = [];
     private loadingDialogRef: MatDialogRef<LoadingDialogComponent>;
+    private joinLoadingDialogRef: MatDialogRef<JoinLoadingDialogComponent>;
     constructor(private dialog: MatDialog, private dialogService: DialogService) {
         this.dialogService.playerNames$.subscribe((playerNames: string[]) => {
             if (this.loadingDialogRef && this.loadingDialogRef.componentInstance) {
@@ -36,5 +38,14 @@ export class DialogComponent {
 
     openLoadingDialog(): void {
         this.loadingDialogRef = this.dialog.open(LoadingDialogComponent, { data: { playerNames: this.playerNames }, panelClass: 'custom-modalbox' });
+    }
+    openJoinLoadingDialog(): void {
+        this.joinLoadingDialogRef = this.dialog.open(JoinLoadingDialogComponent);
+    }
+    closeJoinLoadingDialog(): void {
+        this.joinLoadingDialogRef.close();
+    }
+    closeLoadingDialog(): void {
+        this.loadingDialogRef.close();
     }
 }

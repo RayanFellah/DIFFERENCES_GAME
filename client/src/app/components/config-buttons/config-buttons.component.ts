@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
 
 @Component({
@@ -7,10 +7,8 @@ import { DialogComponent } from '@app/components/dialogue/dialog.component';
     styleUrls: ['./config-buttons.component.scss'],
     providers: [DialogComponent],
 })
-export class ConfigButtonsComponent implements OnInit {
+export class ConfigButtonsComponent {
     constructor(private dialog: DialogComponent) {}
-
-    ngOnInit(): void {}
 
     openConstants(): void {
         this.dialog.openConstantsDialog();

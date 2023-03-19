@@ -5,13 +5,13 @@ import { SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { Vec2 } from '@app/interfaces/vec2';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
+import { Player } from '@common/player';
 import { Sheet } from '@common/sheet';
 import { Subject } from 'rxjs';
 import { BLINK_DURATION, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
-import { DifferencesFoundService } from './differences-found.service';
 import { ImageHttpService } from './image-http.service';
 import { SheetHttpService } from './sheet-http.service';
 
@@ -29,19 +29,18 @@ export class GameLogicService {
     modifiedImageData: ImageData;
     sheet: Sheet;
     difficulty: string;
-    clickEnabled = true;
-    allowed = true;
     result: boolean = false;
     currentClick: MouseEvent;
     playRoom: string;
     numberDifferences: number;
     differencesFound: number;
+    clickIgnored: boolean;
+    isGameDone = false;
 
     constructor(
         private leftCanvas: CanvasHelperService,
         private rightCanvas: CanvasHelperService,
         private readonly imageHttp: ImageHttpService,
-        private differencesFoundService: DifferencesFoundService,
         public activatedRoute: ActivatedRoute,
         private sheetHttp: SheetHttpService,
         private socketService: SocketClientService,
@@ -76,6 +75,9 @@ export class GameLogicService {
     }
 
     setClick(click: MouseEvent, name: string) {
+        if (this.clickIgnored) {
+            return;
+        }
         this.currentClick = click;
         const data = {
             x: click.offsetX,
@@ -87,20 +89,32 @@ export class GameLogicService {
     }
 
     handleResponses() {
-        this.socketService.on('found', (res: { coords: Vec2[]; player: string; diffsLeft: number }) => {
+        this.socketService.on('clickFeedBack', (res: { coords: Vec2[]; player: Player; diffsLeft: number }) => {
+            if (!res.diffsLeft) {
+                this.sendGameDone();
+            }
             this.makeBlink(res.coords);
-            this.handleClick(this.currentClick, res.coords);
-        });
-
-        this.socketService.on('roomCreated', (res: string) => {
-            this.playRoom = res;
+            this.handleClick(this.currentClick, res.coords, res.player.socketId);
         });
 
         this.socketService.on('gameDone', (message: string) => {
+            this.clickIgnored = true;
             setTimeout(() => {
                 alert(message);
             }, BLINK_DURATION);
+            this.isGameDone = true;
         });
+
+        this.socketService.on('playerLeft', (message: string) => {
+            if (!this.isGameDone) {
+                this.sendGameDone();
+                alert(message);
+            }
+        });
+    }
+
+    sendGameDone() {
+        this.socketService.send('gameDone', this.playRoom);
     }
 
     makeBlink(diff: Vec2[]) {
@@ -138,24 +152,35 @@ export class GameLogicService {
         }
         this.rightCanvas.context!.putImageData(this.modifiedImageData, 0, 0);
     }
-    handleClick(event: MouseEvent, diff: Vec2[] | undefined) {
+    handleClick(event: MouseEvent, diff: Vec2[] | undefined, player: string) {
+        if (!event) return;
         const canvasClicked = event.target as HTMLCanvasElement;
         const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
         if (diff) {
-            this.makeBlink(this.diff);
-            this.audio.playSuccessSound();
+            if (player === this.socketService.socket.id) {
+                this.makeBlink(this.diff);
+                this.audio.playSuccessSound();
+            }
             this.differencesFound++;
-            this.differencesFoundService.setAttribute(this.differencesFound);
             this.cheatMode.removeDifference(diff);
             return diff;
-        } else {
+        } else if (player === this.socketService.socket.id) {
+            this.ignoreClicks();
             canvas.displayErrorMessage(event);
             this.audio.playFailSound();
-            return undefined;
         }
+        return undefined;
     }
     cheat() {
         this.cheatMode.getDifferences(this.sheet);
         this.cheatMode.cheatBlink(this.leftCanvas, this.rightCanvas, this.originalImageData, this.modifiedImageData);
+    }
+
+    private ignoreClicks() {
+        const time = 1000;
+        this.clickIgnored = true;
+        setTimeout(() => {
+            this.clickIgnored = false;
+        }, time);
     }
 }

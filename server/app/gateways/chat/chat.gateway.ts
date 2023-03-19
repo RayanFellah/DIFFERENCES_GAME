@@ -1,60 +1,41 @@
-import { ID_LENGTH } from '@app/constants';
+import { ID_LENGTH, MULTIPLAYER_MODE, SOLO_MODE } from '@app/constants';
 import { Coord } from '@app/interfaces/coord';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
+import { ChatMessage } from '@common/chat-message';
 import { PlayRoom } from '@common/play-room';
+import { Player } from '@common/player';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { unlinkSync } from 'fs';
 import { Server, Socket } from 'socket.io';
 import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
 import { ChatEvents } from './chat.gateway.events';
-
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
-    @WebSocketServer() private server: Server;
+    @WebSocketServer() server: Server;
 
     sentToSockets = new Set<string>();
+    rooms: PlayRoom[] = [];
     private readonly room = PRIVATE_ROOM_ID;
-    private rooms: PlayRoom[] = [];
 
     constructor(private readonly logger: Logger, private readonly sheetService: SheetService, private gameService: GameLogicService) {}
-
-    @SubscribeMessage(ChatEvents.BroadcastAll)
-    broadcastAll(socket: Socket, message: string) {
-        this.server.emit(ChatEvents.MassMessage, `${socket.id} : ${message}`);
-    }
-
-    @SubscribeMessage(ChatEvents.JoinRoom)
-    joinActiveRoom(socket: Socket, payload) {
-        const room = this.rooms.find((playRoom) => playRoom.roomName === payload.roomName);
-        if (!room) {
-            // this.createRoom(socket, payload);
-            return;
-        }
-        if (room.player1.name === payload.playerName) {
-            room.player1.socketId = socket.id;
-            socket.join(room.roomName);
-            this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: room });
-        } else {
-            room.player2 = { name: payload.playerName, socketId: socket.id, differencesFound: 0 };
-            socket.join(room.roomName);
-            this.server.to(payload.roomName).emit(ChatEvents.JoinedRoom, { playRoom: room });
-        }
-    }
 
     @SubscribeMessage('createSoloGame')
     async createSoloRoom(socket: Socket, payload: { name: string; sheetId: string; roomName: string }) {
         const playSheet = await this.sheetService.getSheet(payload.sheetId);
         const diffs = await this.gameService.getAllDifferences(playSheet);
+        const player = { name: payload.name, socketId: socket.id, differencesFound: 0 };
         const newRoom: PlayRoom = {
             roomName: payload.roomName,
-            player1: { name: payload.name, socketId: socket.id, differencesFound: 0 },
+            player1: player,
             player2: undefined,
             sheet: playSheet,
             differences: diffs,
             numberOfDifferences: diffs.length,
+            gameType: SOLO_MODE,
+            isGameDone: false,
         };
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
@@ -65,32 +46,62 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     validateClick(client: Socket, payload) {
         const clickCoord: Coord = { posX: payload.x, posY: payload.y };
         const room = this.rooms.find((res) => res.roomName === payload.roomName);
-        const player = room.player1.name === payload.playerName ? room.player1 : room.player2;
+        const player: Player = room.player1.name === payload.playerName ? room.player1 : room.player2;
+        let isError = true;
 
         for (const diff of room.differences) {
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
+                    isError = false;
+                    this.server
+                        .to(payload.roomName)
+                        .emit('roomMessage', { sender: '', content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
                     player.differencesFound++;
-                    this.server.to(payload.roomName).emit('found', {
+                    this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
-                        player: payload.playerName,
+                        player,
                         diffsLeft: room.differences.length - player.differencesFound,
                     });
+                    this.server.to(payload.roomName).emit('foundDiff', player);
                     room.differences = room.differences.filter((it) => JSON.stringify(diff) !== JSON.stringify(it));
                 }
             }
         }
-        if (player.differencesFound === room.numberOfDifferences) {
+        if (isError) {
+            this.server.to(payload.roomName).emit('clickFeedBack', {
+                coords: undefined,
+                player,
+                diffsLeft: room.differences.length - player.differencesFound,
+            });
+        }
+        if (
+            (player.differencesFound === room.numberOfDifferences && room.gameType === SOLO_MODE) ||
+            (player.differencesFound >= room.numberOfDifferences / 2 && room.gameType === MULTIPLAYER_MODE)
+        ) {
             this.server.to(payload.roomName).emit('gameDone', `${payload.playerName} has won!`);
+            room.isGameDone = true;
             return;
         }
-        this.server.to(payload.roomName).emit('error', payload.playerName);
+    }
+    @SubscribeMessage('gameDone')
+    finishGame(socket: Socket, roomName: string) {
+        const room = this.rooms.find((iterRoom) => iterRoom.roomName === roomName);
+        const player = room.player1.socketId === socket.id ? room.player1 : room.player2;
+        const message: ChatMessage = {
+            content: `${player.name} won !`,
+            type: 'game',
+        };
+        this.server.to(room.roomName).emit('gameFinished', message);
     }
 
     @SubscribeMessage(ChatEvents.RoomMessage)
     roomMessage(socket: Socket, payload) {
-        if (socket.rooms.has(payload.roomName) && payload.message.length > 0) {
-            this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, { sender: payload.playerName, content: payload.message });
+        const message: ChatMessage = {
+            content: payload.message.content,
+            type: '',
+        };
+        if (payload.message.content.length > 0) {
+            socket.broadcast.to(payload.roomName).emit('roomMessage', message);
         }
     }
 
@@ -118,9 +129,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         // add the socket to the set of sockets that have received the event
         this.sentToSockets.add(socket.id);
     }
+    @SubscribeMessage('cancelJoinGame')
+    cancelJoinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
+        socket.broadcast.to(`GameRoom${sheetId}`).emit('UserCancelled', { playerName });
+        socket.leave(`GameRoom${sheetId}`);
+    }
     @SubscribeMessage('playerRejected')
     playerRejected(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
         socket.broadcast.to(`GameRoom${sheetId}`).emit('Rejection', { playerName, sheetId });
+    }
+    @SubscribeMessage('quitRoom')
+    quitRoom(socket: Socket, sheetId: string) {
+        socket.leave(`GameRoom${sheetId}`);
     }
     @SubscribeMessage('playerConfirmed')
     async playerConfirmed(socket: Socket, { player1, player2, sheetId }: { player1: string; player2: string; sheetId: string }) {
@@ -133,6 +153,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             sheet: playSheet,
             differences: diffs,
             numberOfDifferences: diffs.length,
+            gameType: MULTIPLAYER_MODE,
+            isGameDone: false,
         };
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
@@ -150,6 +172,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage('rejectionConfirmed')
     async rejectionConfirmed(socket: Socket, sheetId: string) {
         await socket.leave(`GameRoom${sheetId}`);
+    }
+    @SubscribeMessage('getPlayers')
+    getPlayers(socket: Socket, roomName: string) {
+        const room = this.rooms.find((res) => res.roomName === roomName);
+        const players: Player[] = [room.player1, room.player2];
+
+        this.server.to(roomName).emit('players', players);
     }
     @SubscribeMessage('deleteSheet')
     deleteSheet(socket: Socket, { sheetId }: { sheetId: string }) {
@@ -195,21 +224,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     handleDisconnect(socket: Socket) {
+        if (!socket) return;
         this.logger.log(`Client disconnected: ${socket.id}`);
-        let name: string;
-        for (const room of this.rooms) {
-            if (socket.rooms.has(room.roomName)) {
-                socket.leave(room.roomName);
-                if (room.player1.socketId === socket.id) {
-                    name = room.player1.name;
-                    room.player1 = undefined;
-                } else {
-                    name = room.player2.name;
-                    room.player2 = undefined;
-                }
-                this.server.to(room.roomName).emit(ChatEvents.RoomMessage, { sender: 'game', message: `${name} has left the room` });
-            }
-        }
+        const room = this.rooms.find((iterRoom) => iterRoom.player1.socketId === socket.id || iterRoom.player2.socketId === socket.id);
+        if (!room) return;
+        socket.leave(room.roomName);
+        if (!room.isGameDone) this.server.to(room.roomName).emit('playerLeft', 'opponent has left the game, you won!');
+        else this.deleteRoom(room);
     }
 
     emitDeletedSheet(sheetId: string) {
@@ -227,7 +248,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         return result;
     }
     private emitTime() {
-        this.server.emit(ChatEvents.Clock, new Date().toLocaleTimeString());
+        this.server.emit(ChatEvents.Clock, new Date());
     }
     private deleteRoom(room: PlayRoom) {
         this.rooms = this.rooms.filter((res) => res.roomName !== room.roomName);
