@@ -97,10 +97,6 @@ export class GameLogicService {
             this.handleClick(this.currentClick, res.coords, res.player.socketId);
         });
 
-        this.socketService.on('roomCreated', (res: string) => {
-            this.playRoom = res;
-        });
-
         this.socketService.on('gameDone', (message: string) => {
             this.clickIgnored = true;
             setTimeout(() => {
