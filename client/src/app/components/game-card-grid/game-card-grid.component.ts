@@ -115,7 +115,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             if (this.name === res.playerName) {
                 const sheetId = res.sheetId;
                 this.socketService.send('rejectionConfirmed', sheetId);
-                this.dialog.closeJoinLoadingDialog();
+                //  this.dialog.closeJoinLoadingDialog();
             }
         });
         this.socketService.on(ChatEvents.JoinedRoom, (room: PlayRoom) => {
