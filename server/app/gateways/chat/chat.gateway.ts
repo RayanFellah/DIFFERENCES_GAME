@@ -5,7 +5,7 @@ import { SheetService } from '@app/services/sheet/sheet.service';
 import { ChatMessage } from '@common/chat-message';
 import { PlayRoom } from '@common/play-room';
 import { Player } from '@common/player';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { unlinkSync } from 'fs';
 import { Server, Socket } from 'socket.io';
@@ -20,7 +20,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     rooms: PlayRoom[] = [];
     private readonly room = PRIVATE_ROOM_ID;
 
-    constructor(private readonly logger: Logger, private readonly sheetService: SheetService, private gameService: GameLogicService) {}
+    constructor(readonly logger: Logger, readonly sheetService: SheetService, public gameService: GameLogicService) {}
 
     @SubscribeMessage('createSoloGame')
     async createSoloRoom(socket: Socket, payload: { name: string; sheetId: string; roomName: string }) {
@@ -145,6 +145,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage('playerConfirmed')
     async playerConfirmed(socket: Socket, { player1, player2, sheetId }: { player1: string; player2: string; sheetId: string }) {
         const playSheet = await this.sheetService.getSheet(sheetId);
+        if (!playSheet) {
+            throw new NotFoundException('Sheet not found');
+        }
         const diffs = await this.gameService.getAllDifferences(playSheet);
         const newRoom: PlayRoom = {
             roomName: this.generateRandomId(ID_LENGTH),
@@ -176,6 +179,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage('getPlayers')
     getPlayers(socket: Socket, roomName: string) {
         const room = this.rooms.find((res) => res.roomName === roomName);
+
         const players: Player[] = [room.player1, room.player2];
 
         this.server.to(roomName).emit('players', players);

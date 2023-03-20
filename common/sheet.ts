@@ -8,4 +8,5 @@ export interface Sheet {
     topPlayer: string;
     differences: number;
     isJoinable: boolean;
+    topScore: number;
 }

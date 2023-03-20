@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type SheetDocument = Sheet & Document;
 
@@ -35,6 +35,7 @@ export class Sheet {
     topScore: number;
 
     @ApiProperty()
+    @Prop({ required: true, type: Types.ObjectId, default: () => new Types.ObjectId().toString() })
     _id: string;
 
     @ApiProperty()

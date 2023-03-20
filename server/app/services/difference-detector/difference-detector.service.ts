@@ -104,7 +104,7 @@ export class DifferenceDetectorService {
      * montrant les pixels différents
      */
 
-    private getCluster(matrix: number[][], i: number, j: number): DifferenceService {
+    getCluster(matrix: number[][], i: number, j: number): DifferenceService {
         const queue = [[i, j]];
         const coordList: Coord[] = [];
 
@@ -127,7 +127,7 @@ export class DifferenceDetectorService {
         return differenceService;
     }
 
-    private calculateDifficulty(matrix: number[][], length: number) {
+    calculateDifficulty(matrix: number[][], length: number) {
         const newMatrix = matrix.flat(1);
         const noOfOnes = newMatrix.filter((num) => {
             return num === 1;
