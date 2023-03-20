@@ -71,18 +71,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (this.person.socketId === player.socketId) this.person = player;
             else this.opponent = player;
         });
-
-        this.socketService.on('roomCreated', () => {
-            this.getPlayers();
-        });
     }
     sendMessage(message: ChatMessage) {
         this.chatMessages.push(message);
         this.socketService.send('roomMessage', { message, roomName: this.roomName });
-    }
-
-    getPlayers() {
-        this.socketService.send('getPlayers', this.roomName);
     }
     ngOnDestroy(): void {
         this.socketService.disconnect();

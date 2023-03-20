@@ -40,6 +40,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
         this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
+        this.sendPlayers(newRoom.roomName, newRoom.player1);
     }
 
     @SubscribeMessage('click')
@@ -167,18 +168,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         room.player2 = { name: player2, socketId: socket.id, differencesFound: 0 };
         socket.join(room.roomName);
         this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
+        this.sendPlayers(room.roomName, room.player1, room.player2);
     }
 
     @SubscribeMessage('rejectionConfirmed')
     async rejectionConfirmed(socket: Socket, sheetId: string) {
         await socket.leave(`GameRoom${sheetId}`);
-    }
-    @SubscribeMessage('getPlayers')
-    getPlayers(socket: Socket, roomName: string) {
-        const room = this.rooms.find((res) => res.roomName === roomName);
-        const players: Player[] = [room.player1, room.player2];
-
-        this.server.to(roomName).emit('players', players);
     }
     @SubscribeMessage('deleteSheet')
     deleteSheet(socket: Socket, { sheetId }: { sheetId: string }) {
@@ -250,6 +245,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     private emitTime() {
         this.server.emit(ChatEvents.Clock, new Date());
     }
+
+    private sendPlayers(roomName: string, player1: Player, player2?: Player) {
+        const players: Player[] = [player1, player2];
+        this.server.to(roomName).emit('players', players);
+    }
+
     private deleteRoom(room: PlayRoom) {
         this.rooms = this.rooms.filter((res) => res.roomName !== room.roomName);
     }
