@@ -90,7 +90,8 @@
         "collectCoverageFrom": [
             "app/**/*.(t|j)s",
             "!app/app.module.ts",
-            "!app/index.ts"
+            "!app/index.ts",
+            "!app/model/schema/sheet.schema.ts"
         ],
         "coverageDirectory": "./coverage",
         "testEnvironment": "node",
