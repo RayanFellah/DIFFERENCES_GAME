@@ -2,10 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConstantsDialogComponent } from '@app/components/constants-dialog/constants-dialog.component';
 import { ImageDialogComponent } from '@app/components/image-dialog/image-dialog.component';
+import { JoinLoadingDialogComponent } from '@app/components/join-loading-dialog/join-loading-dialog.component';
 import { LoadingDialogComponent } from '@app/components/loading-dialog/loading-dialog.component';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { HEIGHT, WIDTH } from 'src/constants';
-import { JoinLoadingDialogComponent } from '../join-loading-dialog/join-loading-dialog.component';
 import { DialogComponent } from './dialog.component';
 
 describe('DialogComponent', () => {

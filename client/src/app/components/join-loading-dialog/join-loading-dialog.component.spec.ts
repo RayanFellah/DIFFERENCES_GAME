@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
+import { noop } from 'rxjs';
 import { JoinLoadingDialogComponent } from './join-loading-dialog.component';
 
 describe('JoinLoadingDialogComponent', () => {
@@ -18,7 +19,7 @@ describe('JoinLoadingDialogComponent', () => {
         fixture = TestBed.createComponent(JoinLoadingDialogComponent);
         component = fixture.componentInstance;
         dialogService = TestBed.inject(DialogService);
-        spyOn(dialogService, 'emitJoinCancellation').and.callFake(() => {});
+        spyOn(dialogService, 'emitJoinCancellation').and.callFake(noop);
         fixture.detectChanges();
     });
 
