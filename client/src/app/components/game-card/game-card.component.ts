@@ -38,7 +38,6 @@ export class GameCardComponent implements OnInit {
                 if (!this.sheet.isJoinable) {
                     this.createSoloGame(playerName);
                 }
-
                 this.router.navigate(['/game', this.sheet._id, this.playerName, this.roomName]);
             }
         });

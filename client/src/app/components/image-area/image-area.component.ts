@@ -74,7 +74,7 @@ export class ImageAreaComponent implements OnInit, OnDestroy, AfterViewInit {
         this.fileUploadSubscription.unsubscribe();
     }
 
-    public drawImageOnCanvas() {
+    drawImageOnCanvas() {
         const reader = new FileReader();
         reader.onload = () => {
             this.img.onload = () => {

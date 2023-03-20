@@ -226,7 +226,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     handleDisconnect(socket: Socket) {
         if (!socket) return;
         this.logger.log(`Client disconnected: ${socket.id}`);
-        const room = this.rooms.find((iterRoom) => iterRoom.player1.socketId === socket.id || iterRoom.player2.socketId === socket.id);
+        const room = this.rooms.find((iterRoom) => iterRoom.player1?.socketId === socket.id || iterRoom.player2?.socketId === socket.id);
         if (!room) return;
         socket.leave(room.roomName);
         if (!room.isGameDone) this.server.to(room.roomName).emit('playerLeft', 'opponent has left the game, you won!');
