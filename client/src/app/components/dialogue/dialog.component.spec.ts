@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConstantsDialogComponent } from '@app/components/constants-dialog/constants-dialog.component';
