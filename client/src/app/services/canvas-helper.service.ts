@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { Inject, Injectable, OnDestroy } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 import { FONT_STYLE, HEIGHT, ONE_SECOND, WIDTH } from 'src/constants';

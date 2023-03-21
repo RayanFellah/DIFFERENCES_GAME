@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
@@ -125,9 +126,15 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             if (this.name === room.player2.name) this.dialog.closeJoinLoadingDialog();
             this.navigate(true);
         });
+        this.socketService.on('AlreadyJoined', () => {
+            // should update the dialog name prompt view
+            this.dialog.closeJoinLoadingDialog();
+            window.alert('Ce nom est déjà utilisé pour cette partie');
+        });
     }
 
     cancel(sheetId: string) {
+        this.dialog.closeJoinLoadingDialog();
         const foundSheet = this.sheets.find((sheet) => sheet._id === sheetId);
         if (foundSheet) {
             foundSheet.isJoinable = false;
@@ -137,14 +144,14 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     onChildEvent(joinGame: JoinGame): void {
         this.currentSheetId = joinGame.sheetId;
         this.name = joinGame.playerName;
-        this.socketService.send('gameJoinable', joinGame.sheetId);
+        this.socketService.send('gameJoinable', joinGame);
         this.dialog.openLoadingDialog();
     }
 
     onJoinEvent(joinGame: JoinGame): void {
         this.currentSheetId = joinGame.sheetId;
         this.name = joinGame.playerName;
-        this.socketService.send('joinGame', { playerName: joinGame.playerName, sheetId: joinGame.sheetId });
+        this.socketService.send('joinGame', joinGame);
         this.dialog.openJoinLoadingDialog();
     }
 

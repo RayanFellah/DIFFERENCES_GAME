@@ -51,9 +51,4 @@ export class SheetService {
             return Promise.reject(`Failed to update document: ${error}`);
         }
     }
-
-    async isSheetJoinable(id: string) {
-        const sheet = await this.sheetModel.findOne({ _id: id });
-        return sheet.isJoinable;
-    }
 }

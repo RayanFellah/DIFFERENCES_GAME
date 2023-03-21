@@ -37,7 +37,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.difficulty = eventData;
     }
     handleResponses() {
-        this.socketService.on<ChatMessage>('roomMessage', (message: ChatMessage) => {
+        this.socketService.on<ChatMessage>(ChatEvents.RoomMessage, (message: ChatMessage) => {
             message.type = message.type !== 'game' ? 'opponent' : 'game';
             this.chatMessages.push(message);
         });
@@ -84,6 +84,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.send('roomMessage', { message, roomName: this.roomName });
     }
     ngOnDestroy(): void {
-        this.socketService.disconnect();
+        if (this.socketService.isSocketAlive()) this.socketService.disconnect();
     }
 }
