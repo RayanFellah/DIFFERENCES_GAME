@@ -128,6 +128,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     }
 
     cancel(sheetId: string) {
+        this.dialog.closeJoinLoadingDialog();
         const foundSheet = this.sheets.find((sheet) => sheet._id === sheetId);
         if (foundSheet) {
             foundSheet.isJoinable = false;

@@ -48,14 +48,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const room = this.rooms.find((res) => res.roomName === payload.roomName);
         const player: Player = room.player1.name === payload.playerName ? room.player1 : room.player2;
         let isError = true;
-
         for (const diff of room.differences) {
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
                     isError = false;
                     this.server
                         .to(payload.roomName)
-                        .emit('roomMessage', { sender: '', content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
+                        .emit(ChatEvents.RoomMessage, { sender: '', content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
                     player.differencesFound++;
                     this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
@@ -188,9 +187,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     deleteSheet(socket: Socket, { sheetId }: { sheetId: string }) {
         this.sheetService.getSheet(sheetId).then((sheet) => {
             try {
-                const originalImagePath = sheet.originalImagePath;
-                if (originalImagePath) {
-                    const originalImageFilePath = `./uploads/${originalImagePath}`;
+                if (sheet.originalImagePath) {
+                    const originalImageFilePath = `./uploads/${sheet.originalImagePath}`;
                     try {
                         unlinkSync(originalImageFilePath);
                     } catch (error) {
@@ -199,9 +197,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 }
                 sheet.originalImagePath = null;
                 // Delete the modified image
-                const modifiedImagePath = sheet.modifiedImagePath;
-                if (modifiedImagePath) {
-                    const modifiedImageFilePath = `./uploads/${modifiedImagePath}`;
+                if (sheet.modifiedImagePath) {
+                    const modifiedImageFilePath = `./uploads/${sheet.modifiedImagePath}`;
                     try {
                         unlinkSync(modifiedImageFilePath);
                     } catch (error) {
@@ -236,11 +233,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         if (!room.isGameDone) this.server.to(room.roomName).emit('playerLeft', 'opponent has left the game, you won!');
         else this.deleteRoom(room);
     }
-
-    emitDeletedSheet(sheetId: string) {
-        this.server.to('GridRoom').emit('SheetDeleted', sheetId);
-    }
-
     private generateRandomId(length: number): string {
         let result = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

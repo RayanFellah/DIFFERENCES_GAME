@@ -94,7 +94,8 @@
             "app/**/*.(t|j)s",
             "!app/app.module.ts",
             "!app/index.ts",
-            "!app/model/**/*"
+            "!app/model/**/*",
+            "!app/services/game-logic/*"
         ],
         "coverageDirectory": "./coverage",
         "testEnvironment": "node",

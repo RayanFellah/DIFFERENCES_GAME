@@ -1,9 +1,5 @@
-import { DateController } from '@app/controllers/date/date.controller';
-import { ExampleController } from '@app/controllers/example/example.controller';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { Sheet, sheetSchema } from '@app/model/database/sheet';
-import { DateService } from '@app/services/date/date.service';
-import { ExampleService } from '@app/services/example/example.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -29,11 +25,9 @@ import { SheetService } from './services/sheet/sheet.service';
         }),
         MongooseModule.forFeature([{ name: Sheet.name, schema: sheetSchema }]),
     ],
-    controllers: [DateController, ExampleController, SheetController, ImageController, GameLogicController],
+    controllers: [SheetController, ImageController, GameLogicController],
     providers: [
         ChatGateway,
-        DateService,
-        ExampleService,
         Logger,
         SheetService,
         DifferenceDetectorService,

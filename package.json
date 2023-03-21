@@ -7,6 +7,7 @@
         "winston": "^3.8.2"
     },
     "devDependencies": {
-        "@types/jest": "^29.5.0"
+        "@types/jest": "^29.5.0",
+        "jest-websocket-mock": "^2.4.0"
     }
 }

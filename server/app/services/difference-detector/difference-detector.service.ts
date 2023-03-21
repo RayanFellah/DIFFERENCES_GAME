@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Coord } from '@app/interfaces/coord';
 import { DifferenceService } from '@app/services/difference/difference.service';
 import { ImageToMatrixService } from '@app/services/image-to-matrix/image-to-matrix.service';
@@ -39,7 +39,6 @@ export class DifferenceDetectorService {
             for (let j = 0; j < matrix[i].length; j++) {
                 if (matrix[i][j] === 1) {
                     this.differences.push(this.getCluster(matrix, i, j));
-                    console.log('Cluster found');
                 }
             }
         }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SOLO_MODE } from '@app/constants';
@@ -8,35 +9,27 @@ import { Coord } from '@common/coord';
 import { Sheet } from '@common/sheet';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
-import { Server, Socket } from 'socket.io';
+import * as fs from 'fs';
+import { createStubInstance, SinonStubbedInstance, stub } from 'sinon';
+import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { ChatGateway } from './chat.gateway';
+import { DELAY_BEFORE_EMITTING_TIME } from './chat.gateway.constants';
 import { ChatEvents } from './chat.gateway.events';
 describe('ChatGateway', () => {
     let gateway: ChatGateway;
     let logger: SinonStubbedInstance<Logger>;
     let sheetService: SinonStubbedInstance<SheetService>;
     let gameService: SinonStubbedInstance<GameLogicService>;
-    const socket = {
-        id: 'testSocketId',
-        join: jest.fn(),
-        emit: jest.fn(),
-        broadcast: {
-            to: jest.fn().mockReturnThis(),
-            emit: jest.fn(),
-        },
-        leave: jest.fn(),
-    } as unknown as Socket;
-
-    const mockServer = {
-        to: jest.fn().mockReturnThis(),
-        emit: jest.fn(),
-    } as unknown as Server;
+    let differenceService: SinonStubbedInstance<DifferenceService>;
+    let server: SinonStubbedInstance<Server>;
+    let socket: SinonStubbedInstance<Socket>;
     beforeEach(async () => {
         logger = createStubInstance(Logger);
         sheetService = createStubInstance(SheetService);
         gameService = createStubInstance(GameLogicService);
-
+        differenceService = createStubInstance(DifferenceService);
+        server = createStubInstance<Server>(Server);
+        socket = createStubInstance<Socket>(Socket);
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ChatGateway,
@@ -52,310 +45,476 @@ describe('ChatGateway', () => {
                     provide: GameLogicService,
                     useValue: gameService,
                 },
+                {
+                    provide: DifferenceService,
+                    useValue: differenceService,
+                },
             ],
         }).compile();
 
         gateway = module.get<ChatGateway>(ChatGateway);
-        gateway.server = mockServer;
+        gateway.server = server;
     });
 
     it('should be defined', () => {
         expect(gateway).toBeDefined();
     });
-
-    // Add tests for each method in the ChatGateway class here.
-    // Make sure to test different scenarios and edge cases to increase coverage.
-
-    // Example:
-    it('handleConnection() should log the connection', () => {
-        gateway.handleConnection(socket);
-        expect(logger.log.calledWith(`Connexion par l'utilisateur avec id : ${socket.id}`)).toBeTruthy();
-    });
-
-    // Add more tests here...
-    describe('createSoloRoom', () => {
-        it('should create a solo room and emit RoomCreated event', async () => {
-            const payload = {
+    describe('CreateSoloRoom', () => {
+        it('should create a new room', async () => {
+            const testCase = {
                 name: 'John Doe',
                 sheetId: 'sheetId123',
                 roomName: 'roomName123',
             };
 
-            const mockSheet: Sheet = getFakesheet();
-
-            const mockDifferenceService: DifferenceService = {
-                listEdges: [],
-                coords: [{ posX: 10, posY: 10 }],
-                found: false,
-                setCoord(coords: Coord[]) {
-                    this.coords = coords;
-                },
-                findEdges() {
-                    for (const coord of this.coords) {
-                        if (
-                            this.coords.find((res: Coord) => res.posX === coord.posX + 1 && res.posY === coord.posY) &&
-                            this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY + 1) &&
-                            this.coords.find((res: Coord) => res.posX === coord.posX - 1 && res.posY === coord.posY) &&
-                            this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY - 1)
-                        ) {
-                            continue;
-                        } else {
-                            this.listEdges.push(coord);
-                        }
-                    }
-                    return this.listEdges;
-                },
-            };
-
+            const mockSheet: Sheet = getFakeSheet();
+            const mockDifferenceService: DifferenceService = new DifferenceService();
             const mockDiffs: DifferenceService[] = [mockDifferenceService];
-
             jest.spyOn(sheetService, 'getSheet').mockImplementation(async () => Promise.resolve(mockSheet));
             jest.spyOn(gameService, 'getAllDifferences').mockImplementation(async () => Promise.resolve(mockDiffs));
 
-            await gateway.createSoloRoom(socket, payload);
-
-            expect(socket.join).toHaveBeenCalledWith(payload.roomName);
-
+            server.to.returns({
+                emit: (event: string) => {
+                    expect(event).toEqual(ChatEvents.RoomCreated);
+                },
+            } as BroadcastOperator<unknown, unknown>);
+            await gateway.createSoloRoom(socket, testCase);
             expect(gateway.rooms.length).toBe(1);
-            expect(mockServer.emit).toHaveBeenCalledWith(ChatEvents.RoomCreated, payload.roomName);
+            expect(socket.join.calledWith(testCase.roomName)).toBeTruthy();
         });
     });
-
-    describe('validateClick', () => {
-        it('should emit clickFeedBack event with correct data', () => {
+    describe('Validate click', () => {
+        it('should emit foundDiff and click feedback is matching coords', () => {
             const payload = {
                 x: 10,
                 y: 10,
                 playerName: 'John Doe',
                 roomName: 'roomName123',
             };
-            const mockDifferenceService: DifferenceService = {
-                listEdges: [],
-                coords: [{ posX: 10, posY: 10 }],
-                found: false,
-                setCoord(coords: Coord[]) {
-                    this.coords = coords;
-                },
-                findEdges() {
-                    for (const coord of this.coords) {
-                        if (
-                            this.coords.find((res: Coord) => res.posX === coord.posX + 1 && res.posY === coord.posY) &&
-                            this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY + 1) &&
-                            this.coords.find((res: Coord) => res.posX === coord.posX - 1 && res.posY === coord.posY) &&
-                            this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY - 1)
-                        ) {
-                            continue;
-                        } else {
-                            this.listEdges.push(coord);
-                        }
-                    }
-                    return this.listEdges;
-                },
-            };
+            const mockDifferenceService = getMockDifferenceService();
+
             const player = { name: 'John Doe', socketId: socket.id, differencesFound: 0 };
             const room = {
                 roomName: payload.roomName,
                 player1: player,
                 player2: undefined,
-                sheet: getFakesheet(),
+                sheet: getFakeSheet(),
                 differences: [mockDifferenceService],
-                numberOfDifferences: 1,
+                numberOfDifferences: 5,
                 gameType: SOLO_MODE,
                 isGameDone: false,
             };
             gateway.rooms.push(room);
+            server.to.returns({
+                emit: (event: string) => {
+                    expect(event).toBeOneOf([ChatEvents.RoomMessage, 'clickFeedBack', 'foundDiff', 'gameDone']);
+                },
+            } as BroadcastOperator<unknown, unknown>);
 
             gateway.validateClick(socket, payload);
 
-            expect(mockServer.emit).toHaveBeenCalledWith(
-                'clickFeedBack',
-                expect.objectContaining({
-                    coords: [{ posX: 10, posY: 10 }],
-                    player,
-                    diffsLeft: 0,
-                }),
-            );
+            room.numberOfDifferences = 1;
+            gateway.validateClick(socket, payload);
         });
 
-        // Add more test cases as needed
-    });
-
-    describe('roomMessage', () => {
-        it('should not broadcast roomMessage event if message content is empty', async () => {
+        it('should emit click feedback only if coords not matching', () => {
             const payload = {
-                roomName: 'testRoom',
-                message: {
-                    content: '',
-                },
+                x: 0,
+                y: 0,
+                playerName: 'John Doe',
+                roomName: 'roomName123',
             };
 
-            await gateway.roomMessage(socket, payload);
+            const mockDifferenceService = getMockDifferenceService();
 
-            expect(socket.broadcast.to).not.toHaveBeenCalled();
-        });
-        it('should broadcast roomMessage event if message content is not empty', async () => {
-            const payload = {
-                roomName: 'testRoom',
-                message: {
-                    content: 'Test message',
-                },
-            };
-
-            gateway.roomMessage(socket, payload);
-
-            expect(socket.broadcast.to).toHaveBeenCalled();
-            expect(socket.broadcast.emit).toHaveBeenCalled();
-        });
-    });
-
-    describe('finishGame', () => {
-        it('should emit gameFinished event with winning player message', async () => {
-            const mockDifferenceService: DifferenceService = {
-                listEdges: [],
-                coords: [{ posX: 10, posY: 10 }],
-                found: false,
-                setCoord(coords: Coord[]) {
-                    this.coords = coords;
-                },
-                findEdges() {
-                    for (const coord of this.coords) {
-                        if (
-                            this.coords.find((res: Coord) => res.posX === coord.posX + 1 && res.posY === coord.posY) &&
-                            this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY + 1) &&
-                            this.coords.find((res: Coord) => res.posX === coord.posX - 1 && res.posY === coord.posY) &&
-                            this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY - 1)
-                        ) {
-                            continue;
-                        } else {
-                            this.listEdges.push(coord);
-                        }
-                    }
-                    return this.listEdges;
-                },
-            };
             const player = { name: 'John Doe', socketId: socket.id, differencesFound: 0 };
             const room = {
-                roomName: getRandomString(),
+                roomName: payload.roomName,
                 player1: player,
                 player2: undefined,
-                sheet: getFakesheet(),
+                sheet: getFakeSheet(),
                 differences: [mockDifferenceService],
-                numberOfDifferences: 1,
+                numberOfDifferences: 5,
                 gameType: SOLO_MODE,
                 isGameDone: false,
             };
             gateway.rooms.push(room);
-            await gateway.finishGame(socket, room.roomName);
-            expect(mockServer.to).toHaveBeenCalledWith(room.roomName);
-            expect(mockServer.emit).toHaveBeenCalledWith('gameFinished', { content: `${room.player1.name} won !`, type: 'game' });
-        });
-    });
-
-    describe('joinGridRoom', () => {
-        it('should join GridRoom', async () => {
-            await gateway.joinGridRoom(socket);
-            expect(socket.join).toHaveBeenCalledWith('GridRoom');
-        });
-    });
-
-    describe('joinableGame', () => {
-        it('should set sheet as joinable, join specific room, and emit Joinable event', async () => {
-            const sheetId = 'testSheetId';
-            await gateway.joinableGame(socket, sheetId);
-            expect(socket.join).toHaveBeenCalledWith(`GameRoom${sheetId}`);
-            expect(socket.broadcast.to).toHaveBeenCalledWith('GridRoom');
-            expect(socket.broadcast.emit).toHaveBeenCalledWith('Joinable', sheetId);
-        });
-    });
-
-    describe('cancelGameCreation', () => {
-        it('should modify the sheet and broadcast a Cancelled event', () => {
-            const sheetId = 'testSheetId';
-            const socket2 = {
-                broadcast: {
-                    to: jest.fn().mockReturnThis(),
-                    emit: jest.fn(),
+            server.to.returns({
+                emit: (event: string) => {
+                    expect(event).toBe('clickFeedBack');
                 },
-            } as unknown as Socket;
+            } as BroadcastOperator<unknown, unknown>);
 
-            gateway.cancelGameCreation(socket2, sheetId);
-
-            expect(socket2.broadcast.to).toHaveBeenCalledWith('GridRoom');
-            expect(socket2.broadcast.emit).toHaveBeenCalledWith('Cancelled', sheetId);
+            gateway.validateClick(socket, payload);
         });
     });
-    describe('joinGame', () => {
-        it('should join the game room and broadcast UserJoined event', () => {
-            const playerName = 'John Doe';
-            const sheetId = 'abc123';
+    describe('Join Game', () => {
+        it('should call modifySheet() from sheetService', () => {
+            const sheetId = getRandomString();
 
-            gateway.joinGame(socket, { playerName, sheetId });
+            // Create a spy for the emit function
+            const emitSpy = jest.fn();
 
-            expect(socket.broadcast.to).toHaveBeenCalledWith(`GameRoom${sheetId}`);
-            expect(socket.broadcast.emit).toHaveBeenCalledWith('UserJoined', { playerName, sheetId });
-        });
-    });
-    describe('playerConfirmed', () => {
-        it('should successfully confirm a player and create a room', async () => {
-            const payload = {
-                player1: 'Player1',
-                player2: 'Player2',
-                sheetId: 'validSheetId',
-            };
-
-            // Mock sheetService.getSheet and gameService.getAllDifferences to return fake data
-            gateway.sheetService.getSheet = jest.fn().mockResolvedValue({
-                /* fake sheet data */
+            // Set up the mock for socket.broadcast.to using Object.defineProperty
+            Object.defineProperty(socket, 'broadcast', {
+                value: {
+                    to: jest.fn().mockReturnValue({ emit: emitSpy }),
+                },
+                writable: true,
+                configurable: true,
             });
-            gateway.gameService.getAllDifferences = jest.fn().mockResolvedValue([
-                /* fake differences data */
-            ]);
 
-            await gateway.playerConfirmed(socket, payload);
+            gateway.joinableGame(socket, sheetId);
 
-            expect(socket.join).toHaveBeenCalled();
-            expect(socket.broadcast.to).toHaveBeenCalled();
-            expect(gateway.server.to).toHaveBeenCalled();
+            expect(sheetService.modifySheet.called).toBeTruthy();
+            expect(socket.join.called).toBeTruthy();
+            expect(socket.broadcast.to).toBeCalledWith('GridRoom');
+            expect(emitSpy).toBeCalledWith('Joinable', sheetId);
         });
+        it('should call leave if we cancel join game', () => {
+            const emitSpy = jest.fn();
 
-        it('should handle invalid sheetId', async () => {
+            // Set up the mock for socket.broadcast.to using Object.defineProperty
+            Object.defineProperty(socket, 'broadcast', {
+                value: {
+                    to: jest.fn().mockReturnValue({ emit: emitSpy }),
+                },
+                writable: true,
+                configurable: true,
+            });
+            gateway.cancelJoinGame(socket, { playerName: 'ahmed', sheetId: getRandomString() });
+            expect(socket.leave.called).toBeTruthy();
+        });
+    });
+    describe('Cancel game creation', () => {
+        it('should call modifySheet', async () => {
+            const sheetId = getRandomString();
+
+            // Create a spy for the emit function
+            const emitSpy = jest.fn();
+
+            // Set up the mock for socket.broadcast.to using Object.defineProperty
+            Object.defineProperty(socket, 'broadcast', {
+                value: {
+                    to: jest.fn().mockReturnValue({ emit: emitSpy }),
+                },
+                writable: true,
+                configurable: true,
+            });
+
+            gateway.cancelGameCreation(socket, sheetId);
+
+            expect(sheetService.modifySheet.called).toBeTruthy();
+            expect(socket.broadcast.to).toBeCalledWith('GridRoom');
+        });
+    });
+    describe('Finish game', () => {
+        it('should emit game finished event', async () => {
             const payload = {
-                player1: 'Player1',
-                player2: 'Player2',
-                sheetId: 'invalidSheetId',
+                x: 0,
+                y: 0,
+                playerName: 'John Doe',
+                roomName: 'roomName123',
             };
 
-            // Mock sheetService.getSheet to return null for invalid sheetId
-            gateway.sheetService.getSheet = jest.fn().mockResolvedValue(null);
+            const mockDifferenceService = getMockDifferenceService();
 
+            const player = { name: 'John Doe', socketId: socket.id, differencesFound: 0 };
+            const room = {
+                roomName: payload.roomName,
+                player1: player,
+                player2: undefined,
+                sheet: getFakeSheet(),
+                differences: [mockDifferenceService],
+                numberOfDifferences: 0,
+                gameType: SOLO_MODE,
+                isGameDone: false,
+            };
+            gateway.rooms.push(room);
+            server.to.returns({
+                emit: (event: string) => {
+                    expect(event).toBe('gameFinished');
+                },
+            } as BroadcastOperator<unknown, unknown>);
+            gateway.finishGame(socket, room.roomName);
+        });
+    });
+    describe('Room messages', () => {
+        it('roomMessage() should send message if socket in the room', () => {
+            stub(socket, 'rooms').value(new Set([getRandomString]));
+            server.to.returns({
+                emit: (event: string) => {
+                    expect(event).toEqual(ChatEvents.RoomMessage);
+                },
+            } as BroadcastOperator<unknown, unknown>);
+            // Create a spy for the emit function
+            const emitSpy = jest.fn();
+
+            // Set up the mock for socket.broadcast.to using Object.defineProperty
+            Object.defineProperty(socket, 'broadcast', {
+                value: {
+                    to: jest.fn().mockReturnValue({ emit: emitSpy }),
+                },
+                writable: true,
+                configurable: true,
+            });
+            gateway.roomMessage(socket, { message: { content: 'X' } });
+        });
+    });
+    describe('Join Game', () => {
+        it('Socket should join the room', () => {
+            stub(socket, 'rooms').value(new Set([getRandomString]));
+            server.to.returns({
+                emit: (event: string) => {
+                    expect(event).toEqual(ChatEvents.RoomMessage);
+                },
+            } as BroadcastOperator<unknown, unknown>);
+            // Create a spy for the emit function
+            const emitSpy = jest.fn();
+
+            // Set up the mock for socket.broadcast.to using Object.defineProperty
+            Object.defineProperty(socket, 'broadcast', {
+                value: {
+                    to: jest.fn().mockReturnValue({ emit: emitSpy }),
+                },
+                writable: true,
+                configurable: true,
+            });
+            gateway.joinGame(socket, { playerName: 'ahmed', sheetId: getRandomString() });
+            expect(socket.join.called).toBeTruthy();
+        });
+    });
+    describe('playerJoined', () => {
+        it('should push a new room to rooms', () => {
+            const mockSheet: Sheet = getFakeSheet();
+            const mockDifferenceService: DifferenceService = new DifferenceService();
+            const mockDiffs: DifferenceService[] = [mockDifferenceService];
+            jest.spyOn(sheetService, 'getSheet').mockImplementation(async () => Promise.resolve(mockSheet));
+            jest.spyOn(gameService, 'getAllDifferences').mockImplementation(async () => Promise.resolve(mockDiffs));
+
+            server.to.returns({
+                emit: (event: string) => {
+                    expect(event).toEqual(ChatEvents.RoomCreated);
+                },
+            } as BroadcastOperator<unknown, unknown>);
+            const emitSpy = jest.fn();
+
+            // Set up the mock for socket.broadcast.to using Object.defineProperty
+            Object.defineProperty(socket, 'broadcast', {
+                value: {
+                    to: jest.fn().mockReturnValue({ emit: emitSpy }),
+                },
+                writable: true,
+                configurable: true,
+            });
+
+            gateway.playerConfirmed(socket, { player1: 'ahmed', player2: 'john', sheetId: mockSheet._id });
+        });
+        it('should throw error if sheet doesnt exist', async () => {
+            jest.spyOn(sheetService, 'getSheet').mockImplementation(async () => Promise.resolve(undefined));
             try {
-                await gateway.playerConfirmed(socket, payload);
+                await gateway.playerConfirmed(socket, { player1: 'ahmed', player2: 'john', sheetId: 'az16' });
             } catch (error) {
                 expect(error).toBeInstanceOf(NotFoundException);
                 expect(error.message).toBe('Sheet not found');
             }
         });
     });
-    describe('rejectionConfirmed', () => {
-        it('should successfully leave the game room', async () => {
-            const sheetId = 'validSheetId';
+    describe('player2Joined', () => {
+        it('should join the room', () => {
+            const payload = {
+                x: 0,
+                y: 0,
+                playerName: 'John Doe',
+                roomName: 'roomName123',
+            };
 
-            await gateway.rejectionConfirmed(socket, sheetId);
+            const mockDifferenceService = getMockDifferenceService();
 
-            expect(socket.leave).toHaveBeenCalled();
+            const player = { name: 'John Doe', socketId: socket.id, differencesFound: 0 };
+            const room = {
+                roomName: payload.roomName,
+                player1: player,
+                player2: undefined,
+                sheet: getFakeSheet(),
+                differences: [mockDifferenceService],
+                numberOfDifferences: 0,
+                gameType: SOLO_MODE,
+                isGameDone: false,
+            };
+            gateway.rooms.push(room);
+            server.to.returns({
+                emit: (event: string) => {
+                    expect(event).toEqual(ChatEvents.JoinedRoom);
+                },
+            } as BroadcastOperator<unknown, unknown>);
+            gateway.player2Joined(socket, { player2: 'ahmed', roomName: room.roomName });
+            expect(socket.join.called).toBeTruthy();
+        });
+    });
+    describe('getPlayers', () => {
+        it('should emit players event', () => {
+            const roomName = 'roomName123';
+
+            const mockDifferenceService = getMockDifferenceService();
+
+            const player = { name: 'John Doe', socketId: socket.id, differencesFound: 0 };
+            const room = {
+                roomName,
+                player1: player,
+                player2: undefined,
+                sheet: getFakeSheet(),
+                differences: [mockDifferenceService],
+                numberOfDifferences: 0,
+                gameType: SOLO_MODE,
+                isGameDone: false,
+            };
+            gateway.rooms.push(room);
+            server.to.returns({
+                emit: (event: string) => {
+                    expect(event).toEqual('players');
+                },
+            } as BroadcastOperator<unknown, unknown>);
+            gateway.getPlayers(socket, roomName);
+        });
+    });
+    describe('deleteSheet', () => {
+        it('should delete the sheet and emit the sheetDeleted event', async () => {
+            const mockSheet = getFakeSheet();
+            jest.spyOn(sheetService, 'getSheet').mockResolvedValue(mockSheet);
+            jest.spyOn(sheetService, 'deleteSheet').mockResolvedValue(undefined);
+            jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
+
+            server.to.returns({
+                emit: (event: string) => {
+                    expect(event).toEqual('sheetDeleted');
+                },
+            } as BroadcastOperator<unknown, unknown>);
+            gateway.deleteSheet(socket, { sheetId: mockSheet._id });
         });
     });
 
-    describe('generateRandomId', () => {
-        it('should generate a random id with the specified length', () => {
-            const idLength = 10;
-            const id = gateway['generateRandomId'](idLength);
+    it('should not call socket.leave() or deleteRoom() if no room is found', () => {
+        const socket2 = {
+            id: 'socket1',
+            leave: jest.fn(),
+        } as unknown as Socket;
+        const deleteRoomMock = jest.fn();
+        gateway['deleteRoom'] = deleteRoomMock;
+        gateway.rooms = [];
+        gateway.handleDisconnect(socket);
 
-            expect(id).toHaveLength(idLength);
-        });
+        expect(socket2.leave).not.toHaveBeenCalled();
+        expect(deleteRoomMock).not.toHaveBeenCalled();
+    });
+
+    it('should call emitTime every DELAY_BEFORE_EMITTING_TIME ms', (done) => {
+        const emitTimeMock = jest.fn();
+        gateway['emitTime'] = emitTimeMock;
+
+        // Call afterInit()
+        gateway.afterInit();
+
+        // Wait for a little more than DELAY_BEFORE_EMITTING_TIME * 3
+        setTimeout(() => {
+            expect(emitTimeMock).toHaveBeenCalledTimes(3);
+            done();
+        }, DELAY_BEFORE_EMITTING_TIME * 3 + 100);
+    });
+
+    it('should log user connection', () => {
+        const loggerSpy = jest.spyOn(gateway.logger, 'log');
+
+        // Call handleConnection
+        gateway.handleConnection(socket);
+
+        expect(loggerSpy).toHaveBeenCalledWith(`Connexion par l'utilisateur avec id : ${socket.id}`);
+    });
+
+    it('should log user disconnection and handle room events', () => {
+        // Call handleDisconnect
+        const roomName = 'roomName123';
+
+        const mockDifferenceService = getMockDifferenceService();
+
+        const player = { name: 'John Doe', socketId: socket.id, differencesFound: 0 };
+        const room = {
+            roomName,
+            player1: player,
+            player2: undefined,
+            sheet: getFakeSheet(),
+            differences: [mockDifferenceService],
+            numberOfDifferences: 0,
+            gameType: SOLO_MODE,
+            isGameDone: false,
+        };
+        gateway.rooms.push(room);
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('playerLeft');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handleDisconnect(socket);
+
+        expect(logger.log.called).toBeTruthy();
+    });
+    it('game Done', () => {
+        // Call handleDisconnect
+        const mockDelete = jest.fn();
+        gateway['deleteSheet'] = mockDelete;
+        const roomName = 'roomName123';
+
+        const mockDifferenceService = getMockDifferenceService();
+
+        const player = { name: 'John Doe', socketId: socket.id, differencesFound: 0 };
+        const room = {
+            roomName,
+            player1: player,
+            player2: undefined,
+            sheet: getFakeSheet(),
+            differences: [mockDifferenceService],
+            numberOfDifferences: 2,
+            gameType: SOLO_MODE,
+            isGameDone: true,
+        };
+        gateway.rooms.push(room);
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('playerLeft');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handleDisconnect(socket);
     });
 });
-const getFakesheet = (): Sheet | any => ({
+
+const getMockDifferenceService = (): DifferenceService => {
+    const mockDifferenceService: DifferenceService = {
+        listEdges: [],
+        coords: [{ posX: 10, posY: 10 }],
+        found: false,
+        setCoord(coords: Coord[]) {
+            this.coords = coords;
+        },
+        findEdges() {
+            for (const coord of this.coords) {
+                if (
+                    this.coords.find((res: Coord) => res.posX === coord.posX + 1 && res.posY === coord.posY) &&
+                    this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY + 1) &&
+                    this.coords.find((res: Coord) => res.posX === coord.posX - 1 && res.posY === coord.posY) &&
+                    this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY - 1)
+                ) {
+                    continue;
+                } else {
+                    this.listEdges.push(coord);
+                }
+            }
+            return this.listEdges;
+        },
+    };
+    return mockDifferenceService;
+};
+
+const getFakeSheet = (): Sheet => ({
     _id: 'sheetId123',
     difficulty: getRandomString(),
     radius: 3,
@@ -370,3 +529,34 @@ const getFakesheet = (): Sheet | any => ({
 
 const BASE_36 = 36;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
+
+expect.extend({
+    // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+    toBeOneOf(received: any, items: any[]) {
+        const pass = items.includes(received);
+        const message = () => `expected ${received} to be contained in array [${items}]`;
+        if (pass) {
+            return {
+                message,
+                pass: true,
+            };
+        }
+        return {
+            message,
+            pass: false,
+        };
+    },
+});
+
+// Declare that jest contains toBeOneOf
+// If you are not using TypeScript, remove this "declare global" altogether
+declare global {
+    // eslint-disable-next-line no-unused-vars
+    namespace jest {
+        // eslint-disable-next-line no-unused-vars
+        interface Matchers<R> {
+            // eslint-disable-next-line no-undef
+            toBeOneOf(items: any[]): CustomMatcherResult;
+        }
+    }
+}

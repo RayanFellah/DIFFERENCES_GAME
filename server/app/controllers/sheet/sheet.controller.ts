@@ -80,7 +80,6 @@ export class SheetController {
                 files['modifiedImagePath'][0],
                 formData.radius,
             );
-            console.log(results);
             if (results.differences > MIN_DIFFERENCES && results.differences < MAX_DIFFERENCES) {
                 for (const key in files) {
                     if (files[key]) {
