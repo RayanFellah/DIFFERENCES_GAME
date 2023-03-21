@@ -93,7 +93,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.differences = diff;
         });
         this.socketService.on<string>('gameDone', (message: string) => {
-            console.log('hello game overrrrr');
             this.dialog.openGameOverDialog(message);
         });
     }

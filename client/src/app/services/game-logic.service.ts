@@ -93,7 +93,7 @@ export class GameLogicService {
             this.handleClick(this.currentClick, res.coords, res.player.socketId);
         });
 
-        this.socketService.on('gameDone', (message: string) => {
+        this.socketService.on('gameDone', () => {
             this.clickIgnored = true;
             this.isGameDone = true;
         });

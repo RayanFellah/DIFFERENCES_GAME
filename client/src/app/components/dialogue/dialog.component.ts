@@ -2,12 +2,12 @@
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConstantsDialogComponent } from '@app/components/constants-dialog/constants-dialog.component';
+import { GameOverDialogComponent } from '@app/components/game-over-dialog/game-over-dialog.component';
 import { ImageDialogComponent } from '@app/components/image-dialog/image-dialog.component';
 import { JoinLoadingDialogComponent } from '@app/components/join-loading-dialog/join-loading-dialog.component';
 import { LoadingDialogComponent } from '@app/components/loading-dialog/loading-dialog.component';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { HEIGHT, WIDTH } from 'src/constants';
-import { GameOverDialogComponent } from '../game-over-dialog/game-over-dialog.component';
 
 @Component({
     selector: 'app-dialog',
