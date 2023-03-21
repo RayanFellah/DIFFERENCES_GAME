@@ -6,6 +6,7 @@ import { DialogComponent } from '@app/components/dialogue/dialog.component';
 import { ChatEvents } from '@app/interfaces/chat-events';
 import { JoinGame } from '@app/interfaces/join-game';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
+import { GameStateService } from '@app/services/game-state/game-state.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { PlayRoom } from '@common/play-room';
@@ -33,6 +34,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         private readonly dialog: DialogComponent,
         private dialogService: DialogService,
         private router: Router,
+        private gameStateService: GameStateService,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) this.router.navigate(['/game', this.playRoom.sheet._id, this.name, this.playRoom.roomName]);
@@ -116,11 +118,10 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             if (this.name === res.playerName) {
                 const sheetId = res.sheetId;
                 this.socketService.send('rejectionConfirmed', sheetId);
-                //  this.dialog.closeJoinLoadingDialog();
+                this.dialog.closeJoinLoadingDialog();
             }
         });
         this.socketService.on(ChatEvents.JoinedRoom, (room: PlayRoom) => {
-            // this.dialog.closeLoading();
             this.playRoom = room;
             if (this.name === room.player1.name) this.dialog.closeLoadingDialog();
             if (this.name === room.player2.name) this.dialog.closeJoinLoadingDialog();
@@ -149,6 +150,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     }
 
     onJoinEvent(joinGame: JoinGame): void {
+        this.gameStateService.isGameInitialized = true;
         this.currentSheetId = joinGame.sheetId;
         this.name = joinGame.playerName;
         this.socketService.send('joinGame', joinGame);

@@ -1,7 +1,9 @@
+/* eslint-disable max-params */
 import { Component, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { ChatEvents } from '@app/interfaces/chat-events';
+import { GameStateService } from '@app/services/game-state/game-state.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { ChatMessage } from '@common/chat-message';
 import { Player } from '@common/player';
@@ -23,14 +25,23 @@ export class GamePageComponent implements OnInit, OnDestroy {
     startTime: Date;
     formattedTime: string;
     timer: boolean;
-    constructor(private activatedRoute: ActivatedRoute, private socketService: SocketClientService) {}
+    constructor(
+        private activatedRoute: ActivatedRoute,
+        private socketService: SocketClientService,
+        private gameStateService: GameStateService,
+        private router: Router,
+    ) {}
     ngOnInit() {
-        this.playerName = this.activatedRoute.snapshot.paramMap.get('name') as string;
-        this.sheetId = this.activatedRoute.snapshot.paramMap.get('id');
-        this.roomName = this.activatedRoute.snapshot.paramMap.get('roomId');
-        this.startTime = new Date();
-        this.timer = true;
-        this.handleResponses();
+        if (!this.gameStateService.isGameInitialized) {
+            this.router.navigate(['/main']);
+        } else {
+            this.playerName = this.activatedRoute.snapshot.paramMap.get('name') as string;
+            this.sheetId = this.activatedRoute.snapshot.paramMap.get('id');
+            this.roomName = this.activatedRoute.snapshot.paramMap.get('roomId');
+            this.startTime = new Date();
+            this.timer = true;
+            if (this.socketService.isSocketAlive()) this.handleResponses();
+        }
     }
 
     onDifficultyChange(eventData: string) {

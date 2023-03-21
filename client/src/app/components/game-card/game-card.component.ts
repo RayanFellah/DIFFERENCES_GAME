@@ -4,6 +4,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { JoinGame } from '@app/interfaces/join-game';
+import { GameStateService } from '@app/services/game-state/game-state.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { Sheet } from '@common/sheet';
@@ -29,6 +30,7 @@ export class GameCardComponent implements OnInit {
         // eslint-disable-next-line max-len
         private router: Router,
         private socketService: SocketClientService,
+        private gameStateService: GameStateService,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
@@ -55,9 +57,11 @@ export class GameCardComponent implements OnInit {
         this.shouldNavigate$.next(type);
     }
     play() {
+        this.gameStateService.isGameInitialized = true;
         this.navigate(true);
     }
     create() {
+        this.gameStateService.isGameInitialized = true;
         const playerName = window.prompt('What is your name?');
         const validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));
         if (!validName) return alert("Le nom d'utilisateur ne peut pas être vide, ne peut pas contenir que des chiffres ou des espaces.");

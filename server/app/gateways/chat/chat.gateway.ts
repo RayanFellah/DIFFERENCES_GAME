@@ -126,9 +126,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage('joinGame')
     joinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
         const waitingRoom = this.waitingRooms.find((room) => room.sheetId === sheetId);
-        if (waitingRoom.players.includes(playerName)) {
-            socket.emit('AlreadyJoined');
-            return;
+        if (waitingRoom) {
+            if (waitingRoom.players.includes(playerName)) {
+                socket.emit('AlreadyJoined');
+                return;
+            }
         }
         socket.join(`GameRoom${sheetId}`);
         waitingRoom.players.push(playerName);
@@ -141,6 +143,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     @SubscribeMessage('playerRejected')
     playerRejected(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
+        const waitingRoom = this.waitingRooms.find((room) => room.sheetId === sheetId);
+
+        if (waitingRoom) waitingRoom.players = waitingRoom.players.filter((player) => player !== playerName);
         socket.broadcast.to(`GameRoom${sheetId}`).emit('Rejection', { playerName, sheetId });
     }
     @SubscribeMessage('quitRoom')
@@ -168,6 +173,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         socket.join(newRoom.roomName);
         socket.broadcast.to(`GameRoom${sheetId}`).emit('MultiRoomCreated', { player2, roomName: newRoom.roomName });
         this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
+        const waitingRoom = this.waitingRooms.find((room) => room.sheetId === sheetId);
+        if (waitingRoom) waitingRoom.players = waitingRoom.players.filter((player) => player !== player2);
     }
     @SubscribeMessage('player2Joined')
     player2Joined(socket: Socket, { player2, roomName }: { player2: string; roomName: string }) {
