@@ -39,7 +39,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         };
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
-        this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
         this.sendPlayers(newRoom.roomName, newRoom.player1);
     }
 
@@ -160,7 +159,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
         this.server.to(`GameRoom${sheetId}`).emit('MultiRoomCreated', { player2, roomName: newRoom.roomName });
-        this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
     }
     @SubscribeMessage('player2Joined')
     player2Joined(socket: Socket, { player2, roomName }: { player2: string; roomName: string }) {

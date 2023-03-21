@@ -1,5 +1,5 @@
-import { Component, HostListener, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { ChatEvents } from '@app/interfaces/chat-events';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
@@ -22,12 +22,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     startTime: Date;
     formattedTime: string;
     timer: boolean;
-    constructor(private activatedRoute: ActivatedRoute, private socketService: SocketClientService, private router: Router) {}
-
-    @HostListener('window:beforeunload') goToPage() {
-        this.router.navigate(['/main'], { queryParams: { fromGamePage: true } });
-        this.ngOnDestroy();
-    }
+    constructor(private activatedRoute: ActivatedRoute, private socketService: SocketClientService) {}
     ngOnInit() {
         this.playerName = this.activatedRoute.snapshot.paramMap.get('name') as string;
         this.sheetId = this.activatedRoute.snapshot.paramMap.get('id');
