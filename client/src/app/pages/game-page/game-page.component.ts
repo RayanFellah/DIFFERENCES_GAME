@@ -25,7 +25,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     timer: boolean;
     constructor(private activatedRoute: ActivatedRoute, private socketService: SocketClientService, private router: Router) {}
 
-    @HostListener('window:beforeunload') goToPage() {
+    @HostListener('window:reload') goToPage() {
         this.router.navigate(['/main'], { queryParams: { fromGamePage: true } });
         this.ngOnDestroy();
     }

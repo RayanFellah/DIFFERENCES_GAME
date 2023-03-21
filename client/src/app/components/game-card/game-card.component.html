@@ -7,7 +7,7 @@
     <mat-card-content><app-game-score></app-game-score></mat-card-content>
 
     <mat-card-actions>
-        <button mat-stroked-button color="primary" (click)="play()">
+        <button mat-stroked-button color="primary" (click)="play()" [disabled]="isConfig">
             {{ isConfig ? 'Réinitialiser' : 'Jouer' }}
         </button>
         <button mat-stroked-button color="accent" (click)="isConfig ? onDelete() : sheet.isJoinable ? join() : create()">

@@ -7,12 +7,13 @@
         <h1 class="welcome-message">
             Bienvenue <span class="player-name">{{ playerName }}</span>
         </h1>
-        <div class="time-container">
-            <h2>{{ formattedTime }}</h2>
-        </div>
+        <app-game-score class="game-score"></app-game-score>
         <div class="points-container">
             <div class="player1-points" *ngIf="person">
                 <h2>{{ person.name }} {{ person.differencesFound }}/{{ this.differences }}</h2>
+            </div>
+            <div class="time-container">
+                <h2>{{ formattedTime }}</h2>
             </div>
             <div class="player2-points" *ngIf="opponent">
                 <h2>{{ opponent.name }} {{ opponent.differencesFound }}/{{ this.differences }}</h2>
