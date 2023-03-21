@@ -34,7 +34,7 @@ describe('GameOverDialogComponent', () => {
 
     it('should display the game over message', () => {
         const message = fixture.nativeElement.querySelector('p').textContent;
-        expect(message).toContain('You found all the differences!');
+        expect(message).toContain('La Partie Est Terminée.');
     });
 
     it('should display the provided data in the dialog title', () => {
