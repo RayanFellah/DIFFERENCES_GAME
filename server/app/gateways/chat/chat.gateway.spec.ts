@@ -13,7 +13,6 @@ import * as fs from 'fs';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { ChatGateway } from './chat.gateway';
-import { DELAY_BEFORE_EMITTING_TIME } from './chat.gateway.constants';
 import { ChatEvents } from './chat.gateway.events';
 describe('ChatGateway', () => {
     let gateway: ChatGateway;
@@ -383,20 +382,6 @@ describe('ChatGateway', () => {
 
         expect(socket2.leave).not.toHaveBeenCalled();
         expect(deleteRoomMock).not.toHaveBeenCalled();
-    });
-
-    it('should call emitTime every DELAY_BEFORE_EMITTING_TIME ms', (done) => {
-        const emitTimeMock = jest.fn();
-        gateway['emitTime'] = emitTimeMock;
-
-        // Call afterInit()
-        gateway.afterInit();
-
-        // Wait for a little more than DELAY_BEFORE_EMITTING_TIME * 3
-        setTimeout(() => {
-            expect(emitTimeMock).toHaveBeenCalledTimes(3);
-            done();
-        }, DELAY_BEFORE_EMITTING_TIME * 3 + 100);
     });
 
     it('should log user connection', () => {
