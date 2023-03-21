@@ -78,7 +78,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             (player.differencesFound === room.numberOfDifferences && room.gameType === SOLO_MODE) ||
             (player.differencesFound >= (room.numberOfDifferences + ((room.numberOfDifferences + 1) % 2)) / 2 && room.gameType === MULTIPLAYER_MODE)
         ) {
-            this.server.to(payload.roomName).emit('gameDone', `${payload.playerName} has won!`);
+            this.server.to(payload.roomName).emit('gameDone', `${payload.playerName} `);
             room.isGameDone = true;
             return;
         }
