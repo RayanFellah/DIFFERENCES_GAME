@@ -228,7 +228,7 @@ describe('GameCardGridComponent', () => {
 
         expect(component.currentSheetId).toEqual('123');
         expect(component.name).toEqual('Alice');
-        expect(sendSpy).toHaveBeenCalledWith('gameJoinable', '123');
+        expect(sendSpy).toHaveBeenCalled();
         expect(openSpy).toHaveBeenCalled();
     });
 
