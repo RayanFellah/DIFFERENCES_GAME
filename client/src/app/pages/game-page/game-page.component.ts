@@ -17,6 +17,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     chatMessages: ChatMessage[] = [];
     sheetId: string | null;
     roomName: string | null;
+    differences: number;
     person: Player;
     opponent: Player;
     startTime: Date;
@@ -70,6 +71,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on<Player>('foundDiff', (player: Player) => {
             if (this.person.socketId === player.socketId) this.person = player;
             else this.opponent = player;
+        });
+        this.socketService.on<void>('playerLeft', () => {
+            this.timer = false;
+        });
+        this.socketService.on<number>('numberOfDifferences', (diff: number) => {
+            this.differences = diff;
         });
     }
     sendMessage(message: ChatMessage) {

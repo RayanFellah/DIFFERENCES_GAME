@@ -40,6 +40,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
         this.sendPlayers(newRoom.roomName, newRoom.player1);
+        this.server.to(newRoom.roomName).emit('numberOfDifferences', newRoom.numberOfDifferences);
     }
 
     @SubscribeMessage('click')
@@ -53,9 +54,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
                     isError = false;
-                    this.server
-                        .to(payload.roomName)
-                        .emit('roomMessage', { sender: '', content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
+                    this.server.to(payload.roomName).emit('roomMessage', { content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
                     player.differencesFound++;
                     this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
@@ -167,6 +166,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         socket.join(room.roomName);
         this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
         this.sendPlayers(room.roomName, room.player1, room.player2);
+        this.server.to(room.roomName).emit('numberOfDifferences', room.numberOfDifferences);
     }
 
     @SubscribeMessage('rejectionConfirmed')
