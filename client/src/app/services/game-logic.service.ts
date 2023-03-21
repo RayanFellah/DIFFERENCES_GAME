@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Injectable } from '@angular/core';

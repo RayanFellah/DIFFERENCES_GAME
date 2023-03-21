@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Coord } from '@app/interfaces/coord';

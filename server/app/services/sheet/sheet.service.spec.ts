@@ -4,7 +4,7 @@ import { Sheet, SheetDocument, sheetSchema } from '@app/model/database/sheet';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { SheetService } from './sheet.service';
@@ -142,7 +142,7 @@ describe('sheetServiceEndToEnd', () => {
 });
 
 const getFakesheet = (): Sheet | any => ({
-    _id: getRandomString(),
+    _id: new mongoose.Types.ObjectId(),
     difficulty: getRandomString(),
     radius: 3,
     originalImagePath: getRandomString(),

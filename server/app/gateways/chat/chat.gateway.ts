@@ -5,6 +5,7 @@ import { SheetService } from '@app/services/sheet/sheet.service';
 import { ChatMessage } from '@common/chat-message';
 import { PlayRoom } from '@common/play-room';
 import { Player } from '@common/player';
+import { WaitingRoom } from '@common/waiting-room';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { unlinkSync } from 'fs';
@@ -18,6 +19,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     sentToSockets = new Set<string>();
     rooms: PlayRoom[] = [];
+    waitingRooms: WaitingRoom[] = [];
     private readonly room = PRIVATE_ROOM_ID;
 
     constructor(readonly logger: Logger, readonly sheetService: SheetService, public gameService: GameLogicService) {}
@@ -109,9 +111,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         socket.join('GridRoom');
     }
     @SubscribeMessage('gameJoinable')
-    joinableGame(socket: Socket, sheetId: string) {
+    joinableGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
         this.sheetService.modifySheet({ _id: sheetId, isJoinable: true });
         socket.join(`GameRoom${sheetId}`);
+        this.waitingRooms.push({ sheetId, players: [playerName] });
         socket.broadcast.to('GridRoom').emit('Joinable', sheetId);
     }
 
@@ -123,10 +126,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('joinGame')
     joinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
+        const waitingRoom = this.waitingRooms.find((room) => room.sheetId === sheetId);
+        if (waitingRoom.players.includes(playerName)) {
+            socket.emit('AlreadyJoined');
+            return;
+        }
         socket.join(`GameRoom${sheetId}`);
+        waitingRoom.players.push(playerName);
         socket.broadcast.to(`GameRoom${sheetId}`).emit('UserJoined', { playerName, sheetId });
-        // add the socket to the set of sockets that have received the event
-        this.sentToSockets.add(socket.id);
     }
     @SubscribeMessage('cancelJoinGame')
     cancelJoinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {

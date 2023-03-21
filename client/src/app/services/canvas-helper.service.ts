@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { Inject, Injectable, OnDestroy } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 import { finalize, fromEvent, OperatorFunction, switchMap, tap } from 'rxjs';

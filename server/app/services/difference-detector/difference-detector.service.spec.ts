@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { DifferenceService } from '@app/services/difference/difference.service';
 import { ImageToMatrixService } from '@app/services/image-to-matrix/image-to-matrix.service';
 import { RadiusEnlargementService } from '@app/services/radius-enlargement/radius-enlargement.service';

@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';

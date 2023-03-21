@@ -164,7 +164,7 @@ describe('ChatGateway', () => {
                 configurable: true,
             });
 
-            gateway.joinableGame(socket, sheetId);
+            gateway.joinableGame(socket, { playerName: 'ahmed', sheetId });
 
             expect(sheetService.modifySheet.called).toBeTruthy();
             expect(socket.join.called).toBeTruthy();
@@ -280,7 +280,9 @@ describe('ChatGateway', () => {
                 writable: true,
                 configurable: true,
             });
-            gateway.joinGame(socket, { playerName: 'ahmed', sheetId: getRandomString() });
+            const waitingRoom = { players: ['ahmed'], sheetId: getRandomString() };
+            gateway.waitingRooms.push(waitingRoom);
+            gateway.joinGame(socket, { playerName: 'joe', sheetId: waitingRoom.sheetId });
             expect(socket.join.called).toBeTruthy();
         });
     });
@@ -383,6 +385,7 @@ describe('ChatGateway', () => {
             const mockSheet = getFakeSheet();
             jest.spyOn(sheetService, 'getSheet').mockResolvedValue(mockSheet);
             jest.spyOn(sheetService, 'deleteSheet').mockResolvedValue(undefined);
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
 
             server.to.returns({
