@@ -7,6 +7,7 @@ import { JoinLoadingDialogComponent } from '@app/components/join-loading-dialog/
 import { LoadingDialogComponent } from '@app/components/loading-dialog/loading-dialog.component';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { HEIGHT, WIDTH } from 'src/constants';
+import { GameOverDialogComponent } from '../game-over-dialog/game-over-dialog.component';
 
 @Component({
     selector: 'app-dialog',
@@ -49,5 +50,9 @@ export class DialogComponent {
     }
     closeLoadingDialog(): void {
         this.loadingDialogRef.close();
+    }
+
+    openGameOverDialog(message: string): void {
+        this.dialog.open(GameOverDialogComponent, { data: message, panelClass: 'custom-modalbox' });
     }
 }

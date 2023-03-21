@@ -1,6 +1,8 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DialogComponent } from '@app/components/dialogue/dialog.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { ChatEvents } from '@app/interfaces/chat-events';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
@@ -26,7 +28,9 @@ describe('GamePageComponent', () => {
     let cheatModeServiceSpy: CheatModeService;
     let gameStateServiceSpy: GameStateService;
     let routerSpy: Router;
+    let mockDialog: jasmine.SpyObj<MatDialog>;
     beforeEach(() => {
+        mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         activatedRouteStub = {
             snapshot: {
                 paramMap: {
@@ -46,7 +50,7 @@ describe('GamePageComponent', () => {
 
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
-            declarations: [GamePageComponent, PlayAreaComponent],
+            declarations: [GamePageComponent, PlayAreaComponent, DialogComponent],
             providers: [
                 {
                     provide: SocketClientService,
@@ -84,6 +88,7 @@ describe('GamePageComponent', () => {
                     provide: Router,
                     useValue: routerSpy,
                 },
+                { provide: MatDialog, useValue: mockDialog },
             ],
         }).compileComponents();
 

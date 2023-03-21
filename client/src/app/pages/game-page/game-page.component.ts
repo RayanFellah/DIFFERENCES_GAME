@@ -1,6 +1,7 @@
 /* eslint-disable max-params */
 import { Component, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DialogComponent } from '@app/components/dialogue/dialog.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { ChatEvents } from '@app/interfaces/chat-events';
 import { GameStateService } from '@app/services/game-state/game-state.service';
@@ -11,6 +12,7 @@ import { Player } from '@common/player';
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
+    providers: [DialogComponent],
 })
 export class GamePageComponent implements OnInit, OnDestroy {
     @ViewChild(PlayAreaComponent) playArea: PlayAreaComponent;
@@ -30,6 +32,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private socketService: SocketClientService,
         private gameStateService: GameStateService,
         private router: Router,
+        private readonly dialog: DialogComponent,
     ) {}
     ngOnInit() {
         if (!this.gameStateService.isGameInitialized) {
@@ -88,6 +91,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
         this.socketService.on<number>('numberOfDifferences', (diff: number) => {
             this.differences = diff;
+        });
+        this.socketService.on<string>('gameDone', (message: string) => {
+            console.log('hello game overrrrr');
+            this.dialog.openGameOverDialog(message);
         });
     }
     sendMessage(message: ChatMessage) {

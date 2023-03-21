@@ -95,9 +95,6 @@ export class GameLogicService {
 
         this.socketService.on('gameDone', (message: string) => {
             this.clickIgnored = true;
-            setTimeout(() => {
-                alert(message);
-            }, BLINK_DURATION);
             this.isGameDone = true;
         });
 
