@@ -78,12 +78,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             (player.differencesFound === room.numberOfDifferences && room.gameType === SOLO_MODE) ||
             (player.differencesFound >= (room.numberOfDifferences + ((room.numberOfDifferences + 1) % 2)) / 2 && room.gameType === MULTIPLAYER_MODE)
         ) {
-            this.server.to(payload.roomName).emit('gameDone', `${payload.playerName} `);
+            this.server.to(payload.roomName).emit('gameDone', `Félicitations ${payload.playerName}! Tu As Gagné.`);
             room.isGameDone = true;
             return;
         }
         if (player.differencesFound === room.numberOfDifferences / 2 && room.differences.length === 0) {
-            this.server.to(payload.roomName).emit('gameDone', 'All differences found! game ended in a tie');
+            this.server.to(payload.roomName).emit('gameDone', 'Toute les différences sont trouvées, ');
             room.isGameDone = true;
             return;
         }
@@ -231,7 +231,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const room = this.rooms.find((iterRoom) => iterRoom.player1?.socketId === socket.id || iterRoom.player2?.socketId === socket.id);
         if (!room) return;
         socket.leave(room.roomName);
-        if (!room.isGameDone) this.server.to(room.roomName).emit('playerLeft', 'opponent has left the game, you won!');
+        if (!room.isGameDone) this.server.to(room.roomName).emit('gameDone', 'Adversaire A Quitté , Tu Gagnes!');
         else this.deleteRoom(room);
     }
     private generateRandomId(length: number): string {

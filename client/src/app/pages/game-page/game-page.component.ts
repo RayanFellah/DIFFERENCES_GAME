@@ -86,9 +86,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (this.person.socketId === player.socketId) this.person = player;
             else this.opponent = player;
         });
-        this.socketService.on<void>('playerLeft', () => {
-            this.timer = false;
-        });
+
         this.socketService.on<number>('numberOfDifferences', (diff: number) => {
             this.differences = diff;
         });
