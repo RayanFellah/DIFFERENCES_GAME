@@ -24,7 +24,7 @@
             </div>
         </div>
     </div>
-    <mat-form-field appearance="outline" class="input-area">
+    <mat-form-field appearance="outline" class="input-area" *ngIf="opponent">
         <input matInput placeholder="type..." maxlength="200" type="text" [(ngModel)]="messageContent" />
         <button class="send-button" mat-icon-button matSuffix (click)="sendMessage()">
             <mat-icon>send</mat-icon>
