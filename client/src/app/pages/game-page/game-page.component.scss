@@ -2,6 +2,11 @@ $primary-color: #1976d2;
 $background-color: #f5f5f5;
 $border-color: #ccc;
 
+.chat-zone-container {
+    display: flex;
+    justify-content: center;
+}
+
 .container {
     display: flex;
     flex-direction: column;
