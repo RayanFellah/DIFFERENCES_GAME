@@ -1,8 +1,6 @@
 /* eslint-disable max-params */
 import { Inject, Injectable, OnDestroy } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
-import { finalize, fromEvent, OperatorFunction, switchMap, tap } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { FONT_STYLE, HEIGHT, ONE_SECOND, WIDTH } from 'src/constants';
 @Injectable({
     providedIn: 'root',
@@ -84,35 +82,35 @@ export class CanvasHelperService implements OnDestroy {
             this.disable = false;
         }, ONE_SECOND);
     }
-    drawingOnImage() {
-        const mouseDownStream = fromEvent(this.canvasRef, 'mousedown');
-        const mouseMoveStream = fromEvent(this.canvasRef, 'mousemove');
-        const mouseUpStream = fromEvent(window, 'mouseup');
+    // drawingOnImage() {
+    //     const mouseDownStream = fromEvent(this.canvasRef, 'mousedown');
+    //     const mouseMoveStream = fromEvent(this.canvasRef, 'mousemove');
+    //     const mouseUpStream = fromEvent(window, 'mouseup');
 
-        mouseDownStream.pipe(
-            tap((event: MouseEvent) => {
-                if (this.context) {
-                    this.context.beginPath();
-                    this.context.strokeStyle = 'this.color';
-                    this.context.lineWidth = 5;
-                    this.context.lineJoin = 'round';
-                    this.context?.moveTo(event.offsetX, event.offsetY);
-                }
-            }) as OperatorFunction<Event, MouseEvent>,
-            switchMap(() =>
-                mouseMoveStream.pipe(
-                    tap((event: MouseEvent) => {
-                        this.context?.lineTo(event.offsetX, event.offsetY);
-                        this.context?.stroke();
-                    }) as OperatorFunction<Event, MouseEvent>,
-                    takeUntil(mouseUpStream),
-                    finalize(() => {
-                        this.context?.closePath();
-                    }),
-                ),
-            ),
-        );
-    }
+    //     mouseDownStream.pipe(
+    //         tap((event: MouseEvent) => {
+    //             if (this.context) {
+    //                 this.context.beginPath();
+    //                 this.context.strokeStyle = 'this.color';
+    //                 this.context.lineWidth = 5;
+    //                 this.context.lineJoin = 'round';
+    //                 this.context?.moveTo(event.offsetX, event.offsetY);
+    //             }
+    //         }) as OperatorFunction<Event, MouseEvent>,
+    //         switchMap(() =>
+    //             mouseMoveStream.pipe(
+    //                 tap((event: MouseEvent) => {
+    //                     this.context?.lineTo(event.offsetX, event.offsetY);
+    //                     this.context?.stroke();
+    //                 }) as OperatorFunction<Event, MouseEvent>,
+    //                 takeUntil(mouseUpStream),
+    //                 finalize(() => {
+    //                     this.context?.closePath();
+    //                 }),
+    //             ),
+    //         ),
+    //     );
+    // }
     ngOnDestroy(): void {
         URL.revokeObjectURL(this.url);
     }
