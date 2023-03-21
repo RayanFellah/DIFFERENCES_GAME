@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable max-params */
 /* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Coord } from '@app/interfaces/coord';
 import { DifferenceService } from '@app/services/difference/difference.service';
 import { ImageToMatrixService } from '@app/services/image-to-matrix/image-to-matrix.service';
@@ -26,12 +27,6 @@ export class DifferenceDetectorService {
         this.image1 = img1;
         this.image2 = img2;
     }
-    /**
-     * Cette fonction sert a chercher tous les packets de coordonnées associes a une difference
-     * entre deux images et le mettre dans la liste des differences
-     *
-     * @param rayon : rayon d’élargissement pris en compte
-     */
 
     async getAllClusters(rayon: number): Promise<DifferenceService[]> {
         const matrix = this.radiusEnlargementService.radiusEnlargement(await this.compareImages(this.image1, this.image2), rayon);
@@ -39,7 +34,6 @@ export class DifferenceDetectorService {
             for (let j = 0; j < matrix[i].length; j++) {
                 if (matrix[i][j] === 1) {
                     this.differences.push(this.getCluster(matrix, i, j));
-                    console.log('Cluster found');
                 }
             }
         }
@@ -50,14 +44,6 @@ export class DifferenceDetectorService {
         return this.calculateDifficulty(await this.compareImages(this.image1, this.image2), length);
     }
 
-    /**
-     * Cette fonction prend deux images et retourne un matrice nous donnant les pixels différents
-     * entres celles-ci
-     *
-     * @param img1 objet Image
-     * @param img2 objet Image
-     * @returns la matrice binaire montrant les pixels différents
-     */
     async compareImages(img1: ImageToMatrixService, img2: ImageToMatrixService): Promise<number[][]> {
         try {
             // Loading both images
@@ -104,7 +90,7 @@ export class DifferenceDetectorService {
      * montrant les pixels différents
      */
 
-    private getCluster(matrix: number[][], i: number, j: number): DifferenceService {
+    getCluster(matrix: number[][], i: number, j: number): DifferenceService {
         const queue = [[i, j]];
         const coordList: Coord[] = [];
 
@@ -127,7 +113,7 @@ export class DifferenceDetectorService {
         return differenceService;
     }
 
-    private calculateDifficulty(matrix: number[][], length: number) {
+    calculateDifficulty(matrix: number[][], length: number) {
         const newMatrix = matrix.flat(1);
         const noOfOnes = newMatrix.filter((num) => {
             return num === 1;

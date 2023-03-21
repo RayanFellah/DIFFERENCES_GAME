@@ -72,5 +72,17 @@ describe('ImageToMatrixService', () => {
             await expect(service.imageToMatrix()).rejects.toThrowError(error);
             expect(jimpReadSpy).toHaveBeenCalledWith(buffer);
         });
+        it('should throw an error if there is a problem getting pixel color', async () => {
+            const buffer = Buffer.from([1, 2, 3]);
+            const image = new Jimp(2, 2);
+            jimpReadSpy.mockResolvedValue(image);
+            getPixelColorSpy.mockImplementation(() => {
+                throw new Error('Error getting pixel color');
+            });
+            service.setFile(buffer);
+
+            await expect(service.imageToMatrix()).rejects.toThrowError('Error getting pixel color');
+            expect(jimpReadSpy).toHaveBeenCalledWith(buffer);
+        });
     });
 });

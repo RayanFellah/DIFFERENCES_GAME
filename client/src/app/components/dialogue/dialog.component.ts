@@ -38,12 +38,14 @@ export class DialogComponent {
 
     openLoadingDialog(): void {
         this.loadingDialogRef = this.dialog.open(LoadingDialogComponent, { data: { playerNames: this.playerNames }, panelClass: 'custom-modalbox' });
+        if (this.loadingDialogRef) this.loadingDialogRef.disableClose = true;
     }
     openJoinLoadingDialog(): void {
         this.joinLoadingDialogRef = this.dialog.open(JoinLoadingDialogComponent);
+        if (this.joinLoadingDialogRef) this.joinLoadingDialogRef.disableClose = true;
     }
     closeJoinLoadingDialog(): void {
-        this.joinLoadingDialogRef.close();
+        this.joinLoadingDialogRef?.close();
     }
     closeLoadingDialog(): void {
         this.loadingDialogRef.close();

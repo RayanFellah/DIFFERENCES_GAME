@@ -39,6 +39,7 @@ describe('SheetHttpService', () => {
                     topPlayer: 'John',
                     differences: 10,
                     isJoinable: false,
+                    topScore: 0,
                 },
                 {
                     _id: '2',
@@ -50,6 +51,7 @@ describe('SheetHttpService', () => {
                     topPlayer: 'Jane',
                     differences: 15,
                     isJoinable: false,
+                    topScore: 0,
                 },
             ];
 

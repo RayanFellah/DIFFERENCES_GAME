@@ -17,14 +17,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
     chatMessages: ChatMessage[] = [];
     sheetId: string | null;
     roomName: string | null;
+    differences: number;
     person: Player;
     opponent: Player;
     startTime: Date;
     formattedTime: string;
     timer: boolean;
     constructor(private activatedRoute: ActivatedRoute, private socketService: SocketClientService) {}
-
-    async ngOnInit() {
+    ngOnInit() {
         this.playerName = this.activatedRoute.snapshot.paramMap.get('name') as string;
         this.sheetId = this.activatedRoute.snapshot.paramMap.get('id');
         this.roomName = this.activatedRoute.snapshot.paramMap.get('roomId');
@@ -32,11 +32,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.timer = true;
         this.handleResponses();
     }
+
     onDifficultyChange(eventData: string) {
         this.difficulty = eventData;
     }
     handleResponses() {
-        this.socketService.on<ChatMessage>('roomMessage', (message: ChatMessage) => {
+        this.socketService.on<ChatMessage>(ChatEvents.RoomMessage, (message: ChatMessage) => {
             message.type = message.type !== 'game' ? 'opponent' : 'game';
             this.chatMessages.push(message);
         });
@@ -71,20 +72,18 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (this.person.socketId === player.socketId) this.person = player;
             else this.opponent = player;
         });
-
-        this.socketService.on('roomCreated', () => {
-            this.getPlayers();
+        this.socketService.on<void>('playerLeft', () => {
+            this.timer = false;
+        });
+        this.socketService.on<number>('numberOfDifferences', (diff: number) => {
+            this.differences = diff;
         });
     }
     sendMessage(message: ChatMessage) {
         this.chatMessages.push(message);
         this.socketService.send('roomMessage', { message, roomName: this.roomName });
     }
-
-    getPlayers() {
-        this.socketService.send('getPlayers', this.roomName);
-    }
     ngOnDestroy(): void {
-        this.socketService.disconnect();
+        if (this.socketService.isSocketAlive()) this.socketService.disconnect();
     }
 }

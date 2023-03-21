@@ -5,7 +5,8 @@ import { SheetService } from '@app/services/sheet/sheet.service';
 import { ChatMessage } from '@common/chat-message';
 import { PlayRoom } from '@common/play-room';
 import { Player } from '@common/player';
-import { Injectable, Logger } from '@nestjs/common';
+import { WaitingRoom } from '@common/waiting-room';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { unlinkSync } from 'fs';
 import { Server, Socket } from 'socket.io';
@@ -18,9 +19,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     sentToSockets = new Set<string>();
     rooms: PlayRoom[] = [];
+    waitingRooms: WaitingRoom[] = [];
     private readonly room = PRIVATE_ROOM_ID;
 
-    constructor(private readonly logger: Logger, private readonly sheetService: SheetService, private gameService: GameLogicService) {}
+    constructor(readonly logger: Logger, readonly sheetService: SheetService, public gameService: GameLogicService) {}
 
     @SubscribeMessage('createSoloGame')
     async createSoloRoom(socket: Socket, payload: { name: string; sheetId: string; roomName: string }) {
@@ -39,7 +41,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         };
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
-        this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
+        this.sendPlayers(newRoom.roomName, newRoom.player1);
+        this.server.to(newRoom.roomName).emit('numberOfDifferences', newRoom.numberOfDifferences);
     }
 
     @SubscribeMessage('click')
@@ -48,14 +51,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const room = this.rooms.find((res) => res.roomName === payload.roomName);
         const player: Player = room.player1.name === payload.playerName ? room.player1 : room.player2;
         let isError = true;
-
         for (const diff of room.differences) {
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
                     isError = false;
-                    this.server
-                        .to(payload.roomName)
-                        .emit('roomMessage', { sender: '', content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
+                    this.server.to(payload.roomName).emit('roomMessage', { content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
                     player.differencesFound++;
                     this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
@@ -110,9 +110,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         socket.join('GridRoom');
     }
     @SubscribeMessage('gameJoinable')
-    joinableGame(socket: Socket, sheetId: string) {
+    joinableGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
         this.sheetService.modifySheet({ _id: sheetId, isJoinable: true });
         socket.join(`GameRoom${sheetId}`);
+        this.waitingRooms.push({ sheetId, players: [playerName] });
         socket.broadcast.to('GridRoom').emit('Joinable', sheetId);
     }
 
@@ -124,10 +125,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('joinGame')
     joinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
+        const waitingRoom = this.waitingRooms.find((room) => room.sheetId === sheetId);
+        if (waitingRoom.players.includes(playerName)) {
+            socket.emit('AlreadyJoined');
+            return;
+        }
         socket.join(`GameRoom${sheetId}`);
+        waitingRoom.players.push(playerName);
         socket.broadcast.to(`GameRoom${sheetId}`).emit('UserJoined', { playerName, sheetId });
-        // add the socket to the set of sockets that have received the event
-        this.sentToSockets.add(socket.id);
     }
     @SubscribeMessage('cancelJoinGame')
     cancelJoinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
@@ -145,6 +150,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage('playerConfirmed')
     async playerConfirmed(socket: Socket, { player1, player2, sheetId }: { player1: string; player2: string; sheetId: string }) {
         const playSheet = await this.sheetService.getSheet(sheetId);
+        if (!playSheet) {
+            throw new NotFoundException('Sheet not found');
+        }
         const diffs = await this.gameService.getAllDifferences(playSheet);
         const newRoom: PlayRoom = {
             roomName: this.generateRandomId(ID_LENGTH),
@@ -158,7 +166,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         };
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
-        this.server.to(`GameRoom${sheetId}`).emit('MultiRoomCreated', { player2, roomName: newRoom.roomName });
+        socket.broadcast.to(`GameRoom${sheetId}`).emit('MultiRoomCreated', { player2, roomName: newRoom.roomName });
         this.server.to(newRoom.roomName).emit(ChatEvents.RoomCreated, newRoom.roomName);
     }
     @SubscribeMessage('player2Joined')
@@ -167,26 +175,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         room.player2 = { name: player2, socketId: socket.id, differencesFound: 0 };
         socket.join(room.roomName);
         this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
+        this.sendPlayers(room.roomName, room.player1, room.player2);
+        this.server.to(room.roomName).emit('numberOfDifferences', room.numberOfDifferences);
     }
 
     @SubscribeMessage('rejectionConfirmed')
     async rejectionConfirmed(socket: Socket, sheetId: string) {
         await socket.leave(`GameRoom${sheetId}`);
     }
-    @SubscribeMessage('getPlayers')
-    getPlayers(socket: Socket, roomName: string) {
-        const room = this.rooms.find((res) => res.roomName === roomName);
-        const players: Player[] = [room.player1, room.player2];
-
-        this.server.to(roomName).emit('players', players);
-    }
     @SubscribeMessage('deleteSheet')
     deleteSheet(socket: Socket, { sheetId }: { sheetId: string }) {
         this.sheetService.getSheet(sheetId).then((sheet) => {
             try {
-                const originalImagePath = sheet.originalImagePath;
-                if (originalImagePath) {
-                    const originalImageFilePath = `./uploads/${originalImagePath}`;
+                if (sheet.originalImagePath) {
+                    const originalImageFilePath = `./uploads/${sheet.originalImagePath}`;
                     try {
                         unlinkSync(originalImageFilePath);
                     } catch (error) {
@@ -195,9 +197,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 }
                 sheet.originalImagePath = null;
                 // Delete the modified image
-                const modifiedImagePath = sheet.modifiedImagePath;
-                if (modifiedImagePath) {
-                    const modifiedImageFilePath = `./uploads/${modifiedImagePath}`;
+                if (sheet.modifiedImagePath) {
+                    const modifiedImageFilePath = `./uploads/${sheet.modifiedImagePath}`;
                     try {
                         unlinkSync(modifiedImageFilePath);
                     } catch (error) {
@@ -226,17 +227,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     handleDisconnect(socket: Socket) {
         if (!socket) return;
         this.logger.log(`Client disconnected: ${socket.id}`);
-        const room = this.rooms.find((iterRoom) => iterRoom.player1.socketId === socket.id || iterRoom.player2.socketId === socket.id);
+        const room = this.rooms.find((iterRoom) => iterRoom.player1?.socketId === socket.id || iterRoom.player2?.socketId === socket.id);
         if (!room) return;
         socket.leave(room.roomName);
         if (!room.isGameDone) this.server.to(room.roomName).emit('playerLeft', 'opponent has left the game, you won!');
         else this.deleteRoom(room);
     }
-
-    emitDeletedSheet(sheetId: string) {
-        this.server.to('GridRoom').emit('SheetDeleted', sheetId);
-    }
-
     private generateRandomId(length: number): string {
         let result = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -250,6 +246,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     private emitTime() {
         this.server.emit(ChatEvents.Clock, new Date());
     }
+
+    private sendPlayers(roomName: string, player1: Player, player2?: Player) {
+        const players: Player[] = [player1, player2];
+        this.server.to(roomName).emit('players', players);
+    }
+
     private deleteRoom(room: PlayRoom) {
         this.rooms = this.rooms.filter((res) => res.roomName !== room.roomName);
     }

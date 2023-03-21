@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';

@@ -1,4 +1,4 @@
-<div tabindex="0" (keyup.t)="playArea.blink()">
+<div tabindex="0" autofocus (keydown.t)="playArea.blink()">
     <app-header></app-header>
     <button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
         <mat-icon>exit_to_app</mat-icon>
@@ -7,25 +7,30 @@
         <h1 class="welcome-message">
             Bienvenue <span class="player-name">{{ playerName }}</span>
         </h1>
-        <div class="time-container">
-            <h2>{{ formattedTime }}</h2>
-        </div>
+        <app-game-score class="game-score"></app-game-score>
         <div class="points-container">
             <div class="player1-points" *ngIf="person">
-                <h2>{{ person.name }} {{ person.differencesFound }}</h2>
+                <h2>{{ person.name }} {{ person.differencesFound }}/{{ this.differences }}</h2>
+            </div>
+            <div class="time-container">
+                <h2>{{ formattedTime }}</h2>
             </div>
             <div class="player2-points" *ngIf="opponent">
-                <h2>{{ opponent.name }} {{ opponent.differencesFound }}</h2>
+                <h2>{{ opponent.name }} {{ opponent.differencesFound }}/{{ this.differences }}</h2>
             </div>
         </div>
     </div>
     <h2>Difficulté: {{ difficulty }}</h2>
-    <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area-container"></app-play-area>
-    <app-chat-zone
-        class="chat-zone-container"
-        [playerName]="playerName"
-        [opponent]="opponent ? opponent.name : ''"
-        [chatMessages]="this.chatMessages"
-        (messageEvent)="sendMessage($event)"
-    ></app-chat-zone>
+    <div class="play-area-container">
+        <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area"></app-play-area>
+    </div>
+    <div class="chat-zone-container">
+        <app-chat-zone
+            [playerName]="playerName"
+            [opponent]="opponent ? opponent.name : ''"
+            [chatMessages]="this.chatMessages"
+            (messageEvent)="sendMessage($event)"
+            class="chat-zone"
+        ></app-chat-zone>
+    </div>
 </div>

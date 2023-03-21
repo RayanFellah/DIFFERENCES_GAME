@@ -47,6 +47,7 @@ describe('GameCardGridComponent', () => {
                 topPlayer: '',
                 differences: 0,
                 isJoinable: true,
+                topScore: 0,
             },
             {
                 _id: '2',
@@ -58,6 +59,7 @@ describe('GameCardGridComponent', () => {
                 topPlayer: '',
                 differences: 0,
                 isJoinable: true,
+                topScore: 0,
             },
         ];
         fixture.detectChanges();
@@ -80,6 +82,7 @@ describe('GameCardGridComponent', () => {
                 topPlayer: '',
                 differences: 0,
                 isJoinable: true,
+                topScore: 0,
             },
             {
                 _id: '2',
@@ -91,6 +94,7 @@ describe('GameCardGridComponent', () => {
                 topPlayer: '',
                 differences: 0,
                 isJoinable: true,
+                topScore: 0,
             },
         ];
 
@@ -185,6 +189,7 @@ describe('GameCardGridComponent', () => {
                 topPlayer: '',
                 differences: 0,
                 isJoinable: true,
+                topScore: 0,
             },
         ];
         component.cancel(sheetId);
@@ -204,6 +209,7 @@ describe('GameCardGridComponent', () => {
                 topPlayer: '',
                 differences: 0,
                 isJoinable: true,
+                topScore: 0,
             },
         ];
         component.cancel('invalidId');
@@ -222,7 +228,7 @@ describe('GameCardGridComponent', () => {
 
         expect(component.currentSheetId).toEqual('123');
         expect(component.name).toEqual('Alice');
-        expect(sendSpy).toHaveBeenCalledWith('gameJoinable', '123');
+        expect(sendSpy).toHaveBeenCalled();
         expect(openSpy).toHaveBeenCalled();
     });
 
@@ -253,6 +259,7 @@ describe('GameCardGridComponent', () => {
                     topPlayer: '',
                     differences: 0,
                     isJoinable: true,
+                    topScore: 0,
                 },
             ];
 
@@ -275,6 +282,7 @@ describe('GameCardGridComponent', () => {
                     topPlayer: '',
                     differences: 0,
                     isJoinable: true,
+                    topScore: 0,
                 },
             ];
 

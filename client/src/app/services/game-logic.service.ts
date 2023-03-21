@@ -1,13 +1,12 @@
+/* eslint-disable max-params */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Injectable } from '@angular/core';
-import { SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { Vec2 } from '@app/interfaces/vec2';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { Player } from '@common/player';
 import { Sheet } from '@common/sheet';
-import { Subject } from 'rxjs';
 import { BLINK_DURATION, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
@@ -19,12 +18,9 @@ import { SheetHttpService } from './sheet-http.service';
     providedIn: 'root',
 })
 export class GameLogicService {
-    clicks$: Subject<MouseEvent> = new Subject();
     isBlinking = false;
     audio: AudioService;
     diff: Vec2[];
-    originalImage: SafeUrl;
-    modifiedImage: SafeUrl;
     originalImageData: ImageData;
     modifiedImageData: ImageData;
     sheet: Sheet;

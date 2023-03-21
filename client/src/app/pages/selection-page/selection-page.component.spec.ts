@@ -38,6 +38,7 @@ describe('SelectionPageComponent', () => {
                 topPlayer: 'player1',
                 differences: 5,
                 isJoinable: true,
+                topScore: 0,
             },
             {
                 _id: '2',
@@ -49,6 +50,7 @@ describe('SelectionPageComponent', () => {
                 topPlayer: 'player2',
                 differences: 10,
                 isJoinable: false,
+                topScore: 0,
             },
         ];
         mockSheetHttpService.getAllSheets.and.returnValue(of(sheets));

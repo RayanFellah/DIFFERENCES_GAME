@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /* eslint-disable no-underscore-dangle */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -38,7 +39,6 @@ export class GameCardComponent implements OnInit {
                 if (!this.sheet.isJoinable) {
                     this.createSoloGame(playerName);
                 }
-
                 this.router.navigate(['/game', this.sheet._id, this.playerName, this.roomName]);
             }
         });
