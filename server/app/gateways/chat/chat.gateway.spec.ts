@@ -125,7 +125,7 @@ describe('ChatGateway', () => {
             };
 
             const mockDifferenceService = getMockDifferenceService();
-
+            const events: string[] = ['roomMessage', 'clickFeedBack'];
             const player = { name: 'John Doe', socketId: socket.id, differencesFound: 0 };
             const room = {
                 roomName: payload.roomName,
@@ -140,7 +140,7 @@ describe('ChatGateway', () => {
             gateway.rooms.push(room);
             server.to.returns({
                 emit: (event: string) => {
-                    expect(event).toBe('clickFeedBack');
+                    expect(event).toBeOneOf(events);
                 },
             } as BroadcastOperator<unknown, unknown>);
 
@@ -151,10 +151,8 @@ describe('ChatGateway', () => {
         it('should call modifySheet() from sheetService', () => {
             const sheetId = getRandomString();
 
-            // Create a spy for the emit function
             const emitSpy = jest.fn();
 
-            // Set up the mock for socket.broadcast.to using Object.defineProperty
             Object.defineProperty(socket, 'broadcast', {
                 value: {
                     to: jest.fn().mockReturnValue({ emit: emitSpy }),
@@ -173,7 +171,6 @@ describe('ChatGateway', () => {
         it('should call leave if we cancel join game', () => {
             const emitSpy = jest.fn();
 
-            // Set up the mock for socket.broadcast.to using Object.defineProperty
             Object.defineProperty(socket, 'broadcast', {
                 value: {
                     to: jest.fn().mockReturnValue({ emit: emitSpy }),
@@ -189,10 +186,8 @@ describe('ChatGateway', () => {
         it('should call modifySheet', async () => {
             const sheetId = getRandomString();
 
-            // Create a spy for the emit function
             const emitSpy = jest.fn();
 
-            // Set up the mock for socket.broadcast.to using Object.defineProperty
             Object.defineProperty(socket, 'broadcast', {
                 value: {
                     to: jest.fn().mockReturnValue({ emit: emitSpy }),
@@ -338,11 +333,22 @@ describe('ChatGateway', () => {
                 isGameDone: false,
             };
             gateway.rooms.push(room);
+            const waitingRoom = { players: ['ahmed'], sheetId: room.sheet._id };
+            gateway.waitingRooms.push(waitingRoom);
             server.to.returns({
                 emit: (event: string) => {
                     expect(event).toBeOneOf(['numberOfDifferences', 'players', 'test']);
                 },
             } as BroadcastOperator<unknown, unknown>);
+
+            const emitSpy = jest.fn();
+            Object.defineProperty(socket, 'rooms', {
+                value: {
+                    delete: jest.fn().mockReturnValue({ emit: emitSpy }),
+                },
+                writable: true,
+                configurable: true,
+            });
             gateway.player2Joined(socket, { player2: 'ahmed', roomName: room.roomName });
             expect(socket.join.called).toBeTruthy();
         });
@@ -381,14 +387,12 @@ describe('ChatGateway', () => {
     it('should log user connection', () => {
         const loggerSpy = jest.spyOn(gateway.logger, 'log');
 
-        // Call handleConnection
         gateway.handleConnection(socket);
 
         expect(loggerSpy).toHaveBeenCalledWith(`Connexion par l'utilisateur avec id : ${socket.id}`);
     });
 
     it('should log user disconnection and handle room events', () => {
-        // Call handleDisconnect
         const roomName = 'roomName123';
 
         const mockDifferenceService = getMockDifferenceService();

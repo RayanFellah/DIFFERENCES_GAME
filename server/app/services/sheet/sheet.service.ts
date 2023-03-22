@@ -45,7 +45,7 @@ export class SheetService {
         try {
             const res = await this.sheetModel.updateOne(filterQuery, sheet);
             if (res.matchedCount === 0) {
-                return Promise.reject('Could not find course');
+                return Promise.reject('Could not find sheet');
             }
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);

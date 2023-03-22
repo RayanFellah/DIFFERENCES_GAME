@@ -73,6 +73,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 player,
                 diffsLeft: room.differences.length - player.differencesFound,
             });
+            const errorMessage: ChatMessage = { content: `ERROR FROM ${player.name}`, type: 'game' };
+            this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, errorMessage);
         }
         if (
             (player.differencesFound === room.numberOfDifferences && room.gameType === SOLO_MODE) ||
@@ -178,6 +180,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
         this.sendPlayers(room.roomName, room.player1, room.player2);
         this.server.to(room.roomName).emit('numberOfDifferences', room.numberOfDifferences);
+        const wait = this.waitingRooms.find((iter) => JSON.stringify(iter.sheetId) === JSON.stringify(room.sheet._id));
+        socket.rooms.delete(`GameRoom${wait.sheetId}`);
+        this.waitingRooms = this.waitingRooms.filter((iter) => iter.sheetId !== wait.sheetId);
     }
 
     @SubscribeMessage('rejectionConfirmed')
