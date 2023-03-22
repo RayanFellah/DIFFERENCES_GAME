@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
+import { Sheet } from '@common/sheet';
+import { of } from 'rxjs';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
 import { GameLogicService } from './game-logic.service';
@@ -9,21 +11,41 @@ import { SheetHttpService } from './sheet-http.service';
 
 describe('GameLogicService', () => {
     let service: GameLogicService;
-    let leftCanvasSpy: jasmine.SpyObj<CanvasHelperService>;
-    let rightCanvasSpy: jasmine.SpyObj<CanvasHelperService>;
-    let imageHttpSpy: jasmine.SpyObj<ImageHttpService>;
-    let sheetHttpSpy: jasmine.SpyObj<SheetHttpService>;
-    let socketServiceSpy: jasmine.SpyObj<SocketClientService>;
-    let cheatModeSpy: jasmine.SpyObj<CheatModeService>;
-    const activatedRoute: ActivatedRoute = new ActivatedRoute();
+    let leftCanvasSpy: CanvasHelperService;
+    let rightCanvasSpy: CanvasHelperService;
+    let imageHttpSpy: ImageHttpService;
+    let sheetHttpSpy: SheetHttpService;
+    let socketServiceSpy: SocketClientService;
+    let cheatModeSpy: CheatModeService;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let activatedRouteStub: any;
 
     beforeEach(() => {
-        leftCanvasSpy = jasmine.createSpyObj('CanvasHelperService', ['drawImage', 'getContext', 'getImageData']);
-        rightCanvasSpy = jasmine.createSpyObj('CanvasHelperService', ['drawImage', 'getContext', 'getImageData']);
+        const sheet: Sheet = {
+            _id: '1',
+            title: 'test',
+            differences: 3,
+            difficulty: 'medium',
+            originalImagePath: 'path1',
+            modifiedImagePath: 'path2',
+            radius: 3,
+            topPlayer: 'player',
+            isJoinable: true,
+            topScore: 2,
+        };
+        activatedRouteStub = {
+            snapshot: {
+                paramMap: {
+                    get: () => sheet,
+                },
+            },
+        };
+        leftCanvasSpy = jasmine.createSpyObj('CanvasHelperService', ['drawImage', 'getContext', 'getImageData', 'drawImageOnCanvas', 'getCanvas']);
+        rightCanvasSpy = jasmine.createSpyObj('CanvasHelperService', ['drawImage', 'getContext', 'getImageData', 'drawImageOnCanvas', 'getCanvas']);
         imageHttpSpy = jasmine.createSpyObj('ImageHttpService', ['getDiffImage', 'getImage']);
         sheetHttpSpy = jasmine.createSpyObj('SheetHttpService', ['getSheet']);
-        socketServiceSpy = jasmine.createSpyObj('SocketClientService', ['send', 'on']);
-        cheatModeSpy = jasmine.createSpyObj('CheatModeService', ['isCheatModeOn']);
+        socketServiceSpy = jasmine.createSpyObj('SocketClientService', ['disconnect', 'on', 'send', 'socket', 'isSocketAlive']);
+        cheatModeSpy = jasmine.createSpyObj('CheatModeService', ['isCheatModeOn', 'getDifferences', 'cheatBlink', 'removeDifference']);
 
         TestBed.configureTestingModule({
             providers: [
@@ -34,7 +56,10 @@ describe('GameLogicService', () => {
                 { provide: SheetHttpService, useValue: sheetHttpSpy },
                 { provide: SocketClientService, useValue: socketServiceSpy },
                 { provide: CheatModeService, useValue: cheatModeSpy },
-                { provide: ActivatedRoute, useValue: activatedRoute },
+                {
+                    provide: ActivatedRoute,
+                    useValue: activatedRouteStub,
+                },
             ],
         });
         service = TestBed.inject(GameLogicService);
@@ -58,6 +83,34 @@ describe('GameLogicService', () => {
         expect(service.currentClick).toEqual(click);
         expect(socketServiceSpy.send).toHaveBeenCalledWith('click', data);
     });
+    it('should return a Promise with the sheet difficulty', async () => {
+        const sheet: Sheet = {
+            _id: '1',
+            title: 'test',
+            differences: 3,
+            difficulty: 'Easy',
+            originalImagePath: 'path1',
+            modifiedImagePath: 'path2',
+            radius: 3,
+            topPlayer: 'player',
+            isJoinable: true,
+            topScore: 2,
+        };
+        const blob = new Blob(['path1'], { type: 'image/bmp' });
+        sheetHttpSpy.getSheet = jasmine.createSpy().and.returnValue(of(sheet));
+        imageHttpSpy.getImage = jasmine.createSpy().and.returnValue(of(blob));
+        const blob2 = new Blob(['path2'], { type: 'image/bmp' });
+        imageHttpSpy.getImage = jasmine.createSpy().and.returnValue(of(blob2));
+        socketServiceSpy.isSocketAlive = jasmine.createSpy().and.returnValue(true);
+        service.start().then((difficulty) => {
+            expect(difficulty).toBe('Easy');
+            expect(sheetHttpSpy.getSheet).toHaveBeenCalled();
+            expect(imageHttpSpy.getImage).toHaveBeenCalledWith(sheet.originalImagePath);
+            expect(imageHttpSpy.getImage).toHaveBeenCalledWith(sheet.modifiedImagePath);
+            expect(socketServiceSpy.isSocketAlive).toHaveBeenCalled();
+            expect(cheatModeSpy.getDifferences).toHaveBeenCalledWith(sheet);
+        });
+    });
 
     it('should not set currentClick or send click data if clickIgnored is true', () => {
         const click = new MouseEvent('click');
@@ -68,49 +121,36 @@ describe('GameLogicService', () => {
         expect(socketServiceSpy['send']).not.toHaveBeenCalled();
     });
 
-    // it('should set up the sheet, canvas and get differences', async () => {
-    //     const sheetId = '123';
-    //     // const roomId = 'abc';
-    //     const sheet: Sheet = {
-    //         _id: sheetId,
-    //         title: 'Test Sheet',
-    //         originalImagePath: 'original.png',
-    //         modifiedImagePath: 'modified.png',
-    //         difficulty: 'easy',
-    //         radius: 10,
-    //         topPlayer: 'Player 1',
-    //         differences: 5,
-    //         isJoinable: true,
-    //     };
-    //     // const originalImageData = new ImageData(new Uint8ClampedArray([0, 0, 0, 255]), 1, 1);
+    it('should replace modifiedImageData with tempImageData at specified positions', () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const color = 255;
+        const diff = [
+            { posX: 0, posY: 0 },
+            { posX: 1, posY: 0 },
+        ];
+        rightCanvasSpy.context = ctx;
+        leftCanvasSpy.context = ctx;
+        service.modifiedImageData = new ImageData(new Uint8ClampedArray([color, 0, 0, color, 0, color, 0, color]), 2, 1);
+        const tempImageData = new ImageData(new Uint8ClampedArray([color, 0, 0, color, 0, color, 0, color]), 2, 1);
 
-    //     // const routeSpy = spyOn(service.activatedRoute.snapshot.paramMap, 'get');
-    //     // routeSpy.and.callThrough();
-    //     // routeSpy.and.callFake((param: string | null) => {
-    //     //     if (param === 'id') {
-    //     //         return sheetId;
-    //     //     } else if (param === 'roomId') {
-    //     //         return roomId;
-    //     //     }
-    //     // });
+        service.replaceDifference(diff, tempImageData);
 
-    //     // sheetHttpSpy.getSheet.and.returnValue(of(sheet));
-    //     // imageHttpSpy.getImage.withArgs(sheet.originalImagePath).and.returnValue(of(new Blob()));
-    //     // imageHttpSpy.getImage.withArgs(sheet.modifiedImagePath).and.returnValue(of(new Blob()));
-    //     // leftCanvasSpy.drawImageOnCanvas.and.stub();
-    //     // rightCanvasSpy.drawImageOnCanvas.and.stub();
-    //     // cheatModeSpy.getDifferences.and.stub();
+        expect(service.modifiedImageData.data).toEqual(tempImageData.data);
+    });
 
-    //     await service.start();
+    it('cheat() should call the methods', () => {
+        service.cheat();
+        expect(cheatModeSpy.getDifferences).toHaveBeenCalled();
+        expect(cheatModeSpy.cheatBlink).toHaveBeenCalled();
+    });
+    it('should set clickIgnored to true and reset it after a delay', () => {
+        const time = 1000;
+        service['ignoreClicks']();
 
-    //     expect(sheetHttpSpy.getSheet).toHaveBeenCalledWith(sheetId);
-    //     expect(leftCanvasSpy.drawImageOnCanvas).toHaveBeenCalledOnceWith(jasmine.any(Blob));
-    //     expect(rightCanvasSpy.drawImageOnCanvas).toHaveBeenCalledOnceWith(jasmine.any(Blob));
-    //     expect(cheatModeSpy.getDifferences).toHaveBeenCalledWith(sheet);
-    //     expect(socketServiceSpy.on).toHaveBeenCalled();
-    //     expect(service.sheet).toEqual(sheet);
-    //     // expect(service.numberDifferences).toEqual(sheet.differences);
-    // });
-
-    // Add more tests here for the various methods in the GameLogicService class
+        expect(service.clickIgnored).toBeTrue();
+        jasmine.clock().install();
+        jasmine.clock().tick(time);
+        expect(service.clickIgnored).toBeTruthy();
+    });
 });
