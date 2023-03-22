@@ -75,7 +75,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
             const elapsedTimeInSeconds = Math.floor((now.getTime() - this.startTime.getTime()) / MILLISECONDS);
             const minutes = Math.floor(elapsedTimeInSeconds / MINUTES);
             const seconds = elapsedTimeInSeconds % MINUTES;
-            // assign the formatted time string to a different variable
             this.formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         });
 
