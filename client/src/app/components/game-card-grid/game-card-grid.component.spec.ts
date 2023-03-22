@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable max-lines */
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -5,6 +7,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
 import { RouterTestingModule } from '@angular/router/testing';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
 import { ChatEvents } from '@app/interfaces/chat-events';
 import { JoinGame } from '@app/interfaces/join-game';
@@ -12,21 +15,49 @@ import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { PlayRoom } from '@common/play-room';
+import { Player } from '@common/player';
 import { Sheet } from '@common/sheet';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Socket } from 'socket.io-client';
 import { SHEETS_PER_PAGE } from 'src/constants';
 import { GameCardGridComponent } from './game-card-grid.component';
+
+class SocketClientServiceMock extends SocketClientService {
+    override connect() {}
+}
+const player1: Player = {
+    name: 'ahmed',
+    socketId: 'socketId',
+    differencesFound: 0,
+};
+const player2: Player = {
+    name: 'John Doe',
+    socketId: 'socketId',
+    differencesFound: 0,
+};
+const room = {
+    player1,
+    player2,
+    roomName: 'roomName',
+};
 
 describe('GameCardGridComponent', () => {
     let component: GameCardGridComponent;
     let fixture: ComponentFixture<GameCardGridComponent>;
-
+    let socketServiceMock: SocketClientServiceMock;
+    let socketHelper: SocketTestHelper;
+    let dialogService: DialogService;
     beforeEach(async () => {
+        socketHelper = new SocketTestHelper();
+        socketServiceMock = new SocketClientServiceMock();
+        socketServiceMock.socket = socketHelper as any as Socket;
+
         await TestBed.configureTestingModule({
             declarations: [GameCardGridComponent],
             imports: [HttpClientTestingModule, MatDialogModule, RouterTestingModule, MatCardModule],
-            providers: [DialogService, SheetHttpService, SocketClientService, DialogComponent],
+            providers: [DialogService, SheetHttpService, { provide: SocketClientService, useValue: socketServiceMock }, DialogComponent],
         }).compileComponents();
+        dialogService = TestBed.inject(DialogService);
     });
 
     beforeEach(() => {
@@ -34,6 +65,7 @@ describe('GameCardGridComponent', () => {
         component = fixture.componentInstance;
         component.isConfig = true;
         component.playerName = 'John Doe';
+        component.name = 'John Doe';
         component.shouldNavigate$ = new BehaviorSubject(false);
         component.playRoom = { sheet: { _id: '1' } } as PlayRoom;
         component.sheets = [
@@ -109,6 +141,8 @@ describe('GameCardGridComponent', () => {
     });
 
     it('should call getAllSheets and subscribe to dialogService observables', () => {
+        // check the content of the mocked call
+
         const getAllSheetsSpy = spyOn(component['sheetHttpService'], 'getAllSheets').and.callThrough();
         const cancelSpy = spyOn(component['dialogService'].cancel$, 'subscribe');
         const playerRejectedSpy = spyOn(component['dialogService'].playerRejected$, 'subscribe');
@@ -127,7 +161,6 @@ describe('GameCardGridComponent', () => {
         expect(connectSpy).toHaveBeenCalled();
         expect(sliceSpy).toHaveBeenCalled();
 
-        // Get the subscription object
         const subscription: Observable<Sheet[]> | undefined = getAllSheetsSpy.calls.mostRecent()?.returnValue;
 
         if (subscription) {
@@ -359,5 +392,56 @@ describe('GameCardGridComponent', () => {
 
         expect(component['dialogService'].reset).toHaveBeenCalled();
         expect(component['socketService'].send).toHaveBeenCalledWith('cancelGameCreation', currentSheetId);
+    });
+    describe('handle events', () => {
+        it('should handle joinable event', () => {
+            spyOn(component, 'makeJoinable');
+            socketHelper.peerSideEmit('Joinable', 'sheetId');
+            expect(component.makeJoinable).toHaveBeenCalled();
+        });
+        it('should handle cancel event', () => {
+            spyOn(component, 'cancel');
+            socketHelper.peerSideEmit('Cancelled', 'sheetId');
+            expect(component.cancel).toHaveBeenCalled();
+        });
+        it('should handle userJoined event', () => {
+            spyOn(dialogService, 'emitPlayerNames');
+            socketHelper.peerSideEmit('UserJoined', 'sheetId');
+            expect(dialogService.emitPlayerNames).toHaveBeenCalled();
+        });
+        it('should handle UserCancelled event', () => {
+            spyOn(dialogService, 'emitRejection');
+            socketHelper.peerSideEmit('UserCancelled', { playerName: 'ahmed' });
+            expect(dialogService.emitRejection).toHaveBeenCalled();
+        });
+        it('should handle sheetDeleted event', () => {
+            socketHelper.peerSideEmit('sheetDeleted', '1');
+            expect(component.sheets.length).toBe(1);
+        });
+        it('should handle MultiRoomCreated event', () => {
+            spyOn(socketServiceMock, 'send');
+            socketHelper.peerSideEmit('MultiRoomCreated', { player2: 'ahmed', roomName: 'room' });
+            expect(socketServiceMock.send).toHaveBeenCalled();
+        });
+        it('should handle MultiRoomCreated event if name matches', () => {
+            spyOn(socketServiceMock, 'send');
+            socketHelper.peerSideEmit('MultiRoomCreated', { player2: 'John Doe', roomName: 'room' });
+            expect(socketServiceMock.send).toHaveBeenCalled();
+        });
+        it('should handle Rejection event', () => {
+            spyOn(socketServiceMock, 'send');
+            socketHelper.peerSideEmit('Rejection', { playerName: 'John Doe', sheetId: 'sheetId' });
+            expect(socketServiceMock.send).toHaveBeenCalled();
+        });
+        it('should handle Joined event', () => {
+            spyOn(component, 'navigate');
+            socketHelper.peerSideEmit(ChatEvents.JoinedRoom, room);
+            expect(component.navigate).toHaveBeenCalled();
+        });
+        it('should AlreadyJoined event', () => {
+            spyOn(component['dialog'], 'closeJoinLoadingDialog');
+            socketHelper.peerSideEmit('AlreadyJoined');
+            expect(component['dialog'].closeJoinLoadingDialog).toHaveBeenCalled();
+        });
     });
 });

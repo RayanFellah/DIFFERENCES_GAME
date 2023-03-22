@@ -31,7 +31,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     constructor(
         private readonly sheetHttpService: SheetHttpService,
         private socketService: SocketClientService,
-        private readonly dialog: DialogComponent,
+        private dialog: DialogComponent,
         private dialogService: DialogService,
         private router: Router,
         private gameStateService: GameStateService,
