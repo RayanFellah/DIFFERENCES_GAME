@@ -9,7 +9,6 @@ import { ChatMessage } from '@common/chat-message';
 export class ChatZoneComponent {
     @Input() playerName: string;
     @Input() opponent: string;
-    @Input() opponentName: string;
     @Input() chatMessages: ChatMessage[] = [];
     @Output() messageEvent = new EventEmitter<ChatMessage>();
     messageContent: string = '';

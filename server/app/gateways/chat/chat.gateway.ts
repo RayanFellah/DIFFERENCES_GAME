@@ -60,7 +60,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                     this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
                         player,
-                        diffsLeft: room.differences.length - player.differencesFound,
+                        diffsLeft: room.numberOfDifferences - player.differencesFound,
                     });
                     this.server.to(payload.roomName).emit('foundDiff', player);
                     room.differences = room.differences.filter((it) => JSON.stringify(diff) !== JSON.stringify(it));
@@ -76,24 +76,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         }
         if (
             (player.differencesFound === room.numberOfDifferences && room.gameType === SOLO_MODE) ||
-            (player.differencesFound >= room.numberOfDifferences / 2 && room.gameType === MULTIPLAYER_MODE)
+            (player.differencesFound >= (room.numberOfDifferences + ((room.numberOfDifferences + 1) % 2)) / 2 && room.gameType === MULTIPLAYER_MODE)
         ) {
-            this.server.to(payload.roomName).emit('gameDone', `${payload.playerName} has won!`);
+            this.server.to(payload.roomName).emit('gameDone', `Félicitations ${payload.playerName}! Tu As Gagné.`);
+            room.isGameDone = true;
+            return;
+        }
+        if (player.differencesFound === room.numberOfDifferences / 2 && room.differences.length === 0) {
+            this.server.to(payload.roomName).emit('gameDone', 'Toute les différences sont trouvées, ');
             room.isGameDone = true;
             return;
         }
     }
-    @SubscribeMessage('gameDone')
-    finishGame(socket: Socket, roomName: string) {
-        const room = this.rooms.find((iterRoom) => iterRoom.roomName === roomName);
-        const player = room.player1.socketId === socket.id ? room.player1 : room.player2;
-        const message: ChatMessage = {
-            content: `${player.name} won !`,
-            type: 'game',
-        };
-        this.server.to(room.roomName).emit('gameFinished', message);
-    }
-
     @SubscribeMessage(ChatEvents.RoomMessage)
     roomMessage(socket: Socket, payload) {
         const message: ChatMessage = {
@@ -237,7 +231,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const room = this.rooms.find((iterRoom) => iterRoom.player1?.socketId === socket.id || iterRoom.player2?.socketId === socket.id);
         if (!room) return;
         socket.leave(room.roomName);
-        if (!room.isGameDone) this.server.to(room.roomName).emit('playerLeft', 'opponent has left the game, you won!');
+        if (!room.isGameDone) this.server.to(room.roomName).emit('gameDone', 'Adversaire A Quitté , Tu Gagnes!');
         else this.deleteRoom(room);
     }
     private generateRandomId(length: number): string {

@@ -1,0 +1,13 @@
+<mat-card>
+    <h2 mat-dialog-title>
+        <span class="name">{{ data }}</span>
+    </h2>
+    <div mat-dialog-content>
+        <p>La Partie Est Terminée.</p>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-mini-fab color="primary" matTooltip="Quitter" [routerLink]="['/home']" mat-dialog-close>
+            <mat-icon>exit_to_app</mat-icon>
+        </button>
+    </div>
+</mat-card>

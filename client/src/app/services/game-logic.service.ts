@@ -86,31 +86,14 @@ export class GameLogicService {
 
     handleResponses() {
         this.socketService.on('clickFeedBack', (res: { coords: Vec2[]; player: Player; diffsLeft: number }) => {
-            if (!res.diffsLeft) {
-                this.sendGameDone();
-            }
             this.makeBlink(res.coords);
             this.handleClick(this.currentClick, res.coords, res.player.socketId);
         });
 
-        this.socketService.on('gameDone', (message: string) => {
+        this.socketService.on('gameDone', () => {
             this.clickIgnored = true;
-            setTimeout(() => {
-                alert(message);
-            }, BLINK_DURATION);
             this.isGameDone = true;
         });
-
-        this.socketService.on('playerLeft', (message: string) => {
-            if (!this.isGameDone) {
-                this.sendGameDone();
-                alert(message);
-            }
-        });
-    }
-
-    sendGameDone() {
-        this.socketService.send('gameDone', this.playRoom);
     }
 
     makeBlink(diff: Vec2[]) {

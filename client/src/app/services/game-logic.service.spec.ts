@@ -68,29 +68,6 @@ describe('GameLogicService', () => {
         expect(socketServiceSpy['send']).not.toHaveBeenCalled();
     });
 
-    it('should call sendGameDone when res.diffsLeft is falsy', () => {
-        const res = {
-            coords: [{ posX: 0, posY: 0 }],
-            player: { socketId: '123' },
-            diffsLeft: 0,
-        };
-
-        spyOn(service, 'sendGameDone');
-
-        service.handleResponses();
-        const clickFeedbackCallback = socketServiceSpy.on.calls.mostRecent().args[1];
-        clickFeedbackCallback(res);
-
-        expect(service.sendGameDone).toHaveBeenCalled();
-    });
-    it('should call send method of SocketClientService with gameDone and playRoom as arguments', () => {
-        service.playRoom = 'test';
-        service.sendGameDone();
-
-        // Expect the send method of SocketClientService to have been called with 'gameDone' and the mock play room as arguments
-        expect(socketServiceSpy['send']).toHaveBeenCalledWith('gameDone', service.playRoom);
-    });
-
     // it('should set up the sheet, canvas and get differences', async () => {
     //     const sheetId = '123';
     //     // const roomId = 'abc';

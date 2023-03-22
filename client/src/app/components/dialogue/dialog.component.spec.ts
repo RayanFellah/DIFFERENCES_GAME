@@ -7,6 +7,7 @@ import { JoinLoadingDialogComponent } from '@app/components/join-loading-dialog/
 import { LoadingDialogComponent } from '@app/components/loading-dialog/loading-dialog.component';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { HEIGHT, WIDTH } from 'src/constants';
+import { GameOverDialogComponent } from '../game-over-dialog/game-over-dialog.component';
 import { DialogComponent } from './dialog.component';
 
 describe('DialogComponent', () => {
@@ -63,12 +64,23 @@ describe('DialogComponent', () => {
         });
     });
 
-    describe('openLoadingDialog', () => {
+    describe('openLoidingDialog', () => {
         it('should open loading dialog with initial player names', () => {
             component.playerNames = ['zied', 'skander'];
             component.openLoadingDialog();
             expect(mockMatDialog.open).toHaveBeenCalledWith(LoadingDialogComponent, {
                 data: { playerNames: component.playerNames },
+                panelClass: 'custom-modalbox',
+            });
+        });
+    });
+
+    describe('openGameOverDilog', () => {
+        it('should open game over dialog when game is done', () => {
+            const message = 'game over ! ';
+            component.openGameOverDialog(message);
+            expect(mockMatDialog.open).toHaveBeenCalledWith(GameOverDialogComponent, {
+                data: message,
                 panelClass: 'custom-modalbox',
             });
         });
