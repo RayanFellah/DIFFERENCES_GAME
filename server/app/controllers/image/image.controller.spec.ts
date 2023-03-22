@@ -56,8 +56,6 @@ describe('ImageController', () => {
                 expect(e.message).toBe('Example not found');
             }
         });
-
-        // ... other tests
     });
 
     describe('compareImages', () => {
@@ -101,7 +99,5 @@ describe('ImageController', () => {
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.send).toHaveBeenCalledWith(mockResponse);
         });
-
-        // ... other tests
     });
 });

@@ -10,7 +10,7 @@ import { Sheet } from '@common/sheet';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as fs from 'fs';
-import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
+import { createStubInstance, SinonStubbedInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { ChatGateway } from './chat.gateway';
 import { ChatEvents } from './chat.gateway.events';
@@ -235,7 +235,6 @@ describe('ChatGateway', () => {
                     expect(event).toBe('gameFinished');
                 },
             } as BroadcastOperator<unknown, unknown>);
-            //    gateway.finishGame(socket, room.roomName);
         });
     });
     describe('Room messages', () => {
@@ -246,10 +245,8 @@ describe('ChatGateway', () => {
                     expect(event).toEqual(ChatEvents.RoomMessage);
                 },
             } as BroadcastOperator<unknown, unknown>);
-            // Create a spy for the emit function
             const emitSpy = jest.fn();
 
-            // Set up the mock for socket.broadcast.to using Object.defineProperty
             Object.defineProperty(socket, 'broadcast', {
                 value: {
                     to: jest.fn().mockReturnValue({ emit: emitSpy }),
@@ -268,10 +265,8 @@ describe('ChatGateway', () => {
                     expect(event).toEqual(ChatEvents.RoomMessage);
                 },
             } as BroadcastOperator<unknown, unknown>);
-            // Create a spy for the emit function
             const emitSpy = jest.fn();
 
-            // Set up the mock for socket.broadcast.to using Object.defineProperty
             Object.defineProperty(socket, 'broadcast', {
                 value: {
                     to: jest.fn().mockReturnValue({ emit: emitSpy }),
@@ -300,7 +295,6 @@ describe('ChatGateway', () => {
             } as BroadcastOperator<unknown, unknown>);
             const emitSpy = jest.fn();
 
-            // Set up the mock for socket.broadcast.to using Object.defineProperty
             Object.defineProperty(socket, 'broadcast', {
                 value: {
                     to: jest.fn().mockReturnValue({ emit: emitSpy }),
@@ -421,7 +415,6 @@ describe('ChatGateway', () => {
         expect(logger.log.called).toBeTruthy();
     });
     it('game Done', () => {
-        // Call handleDisconnect
         const mockDelete = jest.fn();
         gateway['deleteSheet'] = mockDelete;
         const roomName = 'roomName123';
@@ -510,8 +503,6 @@ expect.extend({
     },
 });
 
-// Declare that jest contains toBeOneOf
-// If you are not using TypeScript, remove this "declare global" altogether
 declare global {
     // eslint-disable-next-line no-unused-vars
     namespace jest {

@@ -142,8 +142,6 @@ describe('SheetController', () => {
             expect(res.send).toHaveBeenCalledWith('Sheet not found');
         });
     });
-    // Add similar tests for the other methods: id, addSheet, modifySheet, and deleteSheet.
-    // Make sure to test both the success cases and the error cases.
 
     describe('modifySheet', () => {
         it('should modify a sheet', async () => {
