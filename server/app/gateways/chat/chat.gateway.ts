@@ -17,7 +17,6 @@ import { ChatEvents } from './chat.gateway.events';
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() server: Server;
 
-    sentToSockets = new Set<string>();
     rooms: PlayRoom[] = [];
     waitingRooms: WaitingRoom[] = [];
     private readonly room = PRIVATE_ROOM_ID;
@@ -213,6 +212,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 }
                 sheet.modifiedImagePath = null;
                 this.sheetService.deleteSheet(sheetId);
+                this.server.to(`GameRoom${sheetId}`).emit('CurrentGameDeleted', sheetId);
                 this.server.to('GridRoom').emit('sheetDeleted', sheetId);
             } catch (error) {
                 this.logger.error(`Failed to delete sheet with id ${sheetId}: ${error}`);

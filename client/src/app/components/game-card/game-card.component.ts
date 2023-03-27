@@ -27,7 +27,6 @@ export class GameCardComponent implements OnInit {
     constructor(
         private readonly imageHttp: ImageHttpService,
         private sanitizer: DomSanitizer,
-        // eslint-disable-next-line max-len
         private router: Router,
         private socketService: SocketClientService,
         private gameStateService: GameStateService,

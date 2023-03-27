@@ -33,7 +33,7 @@ export class SheetService {
             });
 
             if (res.deletedCount === 0) {
-                return Promise.reject('Could not find sheet');
+                return Promise.reject('Could not find sheet to delete');
             }
         } catch (error) {
             return Promise.reject(`Failed to delete sheet: ${error}`);
@@ -45,7 +45,7 @@ export class SheetService {
         try {
             const res = await this.sheetModel.updateOne(filterQuery, sheet);
             if (res.matchedCount === 0) {
-                return Promise.reject('Could not find sheet');
+                return Promise.reject('Could not find sheet to modify');
             }
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);
