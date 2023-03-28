@@ -5,8 +5,8 @@ import { Sheet } from './sheet';
 export interface PlayRoom {
     roomName: string;
     player1: Player;
-    player2: Player | undefined;
-    sheet: Sheet | undefined;
+    player2: Player;
+    sheet: Sheet;
     differences: DifferenceService[];
     numberOfDifferences: number;
     gameType: string;
