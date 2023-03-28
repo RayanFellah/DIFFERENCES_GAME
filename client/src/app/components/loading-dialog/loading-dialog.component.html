@@ -1,18 +1,18 @@
-<mat-card>
-    <mat-card-title>Salle d'attente</mat-card-title>
-    <mat-card-subtitle>En attente d'un joueur</mat-card-subtitle>
+<mat-card class="card">
+    <mat-progress-bar class="progress" mode="indeterminate"></mat-progress-bar>
+    <mat-card-title class="title">Salle d'attente</mat-card-title>
+    <mat-card-subtitle class="title">En attente d'un joueur</mat-card-subtitle>
     <mat-card-content class="content">
         <div *ngIf="data.playerNames.length > 0">
             <div *ngFor="let name of data.playerNames">
                 <p>Joueur : {{ name }}</p>
-                <button mat-mini-fab color="primary" (click)="confirm(name)"><mat-icon>check</mat-icon></button>
+                <button class="mini-fab" mat-mini-fab color="primary" (click)="confirm(name)"><mat-icon class="mat-icon">check</mat-icon></button>
 
-                <button mat-mini-fab (click)="reject(name)"><mat-icon>close</mat-icon></button>
+                <button class="mini-fab" mat-mini-fab (click)="reject(name)"><mat-icon class="mat-icon">close</mat-icon></button>
             </div>
         </div>
-        <mat-spinner></mat-spinner>
     </mat-card-content>
-    <mat-card-actions>
+    <mat-card-actions class="actions">
         <button mat-stroked-button color="accent" [mat-dialog-close]="true" (click)="cancelCreation()">Annuler</button>
     </mat-card-actions>
 </mat-card>

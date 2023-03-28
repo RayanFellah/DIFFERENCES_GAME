@@ -41,6 +41,7 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
 import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
 import { GameOverDialogComponent } from './components/game-over-dialog/game-over-dialog.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -91,6 +92,7 @@ import { GameOverDialogComponent } from './components/game-over-dialog/game-over
         MatSliderModule,
         MatProgressSpinnerModule,
         IonicStorageModule.forRoot(),
+        MatProgressBarModule,
     ],
     providers: [
         { provide: Storage, useFactory: () => new Storage({}) },
