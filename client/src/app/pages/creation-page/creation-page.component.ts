@@ -40,6 +40,7 @@ export class CreationPageComponent implements OnInit {
         private readonly httpImage: ImageHttpService,
         private router: Router,
         private dialog: DialogComponent,
+        private drawingService: DrawingService,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
@@ -204,6 +205,6 @@ export class CreationPageComponent implements OnInit {
         DrawingService.duplicate(image1.fCanvas.nativeElement, image2.fCanvas.nativeElement);
     }
     switch() {
-        DrawingService.switch(this.rightImageArea.fCanvas.nativeElement, this.leftImageArea.fCanvas.nativeElement);
+        this.drawingService.switch(this.rightImageArea.fCanvas.nativeElement, this.leftImageArea.fCanvas.nativeElement);
     }
 }
