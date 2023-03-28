@@ -2,9 +2,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
@@ -27,6 +30,7 @@ import { DrawingComponent } from './components/drawing/drawing.component';
 import { FileUploadComponent } from './components/file-upload/file-upload.component';
 import { GameCardGridComponent } from './components/game-card-grid/game-card-grid.component';
 import { GameCardComponent } from './components/game-card/game-card.component';
+import { GameOverDialogComponent } from './components/game-over-dialog/game-over-dialog.component';
 import { GameScoreComponent } from './components/game-score/game-score.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ImageAreaComponent } from './components/image-area/image-area.component';
@@ -34,14 +38,13 @@ import { ImageDialogComponent } from './components/image-dialog/image-dialog.com
 import { JoinLoadingDialogComponent } from './components/join-loading-dialog/join-loading-dialog.component';
 import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
 import { RadiusSizerComponent } from './components/radius-sizer/radius-sizer.component';
+import { SideNavComponent } from './components/side-nav/side-nav.component';
 import { FileValueAccessorDirective } from './directives/file-value-accessor.directive';
 import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
 import { CreationPageComponent } from './pages/creation-page/creation-page.component';
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
-import { GameOverDialogComponent } from './components/game-over-dialog/game-over-dialog.component';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -76,6 +79,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
         GameScoreComponent,
         JoinLoadingDialogComponent,
         GameOverDialogComponent,
+        SideNavComponent,
     ],
     imports: [
         AppMaterialModule,
@@ -93,6 +97,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
         MatProgressSpinnerModule,
         IonicStorageModule.forRoot(),
         MatProgressBarModule,
+        MatSidenavModule,
+        MatDividerModule,
     ],
     providers: [
         { provide: Storage, useFactory: () => new Storage({}) },

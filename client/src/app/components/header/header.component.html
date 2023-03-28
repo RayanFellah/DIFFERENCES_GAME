@@ -1,3 +1,10 @@
-<mat-toolbar color="primary">
-    <span> {{ pageTitle }}</span>
-</mat-toolbar>
+<button mat-icon-button>
+    <mat-icon>menu</mat-icon>
+</button>
+<h1>{{ this.pageTitle }}</h1>
+<div>
+    <a mat-button [routerLink]="'/home'"> Accueil </a>
+    <a mat-button [routerLink]="'/selection'"> Mode Classique </a>
+    <a mat-button [routerLink]="'/config'"> Configuration </a>
+    <a mat-button [routerLink]="'/creation'"> Creation </a>
+</div>
