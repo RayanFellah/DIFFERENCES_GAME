@@ -8,6 +8,7 @@ import { JoinGame } from '@app/interfaces/join-game';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { GameStateService } from '@app/services/game-state/game-state.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
+import { SnackBarService } from '@app/services/snack-bar.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { PlayRoom } from '@common/play-room';
 import { Sheet } from '@common/sheet';
@@ -28,6 +29,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     currentSheetId: string;
     playRoom: PlayRoom;
     shouldNavigate$ = new BehaviorSubject(false);
+    isCreator: boolean = false;
     constructor(
         private readonly sheetHttpService: SheetHttpService,
         private socketService: SocketClientService,
@@ -35,6 +37,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         private dialogService: DialogService,
         private router: Router,
         private gameStateService: GameStateService,
+        private snackBar: SnackBarService,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) this.router.navigate(['/game', this.playRoom.sheet._id, this.name, this.playRoom.roomName]);
@@ -60,6 +63,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         });
         this.dialogService.cancel$.subscribe((isCancelled: boolean) => {
             if (isCancelled && this.currentSheetId) {
+                this.currentSheetId = '';
                 this.socketService.send('cancelGameCreation', this.currentSheetId);
             }
         });
@@ -71,6 +75,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         });
         this.dialogService.cancelJoin$.subscribe((isCancelled: boolean) => {
             if (isCancelled && this.currentSheetId) {
+                this.currentSheetId = '';
                 this.socketService.send('cancelJoinGame', { playerName: this.name, sheetId: this.currentSheetId });
             }
         });
@@ -102,6 +107,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         });
         this.socketService.on('sheetDeleted', (sheetId: string) => {
             const foundSheet = this.sheets.find((sheet) => sheet._id === sheetId);
+            this.currentSheetId = '';
             if (foundSheet) {
                 this.sheets.splice(this.sheets.indexOf(foundSheet), 1);
             }
@@ -132,6 +138,11 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             this.dialog.closeJoinLoadingDialog();
             window.alert('Ce nom est déjà utilisé pour cette partie');
         });
+        this.socketService.on('CurrentGameDeleted', () => {
+            if (!this.isCreator) this.dialog.closeJoinLoadingDialog();
+            else this.dialog.closeLoadingDialog();
+            this.snackBar.openSnackBar('La partie a été supprimée', 'OK');
+        });
     }
 
     cancel(sheetId: string) {
@@ -143,6 +154,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     }
 
     onChildEvent(joinGame: JoinGame): void {
+        this.isCreator = true;
         this.currentSheetId = joinGame.sheetId;
         this.name = joinGame.playerName;
         this.socketService.send('gameJoinable', joinGame);
@@ -150,6 +162,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     }
 
     onJoinEvent(joinGame: JoinGame): void {
+        this.isCreator = false;
         this.gameStateService.isGameInitialized = true;
         this.currentSheetId = joinGame.sheetId;
         this.name = joinGame.playerName;

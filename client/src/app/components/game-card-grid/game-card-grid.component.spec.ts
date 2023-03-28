@@ -6,6 +6,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
@@ -13,6 +14,7 @@ import { ChatEvents } from '@app/interfaces/chat-events';
 import { JoinGame } from '@app/interfaces/join-game';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
+import { SnackBarService } from '@app/services/snack-bar.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { PlayRoom } from '@common/play-room';
 import { Player } from '@common/player';
@@ -47,6 +49,7 @@ describe('GameCardGridComponent', () => {
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
     let dialogService: DialogService;
+    let snackBar: SnackBarService;
     beforeEach(async () => {
         socketHelper = new SocketTestHelper();
         socketServiceMock = new SocketClientServiceMock();
@@ -55,9 +58,17 @@ describe('GameCardGridComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [GameCardGridComponent],
             imports: [HttpClientTestingModule, MatDialogModule, RouterTestingModule, MatCardModule],
-            providers: [DialogService, SheetHttpService, { provide: SocketClientService, useValue: socketServiceMock }, DialogComponent],
+            providers: [
+                DialogService,
+                SheetHttpService,
+                { provide: SocketClientService, useValue: socketServiceMock },
+                DialogComponent,
+                SnackBarService,
+                MatSnackBar,
+            ],
         }).compileComponents();
         dialogService = TestBed.inject(DialogService);
+        snackBar = TestBed.inject(SnackBarService);
     });
 
     beforeEach(() => {
@@ -442,6 +453,11 @@ describe('GameCardGridComponent', () => {
             spyOn(component['dialog'], 'closeJoinLoadingDialog');
             socketHelper.peerSideEmit('AlreadyJoined');
             expect(component['dialog'].closeJoinLoadingDialog).toHaveBeenCalled();
+        });
+        it('should handle CurrentGameDeleted event', () => {
+            spyOn(snackBar, 'openSnackBar');
+            socketHelper.peerSideEmit('CurrentGameDeleted');
+            expect(snackBar.openSnackBar).toHaveBeenCalled();
         });
     });
 });
