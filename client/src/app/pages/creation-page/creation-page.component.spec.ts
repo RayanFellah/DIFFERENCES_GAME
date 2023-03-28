@@ -1,10 +1,8 @@
-it('should create', () => {
-    expect(true).toBeTruthy();
-});
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DrawingService } from '@app/services/draw.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SnackBarService } from '@app/services/snack-bar.service';
@@ -26,6 +24,7 @@ describe('CreationPageComponent', () => {
                 { provide: ImageHttpService, useValue: {} },
                 { provide: Router, useValue: {} },
                 { provide: MatDialog, useValue: {} },
+                { provide: DrawingService, useValue: {} },
             ],
         }).compileComponents();
 
