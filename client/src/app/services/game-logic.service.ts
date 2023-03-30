@@ -13,7 +13,7 @@ import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
 import { ImageHttpService } from './image-http.service';
 import { SheetHttpService } from './sheet-http.service';
-
+import { GameReplayService } from './game-replay/game-replay.service';
 @Injectable({
     providedIn: 'root',
 })
@@ -32,6 +32,7 @@ export class GameLogicService {
     differencesFound: number;
     clickIgnored: boolean;
     isGameDone = false;
+    isReplay = false;
 
     constructor(
         private leftCanvas: CanvasHelperService,
@@ -41,6 +42,7 @@ export class GameLogicService {
         private sheetHttp: SheetHttpService,
         private socketService: SocketClientService,
         private cheatMode: CheatModeService,
+        private gameReplayService: GameReplayService,
     ) {
         this.audio = new AudioService();
     }
@@ -81,6 +83,7 @@ export class GameLogicService {
             roomName: this.playRoom,
             playerName: name,
         };
+
         this.socketService.send('click', data);
     }
 
@@ -137,13 +140,26 @@ export class GameLogicService {
         const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
         if (diff) {
             if (player === this.socketService.socket.id) {
-                this.makeBlink(this.diff);
+                this.makeBlink(diff);
                 this.audio.playSuccessSound();
+                if (!this.isReplay) {
+                    this.gameReplayService.events.push({
+                        type: 'found',
+                        timestamp: Date.now(),
+                        data: { event, diff, player },
+                    });
+                }
             }
+
             this.differencesFound++;
             this.cheatMode.removeDifference(diff);
             return diff;
         } else if (player === this.socketService.socket.id) {
+            this.gameReplayService.events.push({
+                type: 'error',
+                timestamp: Date.now(),
+                data: { event, diff, player },
+            });
             this.ignoreClicks();
             canvas.displayErrorMessage(event);
             this.audio.playFailSound();
@@ -151,8 +167,16 @@ export class GameLogicService {
         return undefined;
     }
     cheat() {
+        this.gameReplayService.events.push({
+            type: 'cheat',
+            timestamp: Date.now(),
+            data: {},
+        });
         this.cheatMode.getDifferences(this.sheet);
         this.cheatMode.cheatBlink(this.leftCanvas, this.rightCanvas, this.originalImageData, this.modifiedImageData);
+    }
+    async restart() {
+        await this.start();
     }
 
     private ignoreClicks() {

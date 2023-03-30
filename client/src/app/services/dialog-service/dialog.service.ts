@@ -20,6 +20,9 @@ export class DialogService {
     playerName = new BehaviorSubject<string[]>([]);
     playerNames$ = this.playerName.asObservable();
 
+    shouldReplay = new BehaviorSubject<boolean>(false);
+    shouldReplay$ = this.shouldReplay.asObservable();
+
     emitCancellation() {
         this.playerName.next([]);
         this.cancel.next(true);
@@ -41,6 +44,9 @@ export class DialogService {
     emitConfirmation(playerName: string) {
         this.playerName.next([]);
         this.playerConfirmed.next(playerName);
+    }
+    emitReplay(shouldReplay: boolean) {
+        this.shouldReplay.next(shouldReplay);
     }
 
     reset() {

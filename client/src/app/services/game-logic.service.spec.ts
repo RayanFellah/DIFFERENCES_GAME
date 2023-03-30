@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
 import { GameLogicService } from './game-logic.service';
+import { GameReplayService } from './game-replay/game-replay.service';
 import { ImageHttpService } from './image-http.service';
 import { SheetHttpService } from './sheet-http.service';
 
@@ -60,6 +61,7 @@ describe('GameLogicService', () => {
                     provide: ActivatedRoute,
                     useValue: activatedRouteStub,
                 },
+                GameReplayService,
             ],
         });
         service = TestBed.inject(GameLogicService);

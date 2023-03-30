@@ -25,6 +25,19 @@
         <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area"></app-play-area>
     </div>
 </div>
+<button *ngIf="isReplayPlaying && !isReplayPaused" (click)="pauseReplay()">Pause Replay</button>
+<button *ngIf="isReplayPaused" (click)="resumeReplay()">Resume Replay</button>
+<button *ngIf="isReplayPlaying" (click)="restartReplay()">Restart Replay</button>
+<button *ngIf="isReplayPlaying" (click)="setReplaySpeed(1)">1X</button>
+<button *ngIf="isReplayPlaying" (click)="setReplaySpeed(2)">2X</button>
+<button *ngIf="isReplayPlaying" (click)="setReplaySpeed(3)">3X</button>
+
+<!-- Rest of your template -->
+
+<!-- Rest of your template -->
+
+
+
 <div class="chat-zone-container">
     <app-chat-zone
         [playerName]="playerName"
