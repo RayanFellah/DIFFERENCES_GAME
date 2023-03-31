@@ -24,20 +24,24 @@ export class DialogService {
         this.playerName.next([]);
         this.cancel.next(true);
     }
+
     emitJoinCancellation() {
         this.cancelJoin.next(true);
     }
+
     emitRejection(playerName: string) {
         const currentNames = this.playerName.getValue();
         const updateNames = currentNames.filter((name: string) => name !== playerName);
         this.playerName.next(updateNames);
         this.playerRejected.next(playerName);
     }
+
     emitPlayerNames(playerName: string) {
         const currentNames = this.playerName.getValue();
         currentNames.push(playerName);
         this.playerName.next(currentNames);
     }
+
     emitConfirmation(playerName: string) {
         this.playerName.next([]);
         this.playerConfirmed.next(playerName);

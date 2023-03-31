@@ -1,0 +1,16 @@
+.box {
+    text-align: center;
+}
+
+.content {
+    display: flex;
+    justify-content: space-around;
+}
+.content button {
+    width: 20%;
+    margin-top: 3%;
+}
+
+.cancel {
+    text-align: end;
+}

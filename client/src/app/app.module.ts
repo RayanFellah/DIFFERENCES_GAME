@@ -45,6 +45,8 @@ import { CreationPageComponent } from './pages/creation-page/creation-page.compo
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
+import { LimitedTimePageComponent } from './pages/limited-time-page/limited-time-page.component';
+import { JoinLimitedTimeComponent } from './components/join-limited-time/join-limited-time.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -80,6 +82,8 @@ import { EventService } from './services/event-service.service';
         JoinLoadingDialogComponent,
         GameOverDialogComponent,
         SideNavComponent,
+        LimitedTimePageComponent,
+        JoinLimitedTimeComponent,
     ],
     imports: [
         AppMaterialModule,

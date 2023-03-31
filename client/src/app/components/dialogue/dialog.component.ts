@@ -8,6 +8,7 @@ import { JoinLoadingDialogComponent } from '@app/components/join-loading-dialog/
 import { LoadingDialogComponent } from '@app/components/loading-dialog/loading-dialog.component';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { HEIGHT, WIDTH } from 'src/constants';
+import { JoinLimitedTimeComponent } from '../join-limited-time/join-limited-time.component';
 
 @Component({
     selector: 'app-dialog',
@@ -54,5 +55,13 @@ export class DialogComponent {
 
     openGameOverDialog(message: string): void {
         this.dialog.open(GameOverDialogComponent, { data: message, panelClass: 'custom-modalbox' });
+    }
+
+    openJoinLimitedTimeDialog(): void {
+        this.dialog.open(JoinLimitedTimeComponent, {
+            width: '90%',
+            data: 'Le temps de réponse est écoulé',
+            panelClass: 'custom-modalbox',
+        });
     }
 }
