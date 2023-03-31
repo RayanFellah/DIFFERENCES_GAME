@@ -4,7 +4,10 @@
             <canvas #canvas1 id="canvas" (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
         </article>
         <article class="modified">
-            <canvas #canvas2 id="canvas" (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
+            <div #playAreaContainer>
+                <canvas #canvas2 id="canvas" (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
+            </div>
         </article>
     </section>
 </div>
+<button (click)="hint()">Hint</button>

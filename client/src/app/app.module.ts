@@ -35,6 +35,7 @@ import { GameScoreComponent } from './components/game-score/game-score.component
 import { HeaderComponent } from './components/header/header.component';
 import { ImageAreaComponent } from './components/image-area/image-area.component';
 import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
+import { JoinLimitedTimeComponent } from './components/join-limited-time/join-limited-time.component';
 import { JoinLoadingDialogComponent } from './components/join-loading-dialog/join-loading-dialog.component';
 import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
 import { RadiusSizerComponent } from './components/radius-sizer/radius-sizer.component';
@@ -45,8 +46,6 @@ import { CreationPageComponent } from './pages/creation-page/creation-page.compo
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
-import { LimitedTimePageComponent } from './pages/limited-time-page/limited-time-page.component';
-import { JoinLimitedTimeComponent } from './components/join-limited-time/join-limited-time.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -82,7 +81,6 @@ import { JoinLimitedTimeComponent } from './components/join-limited-time/join-li
         JoinLoadingDialogComponent,
         GameOverDialogComponent,
         SideNavComponent,
-        LimitedTimePageComponent,
         JoinLimitedTimeComponent,
     ],
     imports: [

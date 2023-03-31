@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
 import { GameLogicService } from '@app/services/game-logic.service';
+import { HintsService } from '@app/services/hints.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
@@ -20,7 +21,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
     @Input() playerName: string;
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
-
+    @ViewChild('playAreaContainer', { static: false }) private playAreaContainer!: ElementRef<HTMLDivElement>;
     logic: GameLogicService;
     clickEnabled = true;
     room: PlayRoom;
@@ -33,6 +34,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
         private sheetService: SheetHttpService,
         private activatedRoute: ActivatedRoute,
         private cheatMode: CheatModeService,
+        private hintService: HintsService,
     ) {}
 
     get width(): number {
@@ -51,6 +53,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
             this.sheetService,
             this.socketService,
             this.cheatMode,
+            this.hintService,
         );
         await this.logic.start().then((difficulty: string) => {
             this.difficulty.emit(difficulty);
@@ -68,5 +71,8 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
 
     blink() {
         this.logic.cheat();
+    }
+    hint() {
+        this.hintService.executeHint(this.playAreaContainer.nativeElement);
     }
 }
