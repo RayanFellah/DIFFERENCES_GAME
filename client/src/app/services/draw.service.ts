@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
+import { HEIGHT, WIDTH } from 'src/constants';
 import { CanvasHelperService } from './canvas-helper.service';
 
 const INITIAL_INDEX = -1;
@@ -36,11 +37,18 @@ export class DrawingService {
             canvas2.getContext('2d')?.putImageData(image, 0, 0);
         }
     }
-    static switch(canvas1: HTMLCanvasElement, canvas2: HTMLCanvasElement) {
+
+    switch(canvas1: HTMLCanvasElement, canvas2: HTMLCanvasElement) {
         const image2 = canvas2.getContext('2d')?.getImageData(0, 0, canvas2.width, canvas2.height) as ImageData;
         const image1 = canvas1.getContext('2d')?.getImageData(0, 0, canvas1.width, canvas1.height) as ImageData;
         canvas1.getContext('2d')?.putImageData(image2, 0, 0);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.restoreArray.push(canvas1.getContext('2d')!.getImageData(0, 0, WIDTH, HEIGHT));
+        this.restoreIndex += 1;
         canvas2.getContext('2d')?.putImageData(image1, 0, 0);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.restoreArray.push(canvas2.getContext('2d')!.getImageData(0, 0, WIDTH, HEIGHT));
+        this.restoreIndex += 1;
     }
     drawPencil(event: MouseEvent) {
         if (event.type === 'mousedown') {
@@ -113,7 +121,14 @@ export class DrawingService {
         }
         if (this.isDrawingRect) {
             this.isDrawingRect = false;
-            this.context.fillRect(this.startPos.posX, this.startPos.posY, event.offsetX - this.startPos.posX, event.offsetY - this.startPos.posY);
+            const width = event.offsetX - this.startPos.posX;
+            const height = event.offsetY - this.startPos.posY;
+            if (this.shiftKeyPressed) {
+                this.context.fillRect(this.startPos.posX, this.startPos.posY, Math.min(width, height), Math.min(width, height));
+            } else {
+                this.context.fillRect(this.startPos.posX, this.startPos.posY, width, height);
+            }
+            this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
             this.tempCanvas.remove();
         }
         if (this.isErasing) {
@@ -125,12 +140,13 @@ export class DrawingService {
         if (event.type !== 'mouseout') {
             this.restoreArray.push(this.context.getImageData(0, 0, this.canvas.width, this.canvas.height));
             this.restoreIndex += 1;
+            this.resetValues(true);
         }
     }
     reset() {
         this.context?.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.restoreArray = [];
-        this.restoreIndex = -1;
+        this.resetValues(false);
+        this.resetValues(true);
     }
 
     undo() {
@@ -138,7 +154,8 @@ export class DrawingService {
         if (this.restoreIndex === 0) {
             this.redoIndex += 1;
             this.redoArray.push(this.restoreArray.pop() as ImageData);
-            this.reset();
+            this.context?.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.resetValues(false);
         } else {
             this.restoreIndex -= 1;
             this.redoIndex += 1;
@@ -152,6 +169,25 @@ export class DrawingService {
             this.redoIndex -= 1;
             this.restoreIndex += 1;
             this.restoreArray.push(this.redoArray.pop() as ImageData);
+        }
+    }
+
+    redoBothCanvas(canvas1: HTMLCanvasElement, canvas2: HTMLCanvasElement) {
+        if (this.redoIndex >= 0) {
+            canvas1.getContext('2d')?.putImageData(this.redoArray[this.redoIndex], 0, 0);
+            canvas2.getContext('2d')?.putImageData(this.redoArray[this.redoIndex], 0, 0);
+            // this.redoIndex -= 1;
+            this.restoreIndex += 1;
+            this.restoreArray.push(this.redoArray.pop() as ImageData);
+        }
+    }
+    private resetValues(isRedo: boolean) {
+        if (isRedo) {
+            this.redoIndex = INITIAL_INDEX;
+            this.redoArray = [];
+        } else {
+            this.restoreIndex = INITIAL_INDEX;
+            this.restoreArray = [];
         }
     }
 }
