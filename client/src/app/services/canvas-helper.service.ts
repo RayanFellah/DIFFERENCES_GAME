@@ -82,6 +82,7 @@ export class CanvasHelperService implements OnDestroy {
             this.disable = false;
         }, ONE_SECOND);
     }
+
     // drawingOnImage() {
     //     const mouseDownStream = fromEvent(this.canvasRef, 'mousedown');
     //     const mouseMoveStream = fromEvent(this.canvasRef, 'mousemove');

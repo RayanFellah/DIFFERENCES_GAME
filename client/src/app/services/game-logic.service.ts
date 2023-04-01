@@ -33,7 +33,7 @@ export class GameLogicService {
     differencesFound: number;
     clickIgnored: boolean;
     isGameDone = false;
-
+    differences: Vec2[][];
     constructor(
         private leftCanvas: CanvasHelperService,
         private rightCanvas: CanvasHelperService,
@@ -66,7 +66,7 @@ export class GameLogicService {
                     if (this.socketService.isSocketAlive()) this.handleResponses();
                     this.playRoom = this.activatedRoute.snapshot.paramMap.get('roomId') as string;
                     this.cheatMode.getDifferences(this.sheet);
-                    this.hintService.getDifferences(this.sheet);
+                    this.hintService.getDifferences(this.sheet._id);
 
                     resolve(this.sheet.difficulty);
                 });

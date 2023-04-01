@@ -46,6 +46,7 @@ import { CreationPageComponent } from './pages/creation-page/creation-page.compo
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
+import { HintDialogueComponent } from './components/hint-dialogue/hint-dialogue.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -82,6 +83,7 @@ import { EventService } from './services/event-service.service';
         GameOverDialogComponent,
         SideNavComponent,
         JoinLimitedTimeComponent,
+        HintDialogueComponent,
     ],
     imports: [
         AppMaterialModule,

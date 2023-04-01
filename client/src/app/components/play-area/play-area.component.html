@@ -9,5 +9,5 @@
             </div>
         </article>
     </section>
+    <button (click)="hint()" mat-stroked-button [disabled]="this.hintService.blockClick" color="primary"><mat-icon>search</mat-icon> Indice</button>
 </div>
-<button (click)="hint()">Hint</button>

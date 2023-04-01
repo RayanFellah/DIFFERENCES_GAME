@@ -1,5 +1,5 @@
 /* eslint-disable max-params */
-import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
@@ -10,13 +10,15 @@ import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { PlayRoom } from '@common/play-room';
 import { HEIGHT, WIDTH } from 'src/constants';
+// eslint-disable-next-line no-restricted-imports
+import { DialogComponent } from '../dialogue/dialog.component';
 // import { EventEmitter } from 'events';
 @Component({
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
 })
-export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
+export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDestroy {
     @Output() difficulty = new EventEmitter();
     @Input() playerName: string;
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
@@ -34,7 +36,8 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
         private sheetService: SheetHttpService,
         private activatedRoute: ActivatedRoute,
         private cheatMode: CheatModeService,
-        private hintService: HintsService,
+        private dialog: DialogComponent,
+        public hintService: HintsService,
     ) {}
 
     get width(): number {
@@ -64,6 +67,9 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
             this.logic.updateImagesInformation();
         }
     }
+    ngOnDestroy(): void {
+        this.hintService.reset();
+    }
 
     handleClick(event: MouseEvent) {
         this.logic.setClick(event, this.playerName);
@@ -73,6 +79,12 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
         this.logic.cheat();
     }
     hint() {
+        if (this.hintService.blockClick || this.hintService.differences.toString() === [].toString()) return;
+        this.dialog.openHintDialog(this.hintService.hintsLeft);
+        this.socketService.send('hint', this.playerName);
         this.hintService.executeHint(this.playAreaContainer.nativeElement);
+        setTimeout(() => {
+            this.dialog.closeHintDialog();
+        }, 2500);
     }
 }

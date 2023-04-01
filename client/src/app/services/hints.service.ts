@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
-import { Sheet } from '@common/sheet';
 import { HEIGHT, WIDTH } from 'src/constants';
+import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { GameHttpService } from './game-http.service';
 
@@ -14,49 +14,56 @@ export class HintsService {
     tempCanvas: HTMLCanvasElement;
     tempContext: CanvasRenderingContext2D;
     blockClick: boolean = false;
-    constructor(private readonly gameHttp: GameHttpService) {}
 
-    getDifferences(sheet: Sheet) {
-        this.gameHttp.getAllDifferences(sheet._id).subscribe((res) => {
+    constructor(private readonly gameHttp: GameHttpService, private readonly audio: AudioService) {}
+
+    getDifferences(id: string) {
+        this.gameHttp.getAllDifferences(id).subscribe((res) => {
             this.differences = res;
         });
     }
 
+    reset() {
+        this.hintsLeft = 3;
+        this.differences = [];
+        this.blockClick = false;
+    }
+
     executeHint(container: HTMLElement): void {
-        if (this.hintsLeft === 0) return;
-        if (this.blockClick) return;
+        if (this.hintsLeft === 0 || this.blockClick) return;
         this.blockClick = true;
+        this.audio.playHintSound();
+        console.log(this.differences);
         switch (this.hintsLeft) {
             case 3: {
-                this.hintsLeft--;
                 this.executeFirstHint(container);
-
                 break;
             }
             case 2: {
-                this.hintsLeft--;
                 this.executeSecondHint(container);
-
                 break;
             }
             case 1: {
-                this.hintsLeft--;
                 this.executeThirdHint();
-
                 break;
             }
         }
+        this.hintsLeft--;
     }
+
     executeThirdHint() {
         console.log('last hint');
         // implement method
     }
+
     executeSecondHint(container?: HTMLElement) {
         this.showDial(4, 4, container);
     }
+
     executeFirstHint(container?: HTMLElement) {
         this.showDial(2, 2, container);
     }
+
     selectDial(randomPoint: Vec2, noColumns: number, noRows: number) {
         const columnWidth = WIDTH / noColumns;
         const rowHeight = HEIGHT / noRows;
@@ -79,7 +86,7 @@ export class HintsService {
             this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
             this.tempCanvas.remove();
             this.blockClick = false;
-        }, 100000);
+        }, 6000);
     }
 
     removeDifference(diff: Vec2[]) {
@@ -95,14 +102,12 @@ export class HintsService {
 
     private createTempCanvas(container?: HTMLElement) {
         this.tempCanvas = CanvasHelperService.createCanvas(WIDTH, HEIGHT);
-        this.tempCanvas.style.border = '1px solid black';
+        this.tempCanvas.style.border = '4px solid black';
         this.tempContext = this.tempCanvas.getContext('2d') as CanvasRenderingContext2D;
-        this.tempContext.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        this.tempContext.fillStyle = 'rgba(0,0,0,0.3)';
         this.tempCanvas.style.pointerEvents = 'none';
         container?.insertAdjacentElement('afterbegin', this.tempCanvas);
         this.tempCanvas.style.position = 'absolute';
-        // this.tempCanvas.style.top = '20px';
-        // this.tempCanvas.style.right = '1px';
         this.tempCanvas.style.zIndex = '1';
     }
 }
