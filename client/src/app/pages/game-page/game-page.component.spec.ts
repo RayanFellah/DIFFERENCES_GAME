@@ -6,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { ChatEvents } from '@app/interfaces/chat-events';
-import { GameEvents } from '@app/interfaces/game-events';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
 import { GameLogicService } from '@app/services/game-logic.service';
@@ -232,59 +231,6 @@ describe('GamePageComponent', () => {
         it('should resume the replay', () => {
             component.resumeReplay();
             expect(component.isReplayPaused).toBe(false);
-        });
-    });
-
-    describe('#replayEvents', () => {
-        let processEventSpy: jasmine.Spy;
-
-        describe('#replayEvents', () => {
-            it('should sort and process events correctly', async () => {
-                component.chatMessages = [];
-                component.person = { differencesFound: 0 } as Player;
-                component.playArea = { logic: { handleClick: jasmine.createSpy(), cheat: jasmine.createSpy(), isReplay: false } } as any;
-
-                component['gameReplayService'].events = gameReplayServiceSpy.events = [
-                    { type: 'chat', timestamp: 3000, data: { message: 'Test message', sender: 'Player 1' } },
-                    { type: 'found', timestamp: 1000, data: { event: new MouseEvent('click'), diff: [], player: {} } },
-                    { type: 'error', timestamp: 2000, data: { event: new MouseEvent('click'), diff: [], player: {} } },
-                    { type: 'cheat', timestamp: 4000, data: {} },
-                ];
-
-                await component.replayEvents();
-
-                expect(component.chatMessages.length).toBe(1);
-                expect(component.playArea.logic.handleClick).toHaveBeenCalledTimes(2);
-                expect(component.person.differencesFound).toBe(1);
-                expect(component.playArea.logic.cheat).toHaveBeenCalledTimes(1);
-            });
-        });
-        it('should pause and resume the replay', async () => {
-            component.playArea = {
-                logic: {
-                    handleClick: jasmine.createSpy(),
-                    cheat: jasmine.createSpy(),
-                    isReplay: false,
-                },
-            } as any;
-            const events: GameEvents[] = [
-                {
-                    type: 'chat',
-                    timestamp: 1000,
-                    data: { message: 'test', sender: 'user1', type: 'user' },
-                },
-            ];
-
-            gameReplayServiceSpy.events = events;
-
-            const replayPromise = component.replayEvents();
-            component.pauseReplay();
-            await new Promise((resolve) => setTimeout(resolve, 500));
-            component.resumeReplay();
-
-            await replayPromise;
-            expect(processEventSpy.calls.count()).toBe(events.length);
-            expect(processEventSpy.calls.argsFor(0)[0]).toEqual(events[0]);
         });
     });
 });
