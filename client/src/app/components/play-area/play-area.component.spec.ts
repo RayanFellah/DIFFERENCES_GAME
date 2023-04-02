@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
 import { GameLogicService } from '@app/services/game-logic.service';
+import { GameReplayService } from '@app/services/game-replay/game-replay.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
@@ -67,6 +68,7 @@ describe('PlayAreaComponent', () => {
                     provide: ActivatedRoute,
                     useValue: activatedRouteStub,
                 },
+                GameReplayService,
             ],
         }).compileComponents();
 

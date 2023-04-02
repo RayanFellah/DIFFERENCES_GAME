@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
 import { GameLogicService } from '@app/services/game-logic.service';
+import { GameReplayService } from '@app/services/game-replay/game-replay.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
@@ -24,6 +25,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
     logic: GameLogicService;
     clickEnabled = true;
     room: PlayRoom;
+    initialHtml: string;
 
     private canvasSize = { x: WIDTH, y: HEIGHT };
 
@@ -33,6 +35,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
         private sheetService: SheetHttpService,
         private activatedRoute: ActivatedRoute,
         private cheatMode: CheatModeService,
+        private gameReplayService: GameReplayService,
     ) {}
 
     get width(): number {
@@ -51,6 +54,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
             this.sheetService,
             this.socketService,
             this.cheatMode,
+            this.gameReplayService,
         );
         await this.logic.start().then((difficulty: string) => {
             this.difficulty.emit(difficulty);
@@ -66,6 +70,9 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked {
         this.logic.setClick(event, this.playerName);
     }
 
+    async reset() {
+        await this.logic.start();
+    }
     blink() {
         this.logic.cheat();
     }
