@@ -83,8 +83,9 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
         this.dialog.openHintDialog(this.hintService.hintsLeft);
         this.socketService.send('hint', this.playerName);
         this.hintService.executeHint(this.playAreaContainer.nativeElement);
+        const time = 2500;
         setTimeout(() => {
             this.dialog.closeHintDialog();
-        }, 2500);
+        }, time);
     }
 }

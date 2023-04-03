@@ -1,6 +1,6 @@
-import { DifferenceService } from '@app/services/difference/difference.service';
 import { Player } from '@common/player';
 import { Sheet } from '@common/sheet';
+import { DifferenceService } from '../server/app/services/difference/difference.service';
 
 export interface LimitedTimeRoom {
     roomName: string;

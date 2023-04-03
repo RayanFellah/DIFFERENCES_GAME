@@ -47,6 +47,7 @@ import { SelectionPageComponent } from './pages/selection-page/selection-page.co
 import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
 import { HintDialogueComponent } from './components/hint-dialogue/hint-dialogue.component';
+import { LimitedTimeGamePageComponent } from './pages/limited-time-game-page/limited-time-game-page.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -84,6 +85,7 @@ import { HintDialogueComponent } from './components/hint-dialogue/hint-dialogue.
         SideNavComponent,
         JoinLimitedTimeComponent,
         HintDialogueComponent,
+        LimitedTimeGamePageComponent,
     ],
     imports: [
         AppMaterialModule,

@@ -8,6 +8,15 @@ export class DialogService {
     cancel = new BehaviorSubject<boolean>(false);
     cancel$ = this.cancel.asObservable();
 
+    selectSoloLimitedTime = new BehaviorSubject<boolean>(false);
+    selectSoloLimitedTime$ = this.selectSoloLimitedTime.asObservable();
+
+    selectCoopLimitedTime = new BehaviorSubject<boolean>(false);
+    selectCoopLimitedTime$ = this.selectCoopLimitedTime.asObservable();
+
+    lunchCoopGame = new BehaviorSubject<boolean>(false);
+    lunchCoopGame$ = this.lunchCoopGame.asObservable();
+
     cancelJoin = new BehaviorSubject<boolean>(false);
     cancelJoin$ = this.cancelJoin.asObservable();
 
@@ -28,6 +37,9 @@ export class DialogService {
     emitJoinCancellation() {
         this.cancelJoin.next(true);
     }
+    emitCoopLunch() {
+        this.lunchCoopGame.next(true);
+    }
 
     emitRejection(playerName: string) {
         const currentNames = this.playerName.getValue();
@@ -47,8 +59,18 @@ export class DialogService {
         this.playerConfirmed.next(playerName);
     }
 
+    selectSoloLimitedTimeMode() {
+        this.selectSoloLimitedTime.next(true);
+    }
+
+    selectCoopLimitedTimeMode() {
+        this.selectCoopLimitedTime.next(true);
+    }
+
     reset() {
         this.cancel.next(false);
+        this.selectSoloLimitedTime.next(false);
+        this.selectCoopLimitedTime.next(false);
         this.playerConfirmed.next(null);
         this.playerRejected.next(null);
         this.playerName.next([]);

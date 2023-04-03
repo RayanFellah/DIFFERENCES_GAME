@@ -1,51 +1,56 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { Vec2 } from '@app/interfaces/vec2';
 import { GameEvents } from '@common/game-events';
-import { PlayRoom } from '@common/play-room';
+import { LimitedTimeRoom } from '@common/limited-time-room';
 import { Player } from '@common/player';
 import { BLINK_DURATION, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
+import { DialogService } from './dialog-service/dialog.service';
 import { SocketClientService } from './socket-client/socket-client.service';
 
+const TIME = 60;
+const BONUS = 7;
 @Injectable({
     providedIn: 'root',
 })
 export class TimeLimitModeService {
     sheet: string;
     player: Player;
-    playRoom: PlayRoom;
-    timeLimit: number;
-    timeBonus: number;
+    playRoom: LimitedTimeRoom;
+    timeLimit: number = TIME;
+    timeBonus: number = BONUS;
     hintsLeft: number = 3;
     clickIgnored = false;
     originalImageData: ImageData;
     modifiedImageData: ImageData;
+    leftBuffer: Buffer;
+    rightBuffer: Buffer;
     audio: AudioService;
     isBlinking: boolean;
     differencesFound: number = 0;
     currentClick: MouseEvent;
 
     constructor(
+        private router: Router,
         private socketService: SocketClientService,
-        private activeRoute: ActivatedRoute,
         private leftCanvas: CanvasHelperService,
         private rightCanvas: CanvasHelperService,
+        private dialogService: DialogService,
     ) {
         this.audio = new AudioService();
         this.socketService.connect();
-        const playerName = this.activeRoute.snapshot.paramMap.get('name');
-        this.sheet = this.activeRoute.snapshot.paramMap.get('id') as string;
-        this.player = {
-            name: playerName as string,
-            socketId: this.socketService.socket.id,
-            differencesFound: 0,
-        };
         this.handleResponses();
     }
 
-    start() {}
+    logPlayer(player: string) {
+        this.player = {
+            socketId: this.socketService.socket.id,
+            name: player,
+            differencesFound: 0,
+        };
+    }
 
     setConstants(limit: number, bonus: number) {
         this.timeLimit = limit;
@@ -83,10 +88,6 @@ export class TimeLimitModeService {
         this.socketService.send(GameEvents.JoinCoop, this.player);
     }
 
-    getImagesFromSheet() {
-        this.socketService.send(GameEvents.RequestImages, this.sheet);
-    }
-
     requestSecondPlayer() {
         const data = {
             player: this.player,
@@ -95,30 +96,53 @@ export class TimeLimitModeService {
         this.socketService.send(GameEvents.RequestSecondPlayer, data);
     }
 
+    drawOnCanvases() {
+        this.leftCanvas.drawImageOnCanvas(new Blob([this.leftBuffer]));
+        this.rightCanvas.drawImageOnCanvas(new Blob([this.rightBuffer]));
+    }
+
     handleResponses() {
-        this.socketService.on(GameEvents.ClickValidated, (res: { coords: Vec2[]; player: Player; diffsLeft: number }) => {
-            this.handleClick(this.currentClick, res.coords, res.player.socketId);
-            this.player.differencesFound = res.diffsLeft;
+        this.socketService.on(
+            GameEvents.ClickValidated,
+            (res: { diffFound: Vec2[]; player: Player; room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
+                this.handleClick(this.currentClick, res.diffFound, res.player.socketId);
+                this.playRoom = res.room;
+                if (res.left && res.right) {
+                    this.leftBuffer = res.left;
+                    this.rightBuffer = res.right;
+                    this.drawOnCanvases();
+                }
+            },
+        );
+
+        this.socketService.on(GameEvents.SecondPlayerJoined, (res: { room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
+            this.playRoom = res.room;
+            this.playRoom = res.room;
+            this.leftBuffer = res.left;
+            this.rightBuffer = res.right;
+            this.dialogService.emitCoopLunch();
+            this.router.navigate(['/limited-time']);
+        });
+        // this.socketService.on(GameEvents.Clock, (time: Date) => {
+        //     this.updateTimer(time);
+        // });
+        this.socketService.on(GameEvents.LimitedTimeRoomCreated, (res: { room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
+            this.playRoom = res.room;
+            this.leftBuffer = res.left;
+            this.rightBuffer = res.right;
+            this.router.navigate(['/limited-time']);
         });
 
-        this.socketService.on(GameEvents.ImagesServed, (data: { left: Blob; right: Blob }) => {
-            this.leftCanvas.drawImageOnCanvas(data.left);
-            this.rightCanvas.drawImageOnCanvas(data.right);
+        this.socketService.on(GameEvents.playerLeft, (/*    player: Player*/) => {
+            this.socketService.disconnect();
         });
-
-        this.socketService.on(GameEvents.WaitingRoomCreated, () => {
-            // openWaitingDialog;
-            // dire en attente d'un deuxieme joueur;
-        });
-
-        this.socketService.on(GameEvents.CoopGameConfirmed, () => {
-            this.socketService.send(GameEvents.playerReady, this.player);
-        });
+    }
+    disconnect() {
+        this.socketService.disconnect();
     }
     private createGame(event: string) {
         const data = {
             player: this.player,
-            sheet: this.sheet,
         };
         this.socketService.send(event, data);
     }
@@ -128,6 +152,7 @@ export class TimeLimitModeService {
         const canvasClicked = event.target as HTMLCanvasElement;
         const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
         if (diff) {
+            this.timeLimit += this.timeBonus;
             if (player === this.socketService.socket.id) {
                 this.makeBlink(diff);
                 this.audio.playSuccessSound();
@@ -184,4 +209,8 @@ export class TimeLimitModeService {
         this.originalImageData = this.leftCanvas.getColor();
         this.modifiedImageData = this.rightCanvas.getColor();
     }
+
+    // private updateTimer(time: Date) {
+    //     this.timeLimit = this.timeLimit - time.getSeconds();
+    // }
 }

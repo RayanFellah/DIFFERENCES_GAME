@@ -14,6 +14,10 @@ export enum GameEvents {
     WaitingRoomCreated = 'waitingRoomCreated',
     CoopGameConfirmed = 'coopGameConfirmed',
     playerReady = 'playerReady',
+    Clock = 'clock',
+    JoinedWaitingRoom = 'joinedWaitingRoom',
+    SecondPlayerJoined = 'secondPlayerJoined',
+    playerLeft = 'playerLeft',
 }
 
 export const WAITING_ROOM = 'waitingRoom';

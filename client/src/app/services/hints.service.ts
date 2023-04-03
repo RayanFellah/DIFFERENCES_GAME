@@ -51,12 +51,12 @@ export class HintsService {
     }
 
     executeThirdHint() {
-        console.log('last hint');
         // implement method
     }
 
     executeSecondHint(container?: HTMLElement) {
-        this.showDial(4, 4, container);
+        const NUMBER = 4;
+        this.showDial(NUMBER, NUMBER, container);
     }
 
     executeFirstHint(container?: HTMLElement) {
@@ -81,11 +81,12 @@ export class HintsService {
         const dial = this.selectDial(randomPoint, noColumns, noRows);
         this.createTempCanvas(container);
         this.tempContext.fillRect(dial.startPos.posX, dial.startPos.posY, dial.width, dial.height);
+        const TIME = 6000;
         setTimeout(() => {
             this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
             this.tempCanvas.remove();
             this.blockClick = false;
-        }, 6000);
+        }, TIME);
     }
 
     removeDifference(diff: Vec2[]) {
