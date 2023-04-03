@@ -33,7 +33,6 @@ export class HintsService {
         if (this.hintsLeft === 0 || this.blockClick) return;
         this.blockClick = true;
         this.audio.playHintSound();
-        console.log(this.differences);
         switch (this.hintsLeft) {
             case 3: {
                 this.executeFirstHint(container);
