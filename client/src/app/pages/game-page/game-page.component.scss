@@ -2,9 +2,28 @@ $primary-color: #1976d2;
 $background-color: #f5f5f5;
 $border-color: #ccc;
 
+main {
+    display: grid;
+    grid-template-areas:
+        'options'
+        'playarea'
+        'chat';
+}
+
+.options-container {
+    grid-area: options;
+}
+.playarea {
+    grid-area: playarea;
+}
 .chat-zone-container {
+    grid-area: chat;
     display: flex;
+    flex-direction: column;
     justify-content: center;
+}
+.chat-zone {
+    flex-grow: 1;
 }
 
 .game-score {
