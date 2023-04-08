@@ -44,12 +44,29 @@ export class TimeLimitModeService {
         this.handleResponses();
     }
 
+    setCanvases(leftCanvas: HTMLCanvasElement, rightCanvas: HTMLCanvasElement) {
+        this.setCanvas(leftCanvas, 'left').then(() => {
+            this.setCanvas(rightCanvas, 'right');
+        });
+
+        // this.rightCanvas.setCanvas(rightCanvas);
+        // this.rightCanvas.drawImageOnCanvas(new Blob([this.rightBuffer], { type: 'image/bmp' }));
+    }
+
     logPlayer(player: string) {
         this.player = {
             socketId: this.socketService.socket.id,
             name: player,
             differencesFound: 0,
         };
+    }
+
+    async setCanvas(canvas: HTMLCanvasElement, side: string) {
+        const buffer = side === 'left' ? this.leftBuffer : this.rightBuffer;
+        return new Promise<void>(() => {
+            this.leftCanvas.setCanvas(canvas);
+            this.leftCanvas.drawImageOnCanvas(new Blob([buffer], { type: 'image/bmp' }));
+        });
     }
 
     setConstants(limit: number, bonus: number) {
@@ -97,8 +114,8 @@ export class TimeLimitModeService {
     }
 
     drawOnCanvases() {
-        this.leftCanvas.drawImageOnCanvas(new Blob([this.leftBuffer]));
-        this.rightCanvas.drawImageOnCanvas(new Blob([this.rightBuffer]));
+        this.rightCanvas.drawImageOnCanvas(new Blob([this.rightBuffer], { type: 'image/bmp' }));
+        this.leftCanvas.drawImageOnCanvas(new Blob([this.leftBuffer], { type: 'image/bmp' }));
     }
 
     handleResponses() {
@@ -143,6 +160,9 @@ export class TimeLimitModeService {
     private createGame(event: string) {
         const data = {
             player: this.player,
+            timeBonus: this.timeBonus,
+            timeLimit: this.timeLimit,
+            hintsLeft: this.hintsLeft,
         };
         this.socketService.send(event, data);
     }

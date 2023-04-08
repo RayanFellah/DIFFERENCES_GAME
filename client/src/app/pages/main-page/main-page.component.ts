@@ -34,6 +34,7 @@ export class MainPageComponent {
                 this.dialog.closeLoadingDialog();
                 this.dialog.closeJoinLimitedTimeDialog();
             }
+            res = false;
         });
     }
 

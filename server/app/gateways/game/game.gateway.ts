@@ -31,6 +31,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage(GameEvents.CreateLimitedTimeSolo)
     async createLimitedSoloGame(client: Socket, payload) {
         const room = await this.createRoom(client, payload);
+        console.log(room);
         const left = this.createImageBuffer(room.currentSheet.originalImagePath);
         const right = this.createImageBuffer(room.currentSheet.modifiedImagePath);
         this.server.to(room.roomName).emit(GameEvents.LimitedTimeRoomCreated, { room, left, right });
@@ -57,6 +58,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage(GameEvents.playerReady)
     @SubscribeMessage(GameEvents.Click)
     async handleClick(client: Socket, payload) {
+        console.log('clicked');
         const click: Coord = { posX: payload.x, posY: payload.y };
         const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload.roomName);
         const player = room.player1?.socketId === client.id ? room.player1 : room.player2;
@@ -98,10 +100,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 break;
             }
         }
-        this.server.to(foundRoom.roomName).emit('playerLeft', player);
         if (!foundRoom) {
             return;
         }
+        this.server.to(foundRoom.roomName).emit('playerLeft', player);
+
         socket.leave(foundRoom.roomName);
         if (foundRoom.player1 === undefined && foundRoom.player2 === undefined) {
             this.rooms = this.removeRoom(foundRoom);
@@ -136,6 +139,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     private async createRoom(client: Socket, payload) {
         const sheet = this.getRandomSheet();
+        console.log(sheet);
         const diffs = await this.gameService.getAllDifferences(sheet);
         const room: LimitedTimeRoom = {
             roomName: this.generateRandomId(ID_LENGTH),

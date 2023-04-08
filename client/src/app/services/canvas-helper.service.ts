@@ -27,9 +27,18 @@ export class CanvasHelperService implements OnDestroy {
 
     setCanvas(canvas: HTMLCanvasElement) {
         this.canvasRef = canvas;
+        this.context = canvas.getContext('2d', { willReadFrequently: true });
+        if (this.context) {
+            console.log('context valid');
+            this.tempImageData = this.context.getImageData(0, 0, WIDTH, HEIGHT);
+        }
     }
     getCanvas() {
         return this.canvasRef;
+    }
+
+    setContext(canvas: HTMLCanvasElement) {
+        this.context = canvas.getContext('2d');
     }
 
     drawImageOnCanvas(blob: Blob) {
