@@ -78,6 +78,7 @@ export class GameCardComponent implements OnInit {
 
     onDelete() {
         this.delete.emit();
+        this.socketService.send('sheetDeleted', this.sheet);
     }
     private createSoloGame(playerName: string) {
         const length = 10;

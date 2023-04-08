@@ -91,7 +91,7 @@ export class TimeLimitModeService {
             roomName: this.playRoom.roomName,
         };
 
-        this.socketService.send(GameEvents.Click, data);
+        this.socketService.send(GameEvents.ClickTL, data);
     }
     createSolo() {
         this.createGame(GameEvents.CreateLimitedTimeSolo);
@@ -123,6 +123,7 @@ export class TimeLimitModeService {
             GameEvents.ClickValidated,
             (res: { diffFound: Vec2[]; player: Player; room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
                 this.handleClick(this.currentClick, res.diffFound, res.player.socketId);
+                setTimeout(() => {}, 1000);
                 this.playRoom = res.room;
                 if (res.left && res.right) {
                     this.leftBuffer = res.left;
@@ -157,6 +158,10 @@ export class TimeLimitModeService {
     disconnect() {
         this.socketService.disconnect();
     }
+    updateImagesInformation() {
+        this.originalImageData = this.leftCanvas.getColor();
+        this.modifiedImageData = this.rightCanvas.getColor();
+    }
     private createGame(event: string) {
         const data = {
             player: this.player,
@@ -174,6 +179,7 @@ export class TimeLimitModeService {
         if (diff) {
             this.timeLimit += this.timeBonus;
             if (player === this.socketService.socket.id) {
+                console.log('oui');
                 this.makeBlink(diff);
                 this.audio.playSuccessSound();
             }
@@ -206,6 +212,7 @@ export class TimeLimitModeService {
     }
     private makeBlink(diff: Vec2[]) {
         if (diff) {
+            console.log('in blink');
             if (this.leftCanvas.context) {
                 const leftDiffColor = this.leftCanvas.getColor();
                 const rightDiffColor = this.rightCanvas.getColor();
@@ -216,6 +223,7 @@ export class TimeLimitModeService {
                 }, 1);
 
                 setTimeout(() => {
+                    console.log(this.originalImageData);
                     this.leftCanvas.context?.putImageData(this.originalImageData, 0, 0);
                     this.replaceDifference(diff, this.originalImageData);
                     this.isBlinking = false;
@@ -224,10 +232,6 @@ export class TimeLimitModeService {
                 }, BLINK_DURATION);
             }
         }
-    }
-    private updateImagesInformation() {
-        this.originalImageData = this.leftCanvas.getColor();
-        this.modifiedImageData = this.rightCanvas.getColor();
     }
 
     // private updateTimer(time: Date) {

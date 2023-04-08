@@ -1,5 +1,5 @@
 export enum GameEvents {
-    Click = 'click',
+    ClickTL = 'click_tl',
     RequestImages = 'requestImages',
     ClickValidated = 'clickValidated',
     RequestSecondPlayer = 'requestSecondPlayer',
@@ -18,6 +18,9 @@ export enum GameEvents {
     JoinedWaitingRoom = 'joinedWaitingRoom',
     SecondPlayerJoined = 'secondPlayerJoined',
     playerLeft = 'playerLeft',
+    GameOver = 'gameOver',
+    SheetDeleted = 'sheetDeleted',
+    SheetCreated = 'sheetCreated',
 }
 
 export const WAITING_ROOM = 'waitingRoom';

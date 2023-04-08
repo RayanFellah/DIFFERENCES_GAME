@@ -31,7 +31,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage(GameEvents.CreateLimitedTimeSolo)
     async createLimitedSoloGame(client: Socket, payload) {
         const room = await this.createRoom(client, payload);
-        console.log(room);
         const left = this.createImageBuffer(room.currentSheet.originalImagePath);
         const right = this.createImageBuffer(room.currentSheet.modifiedImagePath);
         this.server.to(room.roomName).emit(GameEvents.LimitedTimeRoomCreated, { room, left, right });
@@ -55,8 +54,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.server.to(room.roomName).emit(GameEvents.SecondPlayerJoined, { room, left, right });
     }
 
-    @SubscribeMessage(GameEvents.playerReady)
-    @SubscribeMessage(GameEvents.Click)
+    @SubscribeMessage(GameEvents.SheetDeleted)
+    removeSheet(socket: Socket, payload) {
+        this.availableSheets = this.availableSheets.filter((sheet) => sheet._id !== payload._id);
+    }
+    @SubscribeMessage(GameEvents.SheetCreated)
+    async updateSheets() {
+        this.availableSheets = await this.sheetService.getAllSheets();
+    }
+
+    @SubscribeMessage(GameEvents.ClickTL)
     async handleClick(client: Socket, payload) {
         console.log('clicked');
         const click: Coord = { posX: payload.x, posY: payload.y };
@@ -71,6 +78,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 player.differencesFound++;
                 diffFound = diff.coords;
                 await this.rerollSheet(room);
+                if (room.isGameDone) {
+                    console.log('gameOver');
+                    this.server.to(room.roomName).emit(GameEvents.GameOver, { room, player });
+                    return;
+                }
                 left = this.createImageBuffer(room.currentSheet.originalImagePath);
                 right = this.createImageBuffer(room.currentSheet.modifiedImagePath);
                 break;
@@ -139,7 +151,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     private async createRoom(client: Socket, payload) {
         const sheet = this.getRandomSheet();
-        console.log(sheet);
         const diffs = await this.gameService.getAllDifferences(sheet);
         const room: LimitedTimeRoom = {
             roomName: this.generateRandomId(ID_LENGTH),
@@ -163,6 +174,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         return fileContent;
     }
     private async rerollSheet(room: LimitedTimeRoom) {
+        if (room.usedSheets.length === this.availableSheets.length) {
+            room.isGameDone = true;
+            return;
+        }
         let randomSheet = this.getRandomSheet();
         while (room.usedSheets.includes(randomSheet._id)) {
             randomSheet = this.getRandomSheet();

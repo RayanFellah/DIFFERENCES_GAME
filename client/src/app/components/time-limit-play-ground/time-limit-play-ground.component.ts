@@ -22,9 +22,10 @@ export class TimeLimitPlayGroundComponent implements AfterViewInit {
         return this.canvasSize.y;
     }
     async ngAfterViewInit() {
-        await this.gameLogic.setCanvas(this.canvas1.nativeElement, 'left').then(() => {
-            this.gameLogic.setCanvas(this.canvas2.nativeElement, 'right');
-        });
+        await this.gameLogic.setCanvas(this.canvas1.nativeElement, 'left');
+        console.log('after set left canvas');
+        await this.gameLogic.setCanvas(this.canvas2.nativeElement, 'right');
+        this.gameLogic.updateImagesInformation();
     }
 
     handleClick(event: MouseEvent) {
