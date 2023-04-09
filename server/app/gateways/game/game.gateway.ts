@@ -57,11 +57,18 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage(GameEvents.SheetDeleted)
     removeSheet(socket: Socket, payload) {
         this.availableSheets = this.availableSheets.filter((sheet) => sheet._id !== payload._id);
+        console.log(this.availableSheets.length);
     }
     @SubscribeMessage(GameEvents.SheetCreated)
     async updateSheets() {
-        this.availableSheets = await this.sheetService.getAllSheets();
-    }
+        console.log(this.availableSheets.length);
+        setTimeout(() => {
+            this.sheetService.getAllSheets().then((sheets) => {
+                this.availableSheets = sheets;
+                console.log(this.availableSheets.length);
+            });
+        }, 500);
+    } //
 
     @SubscribeMessage(GameEvents.ClickTL)
     async handleClick(client: Socket, payload) {
@@ -72,6 +79,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         let diffFound: Coord[] = null;
         let left = null;
         let right = null;
+        //
         for (const diff of room.currentDifferences) {
             if (diff.coords.find((coord) => JSON.stringify(coord) === JSON.stringify(click))) {
                 diff.found = true;
@@ -81,7 +89,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 if (room.isGameDone) {
                     console.log('gameOver');
                     this.server.to(room.roomName).emit(GameEvents.GameOver, { room, player });
-                    return;
+                    break;
                 }
                 left = this.createImageBuffer(room.currentSheet.originalImagePath);
                 right = this.createImageBuffer(room.currentSheet.modifiedImagePath);
@@ -102,7 +110,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         for (const room of this.rooms) {
             if (room.player1?.socketId === socket.id || room.player2?.socketId === socket.id) {
                 foundRoom = room;
-                if (room.player1.socketId === socket.id) {
+                if (room.player1?.socketId === socket.id) {
                     player = room.player1;
                     room.player1 = undefined;
                 } else {
@@ -120,7 +128,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         socket.leave(foundRoom.roomName);
         if (foundRoom.player1 === undefined && foundRoom.player2 === undefined) {
             this.rooms = this.removeRoom(foundRoom);
-        } //
+        }
     }
     afterInit() {
         setInterval(() => {

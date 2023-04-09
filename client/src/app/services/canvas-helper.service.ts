@@ -29,7 +29,7 @@ export class CanvasHelperService implements OnDestroy {
         this.canvasRef = canvas;
         this.context = canvas.getContext('2d', { willReadFrequently: true });
         if (this.context) {
-            console.log('context valid');
+            console.log(this.context);
             this.tempImageData = this.context.getImageData(0, 0, WIDTH, HEIGHT);
         }
     }
