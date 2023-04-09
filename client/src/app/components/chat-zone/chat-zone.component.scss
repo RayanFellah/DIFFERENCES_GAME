@@ -1,12 +1,14 @@
 .chat-overlay {
-    top: 50%;
-    left: 0px;
+    position: absolute;
+    top: 20%;
+    left: 2px;
     right: unset;
     width: 400px; /* Increase the width */
     height: 300px; /* Decrease the height */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    pointer-events: none;
 }
 
 .op-name {
@@ -16,7 +18,7 @@
 }
 
 .chat-area {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.5);
     height: 200px; /* Decrease the height */
     overflow-y: auto;
@@ -74,4 +76,19 @@
 .game {
     background-color: transparent;
     color: #3f51b5;
+}
+.input-area {
+    width: 300px;
+    padding-top: 10px;
+    pointer-events: auto; /* Add this line */
+}
+
+.send-button {
+    margin-left: 10px;
+    color: #ffffff;
+    background-color: #3f51b5;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    pointer-events: auto; /* Add this line */
 }
