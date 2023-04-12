@@ -1,94 +1,84 @@
-.chat-overlay {
-    position: absolute;
-    top: 20%;
-    left: 2px;
-    right: unset;
-    width: 400px; /* Increase the width */
-    height: 300px; /* Decrease the height */
+$my-indigo: #3F51B5;
+$my-pink: #E91E63;
+* {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.chat-zone {
+    padding-left: 1% !important;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    width: 18vw;
+    height: 20vh;
+    background-color: rgba(0, 0, 0, 0.1);
     pointer-events: none;
-}
 
-.op-name {
-    font-weight: bold;
-    font-size: 18px;
-    color: #ffffff;
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
 }
 
 .chat-area {
-    background-color: rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    height: 200px; /* Decrease the height */
-    overflow-y: auto;
+    width: 100%;
+    height: calc(100% - 20px);
+    background: transparent;
+    overflow-y: scroll;
     display: flex;
     flex-flow: column nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: $my-indigo transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: $my-indigo;
+        border-radius: 20px;
+    }
 }
+
+.input-area {
+    border: none;
+    background:  rgba(0, 0, 0, 0.1);;
+    pointer-events: all;
+
+    &:focus {
+        border: none;
+        outline: none;
+    }
+}
+
 
 .chat-area > :first-child {
     margin-top: auto !important;
+}
+.message-span {
+    color: $my-indigo;
 }
 
 .message-wrapper {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Add this line */
 }
 
 .message-player {
-    justify-content: flex-end;
-    align-self: flex-end;
+    color: $my-indigo;
 }
 
 .message-opponent {
-    justify-content: flex-start;
-    align-self: flex-start;
+    color: $my-pink;
 }
 
 .message-game {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    justify-content: center;
+    color: #66BB6A;
 }
 
-.message-content {
-    word-wrap: break-word;
-    min-width: 0;
-    width: fit-content;
-    margin: 0;
-    padding: 0;
-    font-family: 'Open Sans', sans-serif;
-}
-
-.player {
-    background-color: transparent;
-    color: #3f51b5;
-}
-
-.opponent {
-    background-color: transparent;
-    color: #757575;
-}
-
-.game {
-    background-color: transparent;
-    color: #3f51b5;
-}
-.input-area {
-    width: 300px;
-    padding-top: 10px;
-    pointer-events: auto; /* Add this line */
-}
-
-.send-button {
-    margin-left: 10px;
-    color: #ffffff;
-    background-color: #3f51b5;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
-    pointer-events: auto; /* Add this line */
+.message-error {
+    color: $my-pink;
 }

@@ -1,33 +1,20 @@
-<div class="chat-overlay" (keyup.enter)="sendMessage()">
-    <div class="op-name" *ngIf="opponent">{{ this.opponent }}</div>
-    <div class="chat-area" swScrollPosition="lorum-ipsum">
+<mat-card class="chat-zone" >
+    <div class="chat-area" #chatArea swScrollPosition="lorum-ipsum">
         <div *ngFor="let message of chatMessages">
-            <div class="message-wrapper">
-                <div
-                    [ngClass]="{
-                        'message-player': message.type === 'player',
-                        'message-opponent': message.type === 'opponent',
-                        'message-game': message.type === 'game'
-                    }"
-                >
-                    <div
-                        class="message-content"
-                        [ngClass]="{
-                            player: message.type === 'player',
-                            opponent: message.type === 'opponent',
-                            game: message.type === 'game'
-                        }"
-                    >
-                        {{ message.content }}
-                    </div>
-                </div>
-            </div>
+            <span class="message-span" [ngClass]="{
+                'message-opponent': message.playerName !== playerName
+                
+            }">[{{ message.playerName }}] </span>
+            <span class="message-span" [ngClass]="{
+                'message-player': message.type === 'player',
+                'message-opponent': message.type === 'opponent',
+                'message-game': message.type === 'game',
+                'message-error': message.type === 'error'
+            }"
+            > {{ message.content }}
+            </span>
         </div>
     </div>
-    <div class="input-area" *ngIf="opponent">
-        <input class="input-field" placeholder="type..." maxlength="200" type="text" [(ngModel)]="messageContent" />
-        <button class="send-button" (click)="sendMessage()">
-            <mat-icon>send</mat-icon>
-        </button>
-    </div>
-</div>
+</mat-card>
+<input matInput class="input-area" placeholder="type..." maxlength="200" type="text" [(ngModel)]="messageContent" tabindex="0" *ngIf="opponent" (keyup.enter)="sendMessage()"/>
+

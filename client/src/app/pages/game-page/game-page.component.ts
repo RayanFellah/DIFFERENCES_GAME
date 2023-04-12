@@ -45,7 +45,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private readonly dialog: DialogComponent,
         private readonly dialogService: DialogService,
         private gameReplayService: GameReplayService,
-        private dialogComponent: DialogComponent,
     ) {}
     ngOnInit() {
         if (!this.gameStateService.isGameInitialized) {
@@ -66,9 +65,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    openGameScore() {
-        this.dialogComponent.openScoreDialog();
-    }
     onDifficultyChange(eventData: string) {
         this.difficulty = eventData;
     }
