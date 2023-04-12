@@ -45,7 +45,6 @@ import { CreationPageComponent } from './pages/creation-page/creation-page.compo
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
-import { GameScoreDialogComponent } from './components/game-score-dialog/game-score-dialog.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -81,7 +80,6 @@ import { GameScoreDialogComponent } from './components/game-score-dialog/game-sc
         JoinLoadingDialogComponent,
         GameOverDialogComponent,
         SideNavComponent,
-        GameScoreDialogComponent,
     ],
     imports: [
         AppMaterialModule,
