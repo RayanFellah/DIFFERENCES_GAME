@@ -65,11 +65,12 @@ export class GameGateway implements OnGatewayDisconnect {
     }
     @SubscribeMessage(GameEvents.SheetCreated)
     async updateSheets() {
+        const DELAY = 500;
         setTimeout(() => {
             this.sheetService.getAllSheets().then((sheets) => {
                 this.availableSheets = sheets;
             });
-        }, 500);
+        }, DELAY);
     } //
 
     @SubscribeMessage(GameEvents.ClickTL)

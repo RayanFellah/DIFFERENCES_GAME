@@ -35,6 +35,7 @@ export class TimeLimitModeService {
     rightCanvasRef: HTMLCanvasElement;
     isPlayer2Online: boolean = false;
 
+    // eslint-disable-next-line max-params
     constructor(
         private router: Router,
         private socketService: SocketClientService,
@@ -47,6 +48,7 @@ export class TimeLimitModeService {
 
     logPlayer(player: string) {
         this.socketService.connect();
+        const DELAY = 10;
         setTimeout(() => {
             this.handleResponses();
             this.player = {
@@ -54,18 +56,18 @@ export class TimeLimitModeService {
                 name: player,
                 differencesFound: 0,
             };
-        }, 10);
+        }, DELAY);
     }
 
     async setCanvas(canvas: HTMLCanvasElement, side: string) {
         const buffer = side === 'left' ? this.leftBuffer : this.rightBuffer;
         if (side === 'left') this.leftCanvasRef = canvas;
         else this.rightCanvasRef = canvas;
-
+        const DELAY = 30;
         return new Promise<void>((resolve) => {
             this.leftCanvas.setCanvas(canvas);
             this.leftCanvas.drawImageOnCanvas(new Blob([buffer], { type: 'image/bmp' }));
-            setTimeout(() => resolve(), 30);
+            setTimeout(() => resolve(), DELAY);
         });
     }
 
@@ -106,18 +108,20 @@ export class TimeLimitModeService {
     }
 
     async drawOnLeftCanvas() {
+        const DELAY = 25;
         return new Promise<void>((resolve) => {
             this.leftCanvas.context = this.leftCanvasRef.getContext('2d');
             this.leftCanvas.drawImageOnCanvas(new Blob([this.leftBuffer], { type: 'image/bmp' }));
-            setTimeout(() => resolve(), 25);
+            setTimeout(() => resolve(), DELAY);
         });
     }
 
     async drawOnRightCanvas() {
+        const DELAY = 25;
         return new Promise<void>((resolve) => {
             this.rightCanvas.context = this.rightCanvasRef.getContext('2d');
             this.rightCanvas.drawImageOnCanvas(new Blob([this.rightBuffer], { type: 'image/bmp' }));
-            setTimeout(() => resolve(), 25);
+            setTimeout(() => resolve(), DELAY);
         });
     }
 
@@ -143,10 +147,11 @@ export class TimeLimitModeService {
         );
 
         this.socketService.on(GameEvents.GameOver, () => {
+            const DELAY = 50;
             this.isGameOver = true;
             setTimeout(() => {
                 this.audio.playWonSound();
-            }, 50);
+            }, DELAY);
         });
 
         this.socketService.on(GameEvents.SecondPlayerJoined, (res: { room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
@@ -219,7 +224,6 @@ export class TimeLimitModeService {
     private updateTimer() {
         if (this.timeLimit > 0) {
             this.timeLimit = this.timeLimit - 1;
-            console.log(this.timeLimit);
         }
     }
 }

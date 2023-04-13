@@ -13,6 +13,7 @@ import { BehaviorSubject } from 'rxjs';
 export class MainPageComponent implements OnInit {
     readonly title: string = 'LOG2990';
     message: BehaviorSubject<string> = new BehaviorSubject<string>('');
+    test: string = 'test';
 
     constructor(private readonly dialog: DialogComponent, private limitedGame: TimeLimitModeService, private dialogService: DialogService) {
         this.dialogService.selectSoloLimitedTime$.subscribe((res: boolean) => {
@@ -37,7 +38,9 @@ export class MainPageComponent implements OnInit {
             res = false;
         });
     }
-    ngOnInit() {}
+    ngOnInit() {
+        this.test = 'test';
+    }
     selectGameMode() {
         const playerName = window.prompt('Entrez votre nom:');
         const validName = !(!playerName || playerName.trim().length === 0 || /^\d+$/.test(playerName));

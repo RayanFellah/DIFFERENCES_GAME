@@ -10,7 +10,7 @@ import { Sheet } from '@common/sheet';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as fs from 'fs';
-import { createStubInstance, SinonStubbedInstance, stub } from 'sinon';
+import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { ChatGateway } from './chat.gateway';
 import { ChatEvents } from './chat.gateway.events';
