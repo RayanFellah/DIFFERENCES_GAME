@@ -15,6 +15,7 @@ import { unlinkSync } from 'fs';
 import { Server, Socket } from 'socket.io';
 import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
 import { ChatEvents } from './chat.gateway.events';
+import { Sheet } from '@app/model/database/sheet';
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
@@ -232,7 +233,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('reset_history')
     async resetHistory() {
-        this.gameHistoryService.deleteAllHistory();
+        try {
+            await this.gameHistoryService.deleteAllHistory();
+        } catch (error) {
+            this.logger.error(`Failed to reset history: ${error}`);
+        }
     }
 
     // getting history for client
@@ -266,7 +271,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('updateScores')
     updateScores(socket: Socket, payload) {
-        console.log('ok');
         if (payload.mode === SOLO_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Solo: payload.scores });
         if (payload.mode === MULTIPLAYER_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Multi: payload.scores });
         const globalMessage: ChatMessage = {
@@ -275,6 +279,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             time: '',
         };
         this.server.emit(ChatEvents.RoomMessage, globalMessage);
+    }
+    @SubscribeMessage('delete_all_sheets')
+    async deleteAllSheets() {
+        try {
+            await this.sheetService.deleteAllSheets();
+            this.server.to('GridRoom').emit('sheetDeleted', 'all');
+        } catch (error) {
+            this.logger.error(error);
+        }
+    }
+    sendSheetCreated(sheet: Sheet) {
+        this.server.to('GridRoom').emit('sheetCreated', sheet);
     }
     afterInit() {
         setInterval(() => {

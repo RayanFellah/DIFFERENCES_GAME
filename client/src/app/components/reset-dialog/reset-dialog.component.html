@@ -2,7 +2,7 @@
     <h1 mat-dialog-title>Remise des données à leur état initial</h1>
 
     <mat-dialog-content class="delete">
-        <button mat-button color="primary" (click)="showAlert('toutes les fiches de jeux ont été supprimées avec succès !')">
+        <button mat-button color="primary" (click)="deleteAllSheets()" (click)="showAlert('toutes les fiches de jeux ont été supprimées avec succès !')">
             <mat-icon color="primary">description</mat-icon> Supprimer toutes les fiches<mat-icon color="primary">description</mat-icon>
         </button>
     </mat-dialog-content>

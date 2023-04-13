@@ -92,6 +92,10 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.handleResponse();
     }
     handleResponse() {
+        this.socketService.on('sheetCreated', (sheet: Sheet) => {
+            console.log('sheetCreated', sheet);
+            this.sheets.push(sheet);
+        });
         this.socketService.on('Joinable', (sheetId: string) => {
             this.makeJoinable(sheetId);
         });
@@ -106,6 +110,10 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             this.dialogService.emitRejection(playerName);
         });
         this.socketService.on('sheetDeleted', (sheetId: string) => {
+            if (sheetId === 'all') {
+                this.sheets = [];
+                return;
+            }
             const foundSheet = this.sheets.find((sheet) => sheet._id === sheetId);
             this.currentSheetId = '';
             if (foundSheet) {

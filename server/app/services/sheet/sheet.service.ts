@@ -20,7 +20,7 @@ export class SheetService {
 
     async addSheet(sheet: CreateSheetDto): Promise<Sheet> {
         try {
-            await this.sheetModel.create(sheet);
+            return await this.sheetModel.create(sheet);
         } catch (error) {
             return Promise.reject(`Failed to insert sheet: ${error}`);
         }
@@ -49,6 +49,16 @@ export class SheetService {
             }
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);
+        }
+    }
+    async deleteAllSheets(): Promise<void> {
+        try {
+            const res = await this.sheetModel.deleteMany({});
+            if (res.deletedCount === 0) {
+                return Promise.reject('Could not delete sheets');
+            }
+        } catch (error) {
+            return Promise.reject(`Failed to delete sheets: ${error}`);
         }
     }
 }

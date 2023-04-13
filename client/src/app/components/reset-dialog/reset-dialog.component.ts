@@ -21,6 +21,9 @@ export class ResetDialogComponent implements OnInit {
         this.socketService.send('reset_history');
     }
 
+    deleteAllSheets() {
+        this.socketService.send('delete_all_sheets');
+    }
     showAlert(actionConfirmed: string) {
         alert(actionConfirmed);
     }

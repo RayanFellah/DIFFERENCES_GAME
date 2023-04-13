@@ -106,7 +106,8 @@ export class SheetController {
                 const index = sheetDto.title.charCodeAt(0) % scores.length;
                 sheetDto.top3Solo = scores[index];
                 sheetDto.top3Multi = scores[(index * 3) % scores.length];
-                await this.sheetService.addSheet(sheetDto);
+                const newSheet = await this.sheetService.addSheet(sheetDto);
+                this.chatGateway.sendSheetCreated(newSheet);
                 response.status(HttpStatus.CREATED).send({ image: results.imageBase64 });
             } else throw new Error('Vous devez avoir entre 3 et 9 différences, vous en avez ' + results.differences);
         } catch (error) {
