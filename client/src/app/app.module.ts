@@ -46,11 +46,12 @@ import { CreationPageComponent } from './pages/creation-page/creation-page.compo
 import { SelectionPageComponent } from './pages/selection-page/selection-page.component';
 import { CanvasHelperService } from './services/canvas-helper.service';
 import { EventService } from './services/event-service.service';
-import { HintDialogueComponent } from './components/hint-dialogue/hint-dialogue.component';
 import { LimitedTimeGamePageComponent } from './pages/limited-time-game-page/limited-time-game-page.component';
 import { TimeLimitPlayGroundComponent } from './components/time-limit-play-ground/time-limit-play-ground.component';
 import { ResetDialogComponent } from './components/reset-dialog/reset-dialog.component';
 import { GameHistoryComponent } from './components/game-history/game-history.component';
+import { HintsComponent } from './components/hints/hints.component';
+import { HintMessageComponent } from './components/hint-message/hint-message.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -87,11 +88,12 @@ import { GameHistoryComponent } from './components/game-history/game-history.com
         GameOverDialogComponent,
         SideNavComponent,
         JoinLimitedTimeComponent,
-        HintDialogueComponent,
         LimitedTimeGamePageComponent,
         TimeLimitPlayGroundComponent,
         ResetDialogComponent,
         GameHistoryComponent,
+        HintsComponent,
+        HintMessageComponent,
     ],
     imports: [
         AppMaterialModule,

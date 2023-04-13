@@ -9,6 +9,7 @@ import { Vec2 } from '@app/interfaces/vec2';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { GameReplayService } from '@app/services/game-replay/game-replay.service';
 import { GameStateService } from '@app/services/game-state/game-state.service';
+import { HintsService } from '@app/services/hints.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { ChatMessage } from '@common/chat-message';
 import { PlayRoom } from '@common/play-room';
@@ -56,7 +57,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private readonly dialog: DialogComponent,
         private readonly dialogService: DialogService,
         private gameReplayService: GameReplayService,
+        private hintService: HintsService,
     ) {}
+
+    get hint() {
+        return this.hintService;
+    }
     ngOnInit() {
         if (!this.gameStateService.isGameInitialized) {
             this.router.navigate(['/main']);
@@ -189,6 +195,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         const MILLISECONDS = 1000;
         const MINUTES = 60;
         const now = new Date(time);
+        this.hintService.applyTimePenalty(now, 5);
         this.messageTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         this.elapsedTimeInSeconds = Math.floor((now.getTime() - this.startTime.getTime()) / MILLISECONDS);
         const minutes = Math.floor(this.elapsedTimeInSeconds / MINUTES);

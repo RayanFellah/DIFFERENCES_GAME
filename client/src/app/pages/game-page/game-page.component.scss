@@ -4,9 +4,9 @@ $my-pink: #E91E63;
 .main-container {
     display: grid;
     grid-template-areas: 
-        'info'
-        'overlay'
-        'replay';
+        'info info'
+        'overlay overlay'
+        'replay hints';
 }
 .info-container {
     grid-area: info;
@@ -45,4 +45,14 @@ $my-pink: #E91E63;
 div:focus {
     border: none;
     outline: none;
+}
+#time-penalty {
+    color: red;
+}
+.time-container {
+    display: flex;
+    flex-direction: column;
+}
+.hints {
+    grid-area: hints;
 }

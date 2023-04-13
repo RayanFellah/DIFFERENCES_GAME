@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
-import { HEIGHT, WIDTH } from 'src/constants';
+import { FOUR, HEIGHT, INITIAL_HINTS, THREE_SECONDS, WIDTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { GameHttpService } from './game-http.service';
@@ -9,13 +9,14 @@ import { GameHttpService } from './game-http.service';
     providedIn: 'root',
 })
 export class HintsService {
-    hintsLeft: number = 3;
+    hintsLeft: number = INITIAL_HINTS;
     differences: Vec2[][];
     tempCanvas: HTMLCanvasElement;
     tempContext: CanvasRenderingContext2D;
     blockClick: boolean = false;
+    activateHint: boolean = false;
 
-    constructor(private readonly gameHttp: GameHttpService, private readonly audio: AudioService) {}
+    constructor(private readonly gameHttp: GameHttpService, private readonly audioService: AudioService) {}
 
     getDifferences(id: string) {
         this.gameHttp.getAllDifferences(id).subscribe((res) => {
@@ -27,12 +28,13 @@ export class HintsService {
         this.hintsLeft = 3;
         this.differences = [];
         this.blockClick = false;
+        this.activateHint = false;
     }
 
     executeHint(container: HTMLElement): void {
         if (this.hintsLeft === 0 || this.blockClick) return;
         this.blockClick = true;
-        this.audio.playHintSound();
+        this.activateHint = true;
         switch (this.hintsLeft) {
             case 3: {
                 this.executeFirstHint(container);
@@ -47,16 +49,17 @@ export class HintsService {
                 break;
             }
         }
+        this.audioService.playHintSound();
         this.hintsLeft--;
     }
 
     executeThirdHint() {
-        // implement method
+        const diff = this.chooseRandomDifference();
+        return diff;
     }
 
     executeSecondHint(container?: HTMLElement) {
-        const NUMBER = 4;
-        this.showDial(NUMBER, NUMBER, container);
+        this.showDial(FOUR, FOUR, container);
     }
 
     executeFirstHint(container?: HTMLElement) {
@@ -81,18 +84,27 @@ export class HintsService {
         const dial = this.selectDial(randomPoint, noColumns, noRows);
         this.createTempCanvas(container);
         this.tempContext.fillRect(dial.startPos.posX, dial.startPos.posY, dial.width, dial.height);
-        const TIME = 6000;
+        this.tempContext.strokeStyle = 'white';
+        this.tempContext.lineWidth = 4;
+        this.tempContext.strokeRect(dial.startPos.posX, dial.startPos.posY, dial.width, dial.height);
         setTimeout(() => {
             this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
             this.tempCanvas.remove();
             this.blockClick = false;
-        }, TIME);
+            this.activateHint = false;
+        }, THREE_SECONDS);
     }
 
     removeDifference(diff: Vec2[]) {
         this.differences = this.differences.filter((d2) => {
             return d2.toString() !== diff.toString();
         });
+    }
+
+    applyTimePenalty(time: Date, timePenalty: number) {
+        if (this.hintsLeft !== INITIAL_HINTS) {
+            time.setSeconds(time.getSeconds() + timePenalty * (INITIAL_HINTS - this.hintsLeft));
+        }
     }
 
     private chooseRandomDifference(): Vec2[] {

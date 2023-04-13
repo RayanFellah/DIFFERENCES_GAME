@@ -10,12 +10,14 @@ import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { PlayRoom } from '@common/play-room';
-import { HEIGHT, WIDTH } from 'src/constants';
+import { HEIGHT, THREE_SECONDS, WIDTH } from 'src/constants';
+import { HintMessageComponent } from '@app/components/hint-message/hint-message.component';
 // eslint-disable-next-line no-restricted-imports
 @Component({
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
+    providers: [HintMessageComponent],
 })
 export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDestroy {
     @Output() difficulty = new EventEmitter();
@@ -86,5 +88,8 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
         if (this.hintService.blockClick || this.hintService.differences.toString() === [].toString()) return;
         this.socketService.send('hint', this.playerName);
         this.hintService.executeHint(this.playAreaContainer.nativeElement);
+        setTimeout(() => {
+            this.hintService.activateHint = false;
+        }, THREE_SECONDS);
     }
 }
