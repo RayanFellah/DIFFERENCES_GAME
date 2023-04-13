@@ -27,9 +27,17 @@ export class CanvasHelperService implements OnDestroy {
 
     setCanvas(canvas: HTMLCanvasElement) {
         this.canvasRef = canvas;
+        this.context = canvas.getContext('2d', { willReadFrequently: true });
+        if (this.context) {
+            this.tempImageData = this.context.getImageData(0, 0, WIDTH, HEIGHT);
+        }
     }
     getCanvas() {
         return this.canvasRef;
+    }
+
+    setContext(canvas: HTMLCanvasElement) {
+        this.context = canvas.getContext('2d');
     }
 
     drawImageOnCanvas(blob: Blob) {
@@ -82,6 +90,7 @@ export class CanvasHelperService implements OnDestroy {
             this.disable = false;
         }, ONE_SECOND);
     }
+
     // drawingOnImage() {
     //     const mouseDownStream = fromEvent(this.canvasRef, 'mousedown');
     //     const mouseMoveStream = fromEvent(this.canvasRef, 'mousemove');

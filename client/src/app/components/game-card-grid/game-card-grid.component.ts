@@ -87,7 +87,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.shouldNavigate$.next(type);
     }
     connect() {
-        this.socketService.connect();
+        if (!this.socketService.isSocketAlive()) this.socketService.connect();
         this.socketService.socket.emit('joinGridRoom');
         this.handleResponse();
     }

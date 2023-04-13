@@ -1,0 +1,48 @@
+$my-indigo: #3F51B5;
+$my-pink: #E91E63;
+
+.main-container {
+    display: grid;
+    grid-template-areas: 
+        'info'
+        'overlay'
+        'replay';
+}
+.info-container {
+    grid-area: info;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    color: $my-indigo;
+}
+.play-area-container {
+    grid-area: overlay;
+}
+.chat-zone-container {
+    width: fit-content;
+    height: fit-content;
+    grid-area: overlay;
+    display: flex;
+    justify-content: flex-start;
+}
+.chat-zone {
+    width: fit-content;
+    height: fit-content;
+}
+
+.replay-options-container {
+    grid-area: replay;
+    display: flex;
+    flex: row;
+    justify-content: center;
+}
+.player2-points {
+    color: $my-pink;
+}
+
+div:focus {
+    border: none;
+    outline: none;
+}

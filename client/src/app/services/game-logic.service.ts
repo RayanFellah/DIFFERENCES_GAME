@@ -11,6 +11,7 @@ import { BLINK_DURATION, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
+import { HintsService } from './hints.service';
 import { GameReplayService } from './game-replay/game-replay.service';
 import { ImageHttpService } from './image-http.service';
 import { SheetHttpService } from './sheet-http.service';
@@ -32,6 +33,7 @@ export class GameLogicService {
     differencesFound: number;
     clickIgnored: boolean;
     isGameDone = false;
+    differences: Vec2[][];
     isReplay = false;
 
     constructor(
@@ -42,6 +44,7 @@ export class GameLogicService {
         private sheetHttp: SheetHttpService,
         private socketService: SocketClientService,
         private cheatMode: CheatModeService,
+        private hintService: HintsService,
         private gameReplayService: GameReplayService,
     ) {
         this.audio = new AudioService();
@@ -66,6 +69,7 @@ export class GameLogicService {
                     if (this.socketService.isSocketAlive()) this.handleResponses();
                     this.playRoom = this.activatedRoute.snapshot.paramMap.get('roomId') as string;
                     this.cheatMode.getDifferences(this.sheet);
+                    this.hintService.getDifferences(this.sheet._id);
                     resolve(this.sheet.difficulty);
                 });
             }
@@ -153,6 +157,7 @@ export class GameLogicService {
 
             this.differencesFound++;
             this.cheatMode.removeDifference(diff);
+            this.hintService.removeDifference(diff);
             return diff;
         } else if (player === this.socketService.socket.id) {
             this.gameReplayService.events.push({

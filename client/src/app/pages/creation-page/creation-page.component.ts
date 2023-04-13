@@ -13,6 +13,7 @@ import { FileUploaderService } from '@app/services/file-uploader.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SnackBarService } from '@app/services/snack-bar.service';
+import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { HEIGHT, THREE, WIDTH } from 'src/constants';
 @Component({
@@ -41,6 +42,7 @@ export class CreationPageComponent implements OnInit {
         private router: Router,
         private dialog: DialogComponent,
         private drawingService: DrawingService,
+        private socketService: SocketClientService,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
             if (shouldNavigate) {
@@ -196,6 +198,7 @@ export class CreationPageComponent implements OnInit {
                     // Handle error
                 },
             });
+            this.socketService.send('sheetCreated');
         } else {
             // mark all controls as touched to show errors
             this.createGame.markAllAsTouched();

@@ -1,0 +1,12 @@
+<div id="play-area-container">
+    <section>
+        <article class="original">
+            <canvas #canvas1 (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
+        </article>
+        <article class="modified">
+            <div #playAreaContainer>
+                <canvas #canvas2 (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
+            </div>
+        </article>
+    </section>
+</div>
