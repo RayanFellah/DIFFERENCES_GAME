@@ -91,6 +91,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
         this.socketService.on<PlayRoom>('roomInfo', (room: PlayRoom) => {
             this.differences = room.numberOfDifferences;
+            this.currentSoloScores = room.sheet.top3Solo;
+            this.currentMultiScores = room.sheet.top3Multi;
             this.mode = room.gameType;
             if (!room.player2) this.person = room.player1;
             else {
@@ -152,6 +154,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
     checkTop3(winner: string, scores: Score[]) {
+        console.log('meshe l7al');
         if (this.person.name === winner) {
             const index: number = scores.findIndex((score) => score.time > this.elapsedTimeInSeconds);
             const notFound = -1;

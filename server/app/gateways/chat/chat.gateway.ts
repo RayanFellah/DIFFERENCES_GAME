@@ -1,10 +1,13 @@
 import { ID_LENGTH, MULTIPLAYER_MODE, SOLO_MODE } from '@app/constants';
 import { Coord } from '@app/interfaces/coord';
+import { HistoryInterface } from '@app/model/schema/history.schema';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
 import { ChatMessage } from '@common/chat-message';
 import { PlayRoom } from '@common/play-room';
 import { Player } from '@common/player';
+import { scores } from '@common/score';
 import { WaitingRoom } from '@common/waiting-room';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -12,9 +15,6 @@ import { unlinkSync } from 'fs';
 import { Server, Socket } from 'socket.io';
 import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
 import { ChatEvents } from './chat.gateway.events';
-import { GameHistoryService } from '@app/services/game-history/game-history.service';
-import { HistoryInterface } from '@app/model/schema/history.schema';
-import { scores } from '@common/score';
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
@@ -266,6 +266,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('updateScores')
     updateScores(socket: Socket, payload) {
+        console.log('ok');
         if (payload.mode === SOLO_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Solo: payload.scores });
         if (payload.mode === MULTIPLAYER_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Multi: payload.scores });
         const globalMessage: ChatMessage = {

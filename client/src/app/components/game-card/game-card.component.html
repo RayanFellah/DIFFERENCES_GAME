@@ -3,13 +3,13 @@
         <mat-card-title>{{ sheet.title }}</mat-card-title>
         <mat-card-subtitle>{{ sheet.difficulty }}</mat-card-subtitle>
     </mat-card-header>
-    <mat-card-content class="content"> 
-        <img [src]="trustedUrl" alt="Image" *ngIf="trustedUrl" /> 
+    <mat-card-content class="content">
+        <img [src]="trustedUrl" alt="Image" *ngIf="trustedUrl" />
         <app-game-score [top3Solo]="this.sheet.top3Solo" [top3Multi]="this.sheet.top3Multi"></app-game-score>
     </mat-card-content>
 
     <mat-card-actions class="action-container">
-        <button mat-stroked-button color="primary" (click)="play()" [disabled]="isConfig">
+        <button mat-stroked-button color="primary" (click)="play()">
             {{ isConfig ? 'Réinitialiser' : 'Jouer' }}
         </button>
         <button mat-stroked-button color="accent" (click)="isConfig ? onDelete() : sheet.isJoinable ? join() : create()">

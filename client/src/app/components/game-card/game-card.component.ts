@@ -56,9 +56,18 @@ export class GameCardComponent implements OnInit {
         this.shouldNavigate$.next(type);
     }
     play() {
+        if (this.isConfig) {
+            this.reinitialize();
+            return;
+        }
         this.gameStateService.isGameInitialized = true;
         this.navigate(true);
     }
+
+    reinitialize() {
+        this.socketService.send('reinitialize', { id: this.sheet._id, title: this.sheet.title });
+    }
+
     create() {
         this.gameStateService.isGameInitialized = true;
         const playerName = window.prompt('What is your name?');
