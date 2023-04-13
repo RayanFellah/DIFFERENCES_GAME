@@ -27,6 +27,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
     logic: GameLogicService;
     clickEnabled = true;
     room: PlayRoom;
+    initialHtml: string;
 
     private canvasSize = { x: WIDTH, y: HEIGHT };
 
@@ -75,6 +76,9 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
         this.logic.setClick(event, this.playerName);
     }
 
+    async reset() {
+        await this.logic.start();
+    }
     blink() {
         this.logic.cheat();
     }

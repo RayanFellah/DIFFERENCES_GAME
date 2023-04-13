@@ -1,10 +1,14 @@
-<button mat-icon-button>
-    <mat-icon>menu</mat-icon>
-</button>
-<h1>{{ this.pageTitle }}</h1>
-<div>
-    <a mat-button [routerLink]="'/home'"> Accueil </a>
-    <a mat-button [routerLink]="'/selection'"> Mode Classique </a>
-    <a mat-button [routerLink]="'/config'"> Configuration </a>
-    <a mat-button [routerLink]="'/creation'"> Creation </a>
-</div>
+<mat-toolbar class="header" color="primary">
+    <span>{{ pageTitle }}</span>
+    <span *ngIf="pageTitle !== 'PolyPixels'">
+        <button mat-icon-button matTooltip="Retour à l'accueil" routerLink="/home">
+            <mat-icon>home</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Mode classique" routerLink="/selection">
+            <mat-icon>dashboard</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Configuration" routerLink="/config">
+            <mat-icon>settings</mat-icon>
+        </button>
+    </span>
+</mat-toolbar>

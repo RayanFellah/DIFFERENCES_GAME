@@ -14,7 +14,6 @@ import { CheatModeService } from './cheat-mode.service';
 import { HintsService } from './hints.service';
 import { ImageHttpService } from './image-http.service';
 import { SheetHttpService } from './sheet-http.service';
-
 @Injectable({
     providedIn: 'root',
 })
@@ -84,6 +83,7 @@ export class GameLogicService {
             roomName: this.playRoom,
             playerName: name,
         };
+
         this.socketService.send('click', data);
     }
 
@@ -140,22 +140,39 @@ export class GameLogicService {
         const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
         if (diff) {
             if (player === this.socketService.socket.id) {
-                this.makeBlink(this.diff);
+                this.makeBlink(diff);
                 this.audio.playSuccessSound();
+                if (!this.isReplay) {
+                    this.gameReplayService.events.push({
+                        type: 'found',
+                        timestamp: Date.now(),
+                        data: { event, diff, player },
+                    });
+                }
             }
+
             this.differencesFound++;
             this.cheatMode.removeDifference(diff);
             this.hintService.removeDifference(diff);
             return diff;
         } else if (player === this.socketService.socket.id) {
+            this.gameReplayService.events.push({
+                type: 'error',
+                timestamp: Date.now(),
+                data: { event, diff, player },
+            });
             this.ignoreClicks();
             canvas.displayErrorMessage(event);
             this.audio.playFailSound();
         }
         return undefined;
     }
+
     cheat() {
         this.cheatMode.cheatBlink(this.leftCanvas, this.rightCanvas, this.originalImageData, this.modifiedImageData);
+    }
+    async restart() {
+        await this.start();
     }
 
     private ignoreClicks() {

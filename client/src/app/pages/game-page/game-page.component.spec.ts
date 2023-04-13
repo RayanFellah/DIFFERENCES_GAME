@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,6 +9,7 @@ import { ChatEvents } from '@app/interfaces/chat-events';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
 import { GameLogicService } from '@app/services/game-logic.service';
+import { GameReplayService } from '@app/services/game-replay/game-replay.service';
 import { GameStateService } from '@app/services/game-state/game-state.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
@@ -29,6 +31,8 @@ describe('GamePageComponent', () => {
     let gameStateServiceSpy: GameStateService;
     let routerSpy: Router;
     let mockDialog: jasmine.SpyObj<MatDialog>;
+    let gameReplayServiceSpy: jasmine.SpyObj<GameReplayService>;
+
     beforeEach(() => {
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         activatedRouteStub = {
@@ -47,6 +51,9 @@ describe('GamePageComponent', () => {
         cheatModeServiceSpy = jasmine.createSpyObj('CheatModeService', ['getDifferences']);
         gameStateServiceSpy = jasmine.createSpyObj('GameStateService', ['']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate', 'snapshot']);
+        gameReplayServiceSpy = jasmine.createSpyObj('GameReplayService', ['events'], {
+            events: [], // Initialize an empty events array
+        });
 
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
@@ -89,6 +96,7 @@ describe('GamePageComponent', () => {
                     useValue: routerSpy,
                 },
                 { provide: MatDialog, useValue: mockDialog },
+                { provide: GameReplayService, useValue: gameReplayServiceSpy },
             ],
         }).compileComponents();
 
@@ -203,5 +211,26 @@ describe('GamePageComponent', () => {
         const chatMessage: ChatMessage = { content: 'test', type: 'test' } as ChatMessage;
         component.sendMessage(chatMessage);
         expect(socketClientServiceSpy.send).toHaveBeenCalled();
+    });
+    describe('#setReplaySpeed', () => {
+        it('should set the replay speed', () => {
+            const speed = 2;
+            component.setReplaySpeed(speed);
+            expect(component.replaySpeed).toBe(speed);
+        });
+    });
+
+    describe('#pauseReplay', () => {
+        it('should pause the replay', () => {
+            component.pauseReplay();
+            expect(component.isReplayPaused).toBe(true);
+        });
+    });
+
+    describe('#resumeReplay', () => {
+        it('should resume the replay', () => {
+            component.resumeReplay();
+            expect(component.isReplayPaused).toBe(false);
+        });
     });
 });

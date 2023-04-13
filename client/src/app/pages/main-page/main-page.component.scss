@@ -1,13 +1,6 @@
-.container {
-    min-height: 100vh;
-    height: auto;
-}
 
-.justified {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
+*{
+    width: fit-content;
 }
 
 .button {
@@ -27,6 +20,9 @@
 }
 
 .footer-item {
+    text-align: center;
+}
+h4 {
     text-align: center;
 }
 

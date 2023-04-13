@@ -14,3 +14,4 @@ export const ONE_SECOND = 1000;
 export const BLINK_DURATION = 400;
 export const CHEAT_BLINK_INTERVAL = 125;
 export const TEN = 10;
+export const SCRUTATION_DELAY = 100;
