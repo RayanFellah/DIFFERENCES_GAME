@@ -33,6 +33,7 @@ export class TimeLimitModeService {
     isGameOver: boolean = false;
     leftCanvasRef: HTMLCanvasElement;
     rightCanvasRef: HTMLCanvasElement;
+    isPlayer2Online: boolean = false;
 
     constructor(
         private router: Router,
@@ -42,16 +43,18 @@ export class TimeLimitModeService {
         private dialogService: DialogService,
     ) {
         this.audio = new AudioService();
-        this.socketService.connect();
-        this.handleResponses();
     }
 
     logPlayer(player: string) {
-        this.player = {
-            socketId: this.socketService.socket.id,
-            name: player,
-            differencesFound: 0,
-        };
+        this.socketService.connect();
+        setTimeout(() => {
+            this.handleResponses();
+            this.player = {
+                socketId: this.socketService.socket.id,
+                name: player,
+                differencesFound: 0,
+            };
+        }, 10);
     }
 
     async setCanvas(canvas: HTMLCanvasElement, side: string) {
@@ -94,20 +97,12 @@ export class TimeLimitModeService {
         this.createGame(GameEvents.CreateLimitedTimeSolo);
     }
 
+    isTimeDone() {
+        return this.timeLimit <= 0;
+    }
+
     createCoop() {
         this.createGame(GameEvents.CreateLimitedTimeCoop);
-    }
-
-    joinGame() {
-        this.socketService.send(GameEvents.JoinCoop, this.player);
-    }
-
-    requestSecondPlayer() {
-        const data = {
-            player: this.player,
-            room: this.playRoom,
-        };
-        this.socketService.send(GameEvents.RequestSecondPlayer, data);
     }
 
     async drawOnLeftCanvas() {
@@ -123,6 +118,12 @@ export class TimeLimitModeService {
             this.rightCanvas.context = this.rightCanvasRef.getContext('2d');
             this.rightCanvas.drawImageOnCanvas(new Blob([this.rightBuffer], { type: 'image/bmp' }));
             setTimeout(() => resolve(), 25);
+        });
+    }
+
+    startTimer() {
+        this.socketService.on(GameEvents.Clock, () => {
+            if (!this.isGameOver) this.updateTimer();
         });
     }
 
@@ -143,28 +144,31 @@ export class TimeLimitModeService {
 
         this.socketService.on(GameEvents.GameOver, () => {
             this.isGameOver = true;
+            setTimeout(() => {
+                this.audio.playWonSound();
+            }, 50);
         });
 
         this.socketService.on(GameEvents.SecondPlayerJoined, (res: { room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
-            this.playRoom = res.room;
+            this.isPlayer2Online = true;
             this.playRoom = res.room;
             this.leftBuffer = res.left;
             this.rightBuffer = res.right;
             this.dialogService.emitCoopLunch();
             this.router.navigate(['/limited-time']);
+            this.startTimer();
         });
-        // this.socketService.on(GameEvents.Clock, (time: Date) => {
-        //     this.updateTimer(time);
-        // });
+
         this.socketService.on(GameEvents.LimitedTimeRoomCreated, (res: { room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
             this.playRoom = res.room;
             this.leftBuffer = res.left;
             this.rightBuffer = res.right;
             this.router.navigate(['/limited-time']);
+            this.startTimer();
         });
 
         this.socketService.on(GameEvents.playerLeft, (/*    player: Player*/) => {
-            this.socketService.disconnect();
+            this.isPlayer2Online = false;
         });
     }
     disconnect() {
@@ -191,7 +195,6 @@ export class TimeLimitModeService {
         if (diff) {
             this.timeLimit += this.timeBonus;
             if (player === this.socketService.socket.id) {
-                // this.makeBlink(diff);
                 this.audio.playSuccessSound();
             }
 
@@ -204,16 +207,7 @@ export class TimeLimitModeService {
         }
         return undefined;
     }
-    // private replaceDifference(diff: Vec2[], tempImageData: ImageData) {
-    //     for (const d of diff) {
-    //         const index = (d.posX + d.posY * this.rightCanvas.width) * RGBA_LENGTH;
-    //         this.modifiedImageData.data[index + 0] = tempImageData.data[index + 0];
-    //         this.modifiedImageData.data[index + 1] = tempImageData.data[index + 1];
-    //         this.modifiedImageData.data[index + 2] = tempImageData.data[index + 2];
-    //         this.modifiedImageData.data[index + 3] = tempImageData.data[index + 3];
-    //     }
-    //     this.rightCanvas.context?.putImageData(this.modifiedImageData, 0, 0);
-    // }
+
     private ignoreClicks() {
         const time = 1000;
         this.clickIgnored = true;
@@ -221,29 +215,11 @@ export class TimeLimitModeService {
             this.clickIgnored = false;
         }, time);
     }
-    // private makeBlink(diff: Vec2[]) {
-    //     if (diff) {
-    //         if (this.leftCanvas.context) {
-    //             const leftDiffColor = this.leftCanvas.getColor();
-    //             const rightDiffColor = this.rightCanvas.getColor();
-    //             const intervalId = setInterval(() => {
-    //                 this.isBlinking = true;
-    //                 this.leftCanvas.updateImage(diff, leftDiffColor, rightDiffColor);
-    //                 this.rightCanvas.updateImage(diff, leftDiffColor, rightDiffColor);
-    //             }, 1);
 
-    //             setTimeout(() => {
-    //                 this.leftCanvas.context?.putImageData(this.originalImageData, 0, 0);
-    //                 this.replaceDifference(diff, this.originalImageData);
-    //                 this.isBlinking = false;
-    //                 this.updateImagesInformation();
-    //                 clearInterval(intervalId);
-    //             }, BLINK_DURATION);
-    //         }
-    //     }
-    // }
-
-    // private updateTimer(time: Date) {
-    //     this.timeLimit = this.timeLimit - time.getSeconds();
-    // }
+    private updateTimer() {
+        if (this.timeLimit > 0) {
+            this.timeLimit = this.timeLimit - 1;
+            console.log(this.timeLimit);
+        }
+    }
 }

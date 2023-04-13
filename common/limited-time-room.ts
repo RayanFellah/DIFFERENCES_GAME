@@ -13,4 +13,6 @@ export interface LimitedTimeRoom {
     hintsLeft: number;
     isGameDone: boolean;
     currentDifferences: DifferenceService[];
+    mode: string;
+    hasStarted: boolean;
 }
