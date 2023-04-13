@@ -1,49 +1,38 @@
-<div tabindex="0" autofocus (keyup.t)="playArea.blink()">
-    <app-header></app-header>
-    <button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
-        <mat-icon>exit_to_app</mat-icon>
-    </button>
+<app-header pageTitle="Bienvenue {{playerName}}"></app-header>
+<main class="main-container">
     <div class="info-container">
-        <h1 class="welcome-message">
-            Bienvenue <span class="player-name">{{ playerName }}</span>
-        </h1>
-        <app-game-score class="game-score"></app-game-score>
-        <div class="points-container">
-            <div class="player1-points" *ngIf="person">
-                <h2>{{ person.name }} {{ person.differencesFound }}/{{ this.differences }}</h2>
-            </div>
-            <div class="time-container">
-                <h2>{{ formattedTime }}</h2>
-            </div>
-            <div class="player2-points" *ngIf="opponent">
-                <h2>{{ opponent.name }} {{ opponent.differencesFound }}/{{ this.differences }}</h2>
-            </div>
+        <h3>Difficulté: {{ difficulty }}</h3>
+        <div class="player1-points" *ngIf="person">
+            <h3>{{ person.name }}: {{ person.differencesFound }}/{{ this.differences }}</h3>
+        </div>
+        <div class="player2-points" *ngIf="opponent">
+            <h3>{{ opponent.name }}: {{ opponent.differencesFound }}/{{ this.differences }}</h3>
+        </div>
+        <div class="time-container">
+            <h3>Temps: {{ formattedTime }}</h3>
         </div>
     </div>
-    <h2>Difficulté: {{ difficulty }}</h2>
-    <div class="play-area-container">
+    <div class="play-area-container" tabindex="0" autofocus (keyup.t)="playArea.blink()">
         <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area"></app-play-area>
     </div>
-</div>
-<button mat-stroked-button color="primary" *ngIf="isReplayPlaying && !isReplayPaused" (click)="pauseReplay()">Pause Replay</button>
-<button mat-stroked-button color="primary" *ngIf="isReplayPaused" (click)="resumeReplay()">Resume Replay</button>
-<button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="restartReplay()">Restart Replay</button>
-<button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(1)">1X</button>
-<button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(2)">2X</button>
-<button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(3)">3X</button>
-
-<!-- Rest of your template -->
-
-<!-- Rest of your template -->
-
-
-
-<div class="chat-zone-container">
-    <app-chat-zone
-        [playerName]="playerName"
-        [opponent]="opponent ? opponent.name : ''"
-        [chatMessages]="this.chatMessages"
-        (messageEvent)="sendMessage($event)"
-        class="chat-zone"
-    ></app-chat-zone>
-</div>
+    
+    <div class="replay-options-container">
+        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying && !isReplayPaused" (click)="pauseReplay()">Pause Replay</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayPaused" (click)="resumeReplay()">Resume Replay</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="restartReplay()">Restart Replay</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(1)">1X</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(2)">2X</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(3)">3X</button>
+    </div>
+    
+    
+    <div class="chat-zone-container">
+        <app-chat-zone
+            [playerName]="playerName"
+            [opponent]="opponent ? opponent.name : ''"
+            [chatMessages]="this.chatMessages"
+            (messageEvent)="sendMessage($event)"
+            class="chat-zone"
+        ></app-chat-zone>
+    </div>
+</main>

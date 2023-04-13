@@ -1,8 +1,10 @@
-mat-toolbar {
-    display: inline-block;
-    border-style: solid;
+* {
+    border: 0;
+    padding: 0;
+    margin: 0;
 }
-span {
-    border-width: 10px;
-    border-color: black;
+.class {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }

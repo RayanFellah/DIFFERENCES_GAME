@@ -11,9 +11,9 @@ import { BLINK_DURATION, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
+import { GameReplayService } from './game-replay/game-replay.service';
 import { ImageHttpService } from './image-http.service';
 import { SheetHttpService } from './sheet-http.service';
-import { GameReplayService } from './game-replay/game-replay.service';
 @Injectable({
     providedIn: 'root',
 })
@@ -166,6 +166,7 @@ export class GameLogicService {
         }
         return undefined;
     }
+
     cheat() {
         this.gameReplayService.events.push({
             type: 'cheat',
