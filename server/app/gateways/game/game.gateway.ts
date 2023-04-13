@@ -5,18 +5,18 @@ import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
 import { Coord } from '@common/coord';
 import { GameEvents } from '@common/game-events';
+import { LIMITED_TIME_COOP, LIMITED_TIME_SOLO } from '@common/game-types';
 import { LimitedTimeRoom } from '@common/limited-time-room';
 import { Player } from '@common/player';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { readFileSync } from 'fs';
 import * as path from 'path';
 import { Server, Socket } from 'socket.io';
-import { ChatEvents } from '../chat/chat.gateway.events';
-import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
+import { PRIVATE_ROOM_ID } from './chat.gateway.constants';
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+export class GameGateway implements OnGatewayDisconnect {
     @WebSocketServer() server: Server;
 
     rooms: LimitedTimeRoom[] = [];
@@ -30,48 +30,58 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage(GameEvents.CreateLimitedTimeSolo)
     async createLimitedSoloGame(client: Socket, payload) {
-        const room = await this.createRoom(client, payload);
+        payload.player.socketId = client.id;
+        const room = await this.createRoom(client, payload, LIMITED_TIME_SOLO);
+        room.hasStarted = true;
         const left = this.createImageBuffer(room.currentSheet.originalImagePath);
         const right = this.createImageBuffer(room.currentSheet.modifiedImagePath);
         this.server.to(room.roomName).emit(GameEvents.LimitedTimeRoomCreated, { room, left, right });
     }
     @SubscribeMessage(GameEvents.CreateLimitedTimeCoop)
     async createLimitedCoopGame(client: Socket, payload) {
-        const room = this.findRoom();
+        payload.player.socketId = client.id;
+        const room = this.findRoomToJoin();
         if (room) {
             this.joinAndConfirmCoopGame(client, payload);
             return;
         }
-        await this.createRoom(client, payload);
+        await this.createRoom(client, payload, LIMITED_TIME_COOP);
     }
     @SubscribeMessage(GameEvents.JoinCoop)
     async joinAndConfirmCoopGame(client: Socket, payload) {
-        const room = this.rooms.find((iter) => iter.player1 === undefined || iter.player2 === undefined);
+        const room = this.rooms.find((iter) => (iter.player1 === undefined || iter.player2 === undefined) && iter.mode === LIMITED_TIME_COOP);
         client.join(room.roomName);
         room.player2 = payload.player;
+        room.player2.socketId = client.id;
         const left = this.createImageBuffer(room.currentSheet.originalImagePath);
         const right = this.createImageBuffer(room.currentSheet.modifiedImagePath);
+        room.hasStarted = true;
         this.server.to(room.roomName).emit(GameEvents.SecondPlayerJoined, { room, left, right });
     }
 
     @SubscribeMessage(GameEvents.SheetDeleted)
     removeSheet(socket: Socket, payload) {
-        this.availableSheets = this.availableSheets.filter((sheet) => sheet._id !== payload._id);
+        this.availableSheets = this.availableSheets.filter((sheet) => JSON.stringify(sheet._id) !== JSON.stringify(payload._id));
     }
     @SubscribeMessage(GameEvents.SheetCreated)
     async updateSheets() {
-        this.availableSheets = await this.sheetService.getAllSheets();
-    }
+        const DELAY = 500;
+        setTimeout(() => {
+            this.sheetService.getAllSheets().then((sheets) => {
+                this.availableSheets = sheets;
+            });
+        }, DELAY);
+    } //
 
     @SubscribeMessage(GameEvents.ClickTL)
     async handleClick(client: Socket, payload) {
-        console.log('clicked');
         const click: Coord = { posX: payload.x, posY: payload.y };
         const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload.roomName);
         const player = room.player1?.socketId === client.id ? room.player1 : room.player2;
         let diffFound: Coord[] = null;
         let left = null;
         let right = null;
+        //
         for (const diff of room.currentDifferences) {
             if (diff.coords.find((coord) => JSON.stringify(coord) === JSON.stringify(click))) {
                 diff.found = true;
@@ -79,9 +89,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 diffFound = diff.coords;
                 await this.rerollSheet(room);
                 if (room.isGameDone) {
-                    console.log('gameOver');
                     this.server.to(room.roomName).emit(GameEvents.GameOver, { room, player });
-                    return;
+                    break;
                 }
                 left = this.createImageBuffer(room.currentSheet.originalImagePath);
                 right = this.createImageBuffer(room.currentSheet.modifiedImagePath);
@@ -91,10 +100,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.server.to(room.roomName).emit(GameEvents.ClickValidated, { diffFound, room, player, left, right });
     }
 
-    handleConnection(socket: Socket) {
-        this.logger.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
-    }
-
     handleDisconnect(socket: Socket) {
         this.logger.log(`Client disconnected: ${socket.id}`);
         let player: Player;
@@ -102,7 +107,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         for (const room of this.rooms) {
             if (room.player1?.socketId === socket.id || room.player2?.socketId === socket.id) {
                 foundRoom = room;
-                if (room.player1.socketId === socket.id) {
+                if (room.player1?.socketId === socket.id) {
                     player = room.player1;
                     room.player1 = undefined;
                 } else {
@@ -120,15 +125,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         socket.leave(foundRoom.roomName);
         if (foundRoom.player1 === undefined && foundRoom.player2 === undefined) {
             this.rooms = this.removeRoom(foundRoom);
-        } //
-    }
-    afterInit() {
-        setInterval(() => {
-            this.emitTime();
-        }, DELAY_BEFORE_EMITTING_TIME);
-    }
-    private emitTime() {
-        this.server.emit(ChatEvents.Clock, new Date());
+        }
     }
     private getRandomSheet(): Sheet {
         const randomIdx = Math.floor(Math.random() * this.availableSheets.length);
@@ -149,7 +146,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         }
         return result;
     }
-    private async createRoom(client: Socket, payload) {
+    private async createRoom(client: Socket, payload, gameMode: string) {
         const sheet = this.getRandomSheet();
         const diffs = await this.gameService.getAllDifferences(sheet);
         const room: LimitedTimeRoom = {
@@ -163,6 +160,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             isGameDone: false,
             currentDifferences: diffs,
             usedSheets: [sheet._id],
+            mode: gameMode,
+            hasStarted: false,
         };
         this.rooms.push(room);
         client.join(room.roomName);
@@ -188,7 +187,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         room.usedSheets.push(randomSheet._id);
     }
 
-    private findRoom() {
-        return this.rooms.find((iter) => iter.player1 === undefined || iter.player2 === undefined);
+    private findRoomToJoin() {
+        return this.rooms.find(
+            (iter) => (iter.player1 === undefined || iter.player2 === undefined) && iter.mode === LIMITED_TIME_COOP && !iter.hasStarted,
+        );
     }
 }

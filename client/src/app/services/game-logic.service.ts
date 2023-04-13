@@ -70,7 +70,6 @@ export class GameLogicService {
                     this.playRoom = this.activatedRoute.snapshot.paramMap.get('roomId') as string;
                     this.cheatMode.getDifferences(this.sheet);
                     this.hintService.getDifferences(this.sheet._id);
-
                     resolve(this.sheet.difficulty);
                 });
             }

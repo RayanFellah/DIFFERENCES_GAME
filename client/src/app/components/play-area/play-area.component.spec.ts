@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { DialogComponent } from '@app/components/dialogue/dialog.component';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
 import { GameLogicService } from '@app/services/game-logic.service';
-import { GameReplayService } from '@app/services/game-replay/game-replay.service';
+import { HintsService } from '@app/services/hints.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
@@ -20,6 +21,8 @@ describe('PlayAreaComponent', () => {
     let sheetHttpServiceSpy: SheetHttpService;
     let socketClientServiceSpy: SocketClientService;
     let cheatModeServiceSpy: CheatModeService;
+    let hintServiceSpy: HintsService;
+    let dialogComponent: DialogComponent;
 
     beforeEach(() => {
         activatedRouteStub = {
@@ -36,6 +39,8 @@ describe('PlayAreaComponent', () => {
         sheetHttpServiceSpy = jasmine.createSpyObj('SheetHttpService', ['getSheet']);
         socketClientServiceSpy = jasmine.createSpyObj('SocketClientService', ['']);
         cheatModeServiceSpy = jasmine.createSpyObj('CheatModeService', ['getDifferences']);
+        hintServiceSpy = jasmine.createSpyObj('HintsService', ['reset', 'executeHint']);
+        dialogComponent = jasmine.createSpyObj('DialogComponent', ['openDialog']);
 
         TestBed.configureTestingModule({
             declarations: [PlayAreaComponent],
@@ -68,7 +73,14 @@ describe('PlayAreaComponent', () => {
                     provide: ActivatedRoute,
                     useValue: activatedRouteStub,
                 },
-                GameReplayService,
+                {
+                    provide: HintsService,
+                    useValue: hintServiceSpy,
+                },
+                {
+                    provide: DialogComponent,
+                    useValue: dialogComponent,
+                },
             ],
         }).compileComponents();
 

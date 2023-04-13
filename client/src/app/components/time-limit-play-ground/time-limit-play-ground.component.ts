@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { TimeLimitModeService } from '@app/services/time-limit-mode.service';
 import { HEIGHT, WIDTH } from 'src/constants';
 
@@ -7,7 +7,7 @@ import { HEIGHT, WIDTH } from 'src/constants';
     templateUrl: './time-limit-play-ground.component.html',
     styleUrls: ['./time-limit-play-ground.component.scss'],
 })
-export class TimeLimitPlayGroundComponent implements AfterViewInit {
+export class TimeLimitPlayGroundComponent implements AfterViewInit, AfterViewChecked {
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
     private canvasSize = { x: WIDTH, y: HEIGHT };
@@ -22,9 +22,11 @@ export class TimeLimitPlayGroundComponent implements AfterViewInit {
         return this.canvasSize.y;
     }
     async ngAfterViewInit() {
-        await this.gameLogic.setCanvas(this.canvas1.nativeElement, 'left');
-        console.log('after set left canvas');
         await this.gameLogic.setCanvas(this.canvas2.nativeElement, 'right');
+        await this.gameLogic.setCanvas(this.canvas1.nativeElement, 'left');
+    }
+
+    ngAfterViewChecked() {
         this.gameLogic.updateImagesInformation();
     }
 
