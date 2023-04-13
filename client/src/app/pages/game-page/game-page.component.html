@@ -12,7 +12,7 @@
             <h3>Temps: {{ formattedTime }}</h3>
         </div>
     </div>
-    <div class="play-area-container" tabindex="0" autofocus (keyup.t)="playArea.blink()">
+    <div class="play-area-container" tabindex="0" autofocus (keyup.t)="playArea.blink()" (keyup.i)="playArea.hint()">
         <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area"></app-play-area>
     </div>
     

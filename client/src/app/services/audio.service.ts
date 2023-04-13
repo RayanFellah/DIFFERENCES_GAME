@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 const FAIL_SOUND_URL = './assets/error-audio.wav';
 const SUCCESS_SOUND_URL = './assets/success-audio.wav';
+const HINT_AUDIO_URL = './assets/hint-audio.wav';
 @Injectable({
     providedIn: 'root',
 })
@@ -23,6 +24,10 @@ export class AudioService {
 
     playFailSound() {
         this.load(FAIL_SOUND_URL);
+        this.audioElement.play();
+    }
+    playHintSound() {
+        this.load(HINT_AUDIO_URL);
         this.audioElement.play();
     }
 }
