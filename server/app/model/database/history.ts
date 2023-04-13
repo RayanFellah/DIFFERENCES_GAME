@@ -1,50 +1,46 @@
-import { Score } from '@common/score';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 
-export type SheetDocument = Sheet & Document;
+export type HistoryDocument = History & Document;
 
 @Schema()
-export class Sheet {
+export class History {
     @ApiProperty()
     @Prop({ required: true })
-    title: string;
+    gameStart: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    difficulty: string;
+    duration: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    radius: number;
+    gameMode: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    originalImagePath: string;
+    player1: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    modifiedImagePath: string;
+    winner1: boolean;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    gaveUp1: boolean;
 
     @ApiProperty()
     @Prop({ required: false })
-    top3Solo: Score[];
+    player2: string;
 
     @ApiProperty()
     @Prop({ required: false })
-    top3Multi: Score[];
+    winner2: boolean;
 
     @ApiProperty()
-    _id: string;
-
-    @ApiProperty()
-    @Prop({ required: true })
-    differences: number;
-
-    @ApiProperty()
-    @Prop({ required: true })
-    isJoinable: boolean;
+    @Prop({ required: false })
+    gaveUp2: boolean;
 }
 
-export const sheetSchema = SchemaFactory.createForClass(Sheet);
+export const historyInterface = SchemaFactory.createForClass(History);

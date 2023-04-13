@@ -1,18 +1,18 @@
-
 <div class="scores-container">
-    <h2>TOP 3</h2>
-    <div class="scores-details-container">
+    <div class="title-container">
+        <h2>TOP 3</h2>
+    </div>
+        <div class="scores-details-container" *ngIf="top3Multi && top3Solo">
         <div class="scores-solo">
             <h3>Solo</h3>
-            <div class="score-container" *ngFor="let score of formatScores()">
+            <div class="score-container" *ngFor="let score of formatScores(top3Solo)">
                 {{ score }}
             </div>
         </div>
         <div class="scores-1V1">
             <h3>1 vs 1</h3>
-            <div class="score-container" *ngFor="let score of formatScores()">
+            <div class="score-container" *ngFor="let score of formatScores(top3Multi)">
                 {{ score }}
-            </div>    
+            </div>
         </div>
-    </div>
 </div>

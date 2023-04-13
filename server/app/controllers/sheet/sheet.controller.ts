@@ -5,6 +5,7 @@ import { CreateSheetDto } from '@app/model/dto/sheet/create-sheet.dto';
 import { UpdateSheetDto } from '@app/model/dto/sheet/update-sheet.dto';
 import { ImageCompareService } from '@app/services/image-compare/image-compare.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
+import { scores } from '@common/score';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
@@ -102,6 +103,9 @@ export class SheetController {
                 sheetDto.differences = results.differences;
                 sheetDto.difficulty = results.difficulty;
                 sheetDto.isJoinable = false;
+                const index = sheetDto.title.charCodeAt(0) % scores.length;
+                sheetDto.top3Solo = scores[index];
+                sheetDto.top3Multi = scores[(index * 3) % scores.length];
                 await this.sheetService.addSheet(sheetDto);
                 response.status(HttpStatus.CREATED).send({ image: results.imageBase64 });
             } else throw new Error('Vous devez avoir entre 3 et 9 différences, vous en avez ' + results.differences);

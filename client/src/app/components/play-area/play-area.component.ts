@@ -12,8 +12,6 @@ import { SocketClientService } from '@app/services/socket-client/socket-client.s
 import { PlayRoom } from '@common/play-room';
 import { HEIGHT, WIDTH } from 'src/constants';
 // eslint-disable-next-line no-restricted-imports
-import { DialogComponent } from '../dialogue/dialog.component';
-// import { EventEmitter } from 'events';
 @Component({
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
@@ -38,7 +36,6 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
         private sheetService: SheetHttpService,
         private activatedRoute: ActivatedRoute,
         private cheatMode: CheatModeService,
-        private dialog: DialogComponent,
         public hintService: HintsService,
         private gameReplayService: GameReplayService,
     ) {}
@@ -87,12 +84,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
     }
     hint() {
         if (this.hintService.blockClick || this.hintService.differences.toString() === [].toString()) return;
-        this.dialog.openHintDialog(this.hintService.hintsLeft);
         this.socketService.send('hint', this.playerName);
         this.hintService.executeHint(this.playAreaContainer.nativeElement);
-        const time = 2500;
-        setTimeout(() => {
-            this.dialog.closeHintDialog();
-        }, time);
     }
 }

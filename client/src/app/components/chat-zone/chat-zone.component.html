@@ -2,9 +2,9 @@
     <div class="chat-area" #chatArea swScrollPosition="lorum-ipsum">
         <div *ngFor="let message of chatMessages">
             <span class="message-span" [ngClass]="{
-                'message-opponent': message.playerName !== playerName
+                'message-opponent': playerName !== playerName
                 
-            }">[{{ message.playerName }}] </span>
+            }">[{{ message.type === 'player'? playerName: opponent }}] </span>
             <span class="message-span" [ngClass]="{
                 'message-player': message.type === 'player',
                 'message-opponent': message.type === 'opponent',

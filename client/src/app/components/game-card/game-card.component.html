@@ -5,7 +5,7 @@
     </mat-card-header>
     <mat-card-content class="content"> 
         <img [src]="trustedUrl" alt="Image" *ngIf="trustedUrl" /> 
-        <app-game-score></app-game-score>
+        <app-game-score [top3Solo]="this.sheet.top3Solo" [top3Multi]="this.sheet.top3Multi"></app-game-score>
     </mat-card-content>
 
     <mat-card-actions class="action-container">

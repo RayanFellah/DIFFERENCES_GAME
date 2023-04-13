@@ -143,6 +143,13 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             else this.dialog.closeLoadingDialog();
             this.snackBar.openSnackBar('La partie a été supprimée', 'OK');
         });
+        this.socketService.on('reinitialized', () => {
+            this.sheetHttpService.getAllSheets().subscribe({
+                next: (response) => {
+                    this.sheets = response;
+                },
+            });
+        });
     }
 
     cancel(sheetId: string) {

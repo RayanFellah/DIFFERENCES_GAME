@@ -18,7 +18,7 @@ export class ChatZoneComponent {
 
     sendMessage() {
         if (this.messageContent.length > 0) {
-            this.newMessage = { playerName: this.playerName, content: this.messageContent, type: 'player' };
+            this.newMessage = { content: this.messageContent, type: 'player', time: '' };
             this.messageEvent.emit(this.newMessage);
             this.messageContent = '';
         }

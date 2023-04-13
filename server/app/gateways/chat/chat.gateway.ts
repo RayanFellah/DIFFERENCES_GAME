@@ -12,6 +12,9 @@ import { unlinkSync } from 'fs';
 import { Server, Socket } from 'socket.io';
 import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
 import { ChatEvents } from './chat.gateway.events';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
+import { HistoryInterface } from '@app/model/schema/history.schema';
+import { scores } from '@common/score';
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
@@ -21,7 +24,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     waitingRooms: WaitingRoom[] = [];
     private readonly room = PRIVATE_ROOM_ID;
 
-    constructor(readonly logger: Logger, readonly sheetService: SheetService, public gameService: GameLogicService) {}
+    constructor(
+        readonly logger: Logger,
+        readonly sheetService: SheetService,
+        public gameService: GameLogicService,
+        public gameHistoryService: GameHistoryService,
+    ) {}
 
     @SubscribeMessage('createSoloGame')
     async createSoloRoom(socket: Socket, payload: { name: string; sheetId: string; roomName: string }) {
@@ -40,8 +48,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         };
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
-        this.sendPlayers(newRoom.roomName, newRoom.player1);
-        this.server.to(newRoom.roomName).emit('numberOfDifferences', newRoom.numberOfDifferences);
+        this.server.to(newRoom.roomName).emit(ChatEvents.JoinedRoom, newRoom);
+        this.sendRoomInfo(newRoom);
     }
 
     @SubscribeMessage('click')
@@ -54,11 +62,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
                     isError = false;
-                    this.server.to(payload.roomName).emit('roomMessage', {
-                        playerName: payload.playerName,
-                        content: 'une nouvelle différence trouvée',
-                        type: 'game',
-                    });
+                    this.server.to(payload.roomName).emit('roomMessage', { content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
                     player.differencesFound++;
                     this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
@@ -76,19 +80,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 player,
                 diffsLeft: room.differences.length - player.differencesFound,
             });
-            const errorMessage: ChatMessage = { playerName: player.name, content: " ERREUR ceci n'est pas une différence. ", type: 'error' };
+            const errorMessage: ChatMessage = { content: `ERROR FROM ${player.name}`, type: 'game', time: '' };
             this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, errorMessage);
         }
         if (
             (player.differencesFound === room.numberOfDifferences && room.gameType === SOLO_MODE) ||
             (player.differencesFound >= (room.numberOfDifferences + ((room.numberOfDifferences + 1) % 2)) / 2 && room.gameType === MULTIPLAYER_MODE)
         ) {
-            this.server.to(payload.roomName).emit('gameDone', `Félicitations ${payload.playerName}! Tu As Gagné.`);
-            room.isGameDone = true;
-            return;
-        }
-        if (player.differencesFound === room.numberOfDifferences / 2 && room.differences.length === 0) {
-            this.server.to(payload.roomName).emit('gameDone', 'Toute les différences sont trouvées, ');
+            this.server.to(payload.roomName).emit('gameDone', player.name);
             room.isGameDone = true;
             return;
         }
@@ -96,9 +95,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage(ChatEvents.RoomMessage)
     roomMessage(socket: Socket, payload) {
         const message: ChatMessage = {
-            playerName: payload.message.playerName,
             content: payload.message.content,
-            type: '',
+            type: 'opponent',
+            time: '',
         };
         if (payload.message.content.length > 0) {
             socket.broadcast.to(payload.roomName).emit('roomMessage', message);
@@ -108,7 +107,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     hintActivated() {
         const now = new Date();
         const timeString = now.toLocaleTimeString('en-US', { hour12: false });
-        const hintUsed: ChatMessage = { playerName: '', content: `${timeString} - Indice utilisé`, type: 'game' };
+        const hintUsed: ChatMessage = { content: `${timeString} - Indice utilisé`, type: 'game', time: '' };
         this.server.emit(ChatEvents.RoomMessage, hintUsed);
     }
 
@@ -189,8 +188,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         room.player2 = { name: player2, socketId: socket.id, differencesFound: 0 };
         socket.join(room.roomName);
         this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
-        this.sendPlayers(room.roomName, room.player1, room.player2);
-        this.server.to(room.roomName).emit('numberOfDifferences', room.numberOfDifferences);
+        this.sendRoomInfo(room);
         const wait = this.waitingRooms.find((iter) => JSON.stringify(iter.sheetId) === JSON.stringify(room.sheet._id));
         socket.rooms.delete(`GameRoom${wait.sheetId}`);
         this.waitingRooms = this.waitingRooms.filter((iter) => iter.sheetId !== wait.sheetId);
@@ -232,6 +230,51 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         });
     }
 
+    @SubscribeMessage('reset_history')
+    async resetHistory() {
+        this.gameHistoryService.deleteAllHistory();
+    }
+
+    // getting history for client
+    @SubscribeMessage('get_all_History')
+    getAllHistory(client: Socket) {
+        this.gameHistoryService.getHistory().then((history) => {
+            client.emit('all_history_received', history);
+        });
+    }
+    @SubscribeMessage('reset_all_scores')
+    async resetAllScores() {
+        const sheets = await this.sheetService.getAllSheets();
+        for (const sheet of sheets) {
+            this.resetScores(sheet._id);
+        }
+        this.server.emit('reinitialized');
+    }
+
+    // send history to server for adding
+    @SubscribeMessage('new_history')
+    async sendHistoryToServer(history: HistoryInterface, payload) {
+        history = payload;
+        this.gameHistoryService.addHistory(history);
+        this.server.emit('history_recieved', history);
+    }
+    @SubscribeMessage('reinitialize')
+    reinitialize(socket: Socket, payload) {
+        this.resetScores(payload.id);
+        this.server.emit('reinitialized', payload);
+    }
+
+    @SubscribeMessage('updateScores')
+    updateScores(socket: Socket, payload) {
+        if (payload.mode === SOLO_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Solo: payload.scores });
+        if (payload.mode === MULTIPLAYER_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Multi: payload.scores });
+        const globalMessage: ChatMessage = {
+            content: `le joueur ${payload.name} a pris la position ${payload.position} au jeu en Mode ${payload.mode}`,
+            type: 'global',
+            time: '',
+        };
+        this.server.emit(ChatEvents.RoomMessage, globalMessage);
+    }
     afterInit() {
         setInterval(() => {
             this.emitTime();
@@ -248,8 +291,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const room = this.rooms.find((iterRoom) => iterRoom.player1?.socketId === socket.id || iterRoom.player2?.socketId === socket.id);
         if (!room) return;
         socket.leave(room.roomName);
-        if (!room.isGameDone) this.server.to(room.roomName).emit('gameDone', 'Adversaire A Quitté , Tu Gagnes!');
-        else this.deleteRoom(room);
+        if (room.gameType === 'solo') {
+            // const history = {
+            //     //         gameStart: this.startTime,
+            //     //         duration: this.formattedTime,
+            //     //         gameMode: this.mode,
+            //     //         player1: this.person.name,
+            //     //         winner1: false,
+            //     //         gaveUp1: true,
+            //     //     };
+            // };
+            if (!room.isGameDone) this.server.to(room.roomName).emit('playerLeft');
+            else this.deleteRoom(room);
+        }
     }
     private generateRandomId(length: number): string {
         let result = '';
@@ -273,5 +327,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     private deleteRoom(room: PlayRoom) {
         this.rooms = this.rooms.filter((res) => res.roomName !== room.roomName);
     }
-    //
+    private sendRoomInfo(room: PlayRoom) {
+        this.server.to(room.roomName).emit('roomInfo', room);
+    }
+    private async resetScores(sheetId: string) {
+        const sheet = await this.sheetService.getSheet(sheetId);
+        const index = sheet.title.charCodeAt(0) % scores.length;
+        this.sheetService.modifySheet({ _id: sheetId, top3Solo: scores[index], top3Multi: scores[(index * 3) % scores.length] });
+    }
 }

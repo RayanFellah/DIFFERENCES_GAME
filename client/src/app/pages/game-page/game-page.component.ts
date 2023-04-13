@@ -11,7 +11,9 @@ import { GameReplayService } from '@app/services/game-replay/game-replay.service
 import { GameStateService } from '@app/services/game-state/game-state.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { ChatMessage } from '@common/chat-message';
+import { PlayRoom } from '@common/play-room';
 import { Player } from '@common/player';
+import { Score } from '@common/score';
 import { ONE_SECOND, SCRUTATION_DELAY } from 'src/constants';
 @Component({
     selector: 'app-game-page',
@@ -37,6 +39,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
     isReplayPaused = false;
     isReplayPlaying = false;
     replaySpeed = 1;
+    elapsedTimeInSeconds: number;
+    messageTime: string;
+    currentSoloScores: Score[];
+    currentMultiScores: Score[];
+    mode: string;
+    winner1: boolean;
+    winner2: boolean;
+    gaveUp1: boolean;
+    gaveUp2: boolean;
     constructor(
         private activatedRoute: ActivatedRoute,
         private socketService: SocketClientService,
@@ -78,15 +89,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
             });
             this.chatMessages.push(message);
         });
-        this.socketService.on<Player[]>('players', (players: Player[]) => {
-            if (!players[1]) this.person = players[0];
+        this.socketService.on<PlayRoom>('roomInfo', (room: PlayRoom) => {
+            this.differences = room.numberOfDifferences;
+            this.mode = room.gameType;
+            if (!room.player2) this.person = room.player1;
             else {
-                if (players[0].socketId === this.socketService.socket.id) {
-                    this.person = players[0];
-                    this.opponent = players[1];
+                if (room.player1.socketId === this.socketService.socket.id) {
+                    this.person = room.player1;
+                    this.opponent = room.player2;
                 } else {
-                    this.person = players[1];
-                    this.opponent = players[0];
+                    this.person = room.player2;
+                    this.opponent = room.player1;
                 }
             }
         });
@@ -95,20 +108,70 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.startTimer(time);
         });
 
-        this.socketService.on('gameDone', () => {
-            this.timer = false;
-        });
         this.socketService.on<Player>('foundDiff', (player: Player) => {
             if (this.person.socketId === player.socketId) this.person = player;
             else this.opponent = player;
         });
 
-        this.socketService.on<number>('numberOfDifferences', (diff: number) => {
-            this.differences = diff;
+        this.socketService.on('gameDone', (winner: string) => {
+            if (this.person.name === winner) {
+                const congratsMessage = `Félicitations ${winner}! Tu Gagnes :)`;
+                this.gameDone(congratsMessage);
+                this.checkTop3(winner, this.mode === 'solo' ? this.currentSoloScores : this.currentMultiScores);
+                const history = {
+                    gameStart: this.startTime,
+                    duration: this.formattedTime,
+                    gameMode: this.mode === 'solo' ? 'ClassicSolo' : 'ClassicMultiplayer',
+                    player1: winner,
+                    winner1: true,
+                    gaveUp1: false,
+                    player2: this.opponent ? this.opponent.name : undefined,
+                    winner2: false,
+                    gaveUp2: false,
+                };
+                this.socketService.send('new_history', history);
+            } else {
+                const hardLuckMessage = 'Tu as perdu :( , Bonne chance pour la prochaine fois!)';
+                this.gameDone(hardLuckMessage);
+            }
         });
-        this.socketService.on<string>('gameDone', (message: string) => {
-            this.dialog.openGameOverDialog(message);
+        this.socketService.on<string>('playerLeft', () => {
+            const quitMessage = 'Adversaire a quitté, tu Gagnes :)';
+            this.gameDone(quitMessage);
+            this.socketService.send('new_history', {
+                gameStart: this.startTime,
+                duration: this.formattedTime,
+                gameMode: this.mode === 'solo' ? 'ClassicSolo' : 'ClassicMultiplayer',
+                player1: this.person.name,
+                winner1: true,
+                gaveUp1: false,
+                player2: this.opponent.name,
+                winner2: false,
+                gaveUp2: true,
+            });
         });
+    }
+    checkTop3(winner: string, scores: Score[]) {
+        if (this.person.name === winner) {
+            const index: number = scores.findIndex((score) => score.time > this.elapsedTimeInSeconds);
+            const notFound = -1;
+            if (index !== notFound) {
+                scores.splice(index, 0, { playerName: winner, time: this.elapsedTimeInSeconds });
+                scores = scores.slice(0, 3);
+                this.socketService.send('updateScores', {
+                    scores,
+                    sheetId: this.sheetId,
+                    name: winner,
+                    position: index + 1,
+                    mode: this.mode,
+                });
+            }
+        }
+    }
+
+    gameDone(message: string) {
+        this.timer = false;
+        this.dialog.openGameOverDialog(message);
     }
     sendMessage(message: ChatMessage) {
         this.chatMessages.push(message);
@@ -123,9 +186,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
         const MILLISECONDS = 1000;
         const MINUTES = 60;
         const now = new Date(time);
-        const elapsedTimeInSeconds = Math.floor((now.getTime() - this.startTime.getTime()) / MILLISECONDS);
-        const minutes = Math.floor(elapsedTimeInSeconds / MINUTES);
-        const seconds = elapsedTimeInSeconds % MINUTES;
+        this.messageTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        this.elapsedTimeInSeconds = Math.floor((now.getTime() - this.startTime.getTime()) / MILLISECONDS);
+        const minutes = Math.floor(this.elapsedTimeInSeconds / MINUTES);
+        const seconds = this.elapsedTimeInSeconds % MINUTES;
         this.formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
     setReplaySpeed(speed: number) {

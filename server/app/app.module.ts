@@ -15,6 +15,8 @@ import { RadiusEnlargementService } from './services/radius-enlargement/radius-e
 import { SheetService } from './services/sheet/sheet.service';
 import { GameGateway } from './gateways/game/game.gateway';
 import { GameEventService } from './services/game-event/game-event.service';
+import { GameHistoryService } from './services/game-history/game-history.service';
+import { History, historyInterface } from './model/database/history';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -25,7 +27,10 @@ import { GameEventService } from './services/game-event/game-event.service';
                 uri: config.get<string>('DATABASE_CONNECTION_STRING'), // Loaded from .env
             }),
         }),
-        MongooseModule.forFeature([{ name: Sheet.name, schema: sheetSchema }]),
+        MongooseModule.forFeature([
+            { name: Sheet.name, schema: sheetSchema },
+            { name: History.name, schema: historyInterface },
+        ]),
     ],
     controllers: [SheetController, ImageController, GameLogicController],
     providers: [
@@ -40,6 +45,7 @@ import { GameEventService } from './services/game-event/game-event.service';
         ImageCompareService,
         GameGateway,
         GameEventService,
+        GameHistoryService,
     ],
 })
 export class AppModule {}
