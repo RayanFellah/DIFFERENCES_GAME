@@ -64,7 +64,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
                     isError = false;
-                    this.server.to(payload.roomName).emit('roomMessage', { content: `${player.name} a trouvé une différence!`, type: 'game' });
+                    this.server.to(payload.roomName).emit('roomMessage', { name: player.name, content: 'Trouvé une différence!', type: 'game' });
                     player.differencesFound++;
                     this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
@@ -82,7 +82,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 player,
                 diffsLeft: room.differences.length - player.differencesFound,
             });
-            const errorMessage: ChatMessage = { content: `ERROR FROM ${player.name}`, type: 'game', time: '' };
+            const errorMessage: ChatMessage = { name: player.name, content: `ERROR FROM ${player.name}`, type: 'error' };
             this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, errorMessage);
         }
         if (
@@ -114,18 +114,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const message: ChatMessage = {
             content: payload.message.content,
             type: 'opponent',
-            time: '',
         };
         if (payload.message.content.length > 0) {
             socket.broadcast.to(payload.roomName).emit('roomMessage', message);
         }
     }
     @SubscribeMessage(ChatEvents.Hint)
-    hintActivated() {
+    hintActivated(client: Socket) {
         const now = new Date();
         const timeString = now.toLocaleTimeString('en-US', { hour12: false });
-        const hintUsed: ChatMessage = { content: `${timeString} - Indice utilisé`, type: 'game', time: '' };
-        this.server.emit(ChatEvents.RoomMessage, hintUsed);
+        const hintUsed: ChatMessage = { content: `${timeString} - Indice utilisé`, type: 'game' };
+        client.emit(ChatEvents.RoomMessage, hintUsed);
     }
 
     @SubscribeMessage(ChatEvents.JoinGridRoom)
@@ -285,18 +284,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.resetScores(payload.id);
         this.server.emit('reinitialized', payload);
     }
-
-    // @SubscribeMessage('updateScores')
-    // updateScores(socket: Socket, payload) {
-    //     if (payload.mode === SOLO_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Solo: payload.scores });
-    //     if (payload.mode === MULTIPLAYER_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Multi: payload.scores });
-    //     const globalMessage: ChatMessage = {
-    //         content: `le joueur ${payload.name} a pris la position ${in} au jeu en Mode ${payload.mode}`,
-    //         type: 'global',
-    //         time: '',
-    //     };
-    //     this.server.emit(ChatEvents.RoomMessage, globalMessage);
-    // }
     @SubscribeMessage('delete_all_sheets')
     async deleteAllSheets() {
         try {
@@ -385,7 +372,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             const globalMessage: ChatMessage = {
                 content: `le joueur ${name} a pris la position ${index + 1} au jeu ${room.sheet.title} en Mode ${room.gameType}`,
                 type: 'global',
-                time: '',
             };
             this.server.emit(ChatEvents.RoomMessage, globalMessage);
         }

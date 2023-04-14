@@ -79,7 +79,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
     handleResponses() {
         this.socketService.on<ChatMessage>(ChatEvents.RoomMessage, (message: ChatMessage) => {
-            message.type = message.type !== 'game' ? 'opponent' : 'game';
+            message.time = this.messageTime;
+            if (message.type === 'opponent') message.name = this.opponent.name;
             this.gameReplayService.events.push({
                 type: 'chat',
                 timestamp: Date.now(),
@@ -130,6 +131,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.dialog.openGameOverDialog(message);
     }
     sendMessage(message: ChatMessage) {
+        message.time = this.messageTime;
         this.chatMessages.push(message);
         this.gameReplayService.events.push({
             type: 'chat',
