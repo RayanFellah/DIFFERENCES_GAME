@@ -22,13 +22,13 @@ export class HistoryInterface {
 
     @ApiProperty()
     @IsOptional()
-    player2: string;
+    player2?: string;
 
     @ApiProperty()
     @IsOptional()
-    winner2: boolean;
+    winner2?: boolean;
 
     @ApiProperty()
     @IsOptional()
-    gaveUp2: boolean;
+    gaveUp2?: boolean;
 }

@@ -1,20 +1,30 @@
-<mat-card class="chat-zone" >
+<mat-card class="chat-zone">
     <div class="chat-area" #chatArea swScrollPosition="lorum-ipsum">
         <div *ngFor="let message of chatMessages">
-            <span class="message-span" [ngClass]="{
-                'message-opponent': playerName !== playerName
-                
-            }">[{{ message.type === 'player'? playerName: opponent }}] </span>
-            <span class="message-span" [ngClass]="{
-                'message-player': message.type === 'player',
-                'message-opponent': message.type === 'opponent',
-                'message-game': message.type === 'game',
-                'message-error': message.type === 'error'
-            }"
-            > {{ message.content }}
+            <span>@{{ message.time }}</span>
+            <span *ngIf="message.name" class="message-span">[{{ message.name }}] </span>
+            <span
+                [ngClass]="{
+                    'message-player': message.type === 'player',
+                    'message-opponent': message.type === 'opponent',
+                    'message-game': message.type === 'game',
+                    'message-error': message.type === 'error',
+                    'message-global': message.type === 'global'
+                }"
+            >
+                {{ message.content }}
             </span>
         </div>
     </div>
 </mat-card>
-<input matInput class="input-area" placeholder="type..." maxlength="200" type="text" [(ngModel)]="messageContent" tabindex="0" *ngIf="opponent" (keyup.enter)="sendMessage()"/>
-
+<input
+    matInput
+    class="input-area"
+    placeholder="type..."
+    maxlength="200"
+    type="text"
+    [(ngModel)]="messageContent"
+    tabindex="0"
+    *ngIf="opponent"
+    (keyup.enter)="sendMessage()"
+/>

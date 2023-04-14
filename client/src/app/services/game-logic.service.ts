@@ -11,8 +11,8 @@ import { BLINK_DURATION, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
-import { HintsService } from './hints.service';
 import { GameReplayService } from './game-replay/game-replay.service';
+import { HintsService } from './hints.service';
 import { ImageHttpService } from './image-http.service';
 import { SheetHttpService } from './sheet-http.service';
 @Injectable({
@@ -98,8 +98,10 @@ export class GameLogicService {
         });
 
         this.socketService.on('gameDone', () => {
-            this.clickIgnored = true;
-            this.isGameDone = true;
+            this.gameDoneProtocol();
+        });
+        this.socketService.on('playerLeft', () => {
+            this.gameDoneProtocol();
         });
     }
 
@@ -191,5 +193,10 @@ export class GameLogicService {
         setTimeout(() => {
             this.clickIgnored = false;
         }, time);
+    }
+
+    private gameDoneProtocol() {
+        this.clickIgnored = true;
+        this.isGameDone = true;
     }
 }

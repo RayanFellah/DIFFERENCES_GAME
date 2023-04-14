@@ -1,11 +1,11 @@
-<app-header pageTitle="Bienvenue {{playerName}}"></app-header>
+<app-header [displayShortcuts]="false" pageTitle="Bienvenue{{ playerName }}"></app-header>
 <button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
     <mat-icon>exit_to_app</mat-icon>
 </button>
 <main class="main-container">
     <div class="info-container">
         <h3>Difficulté: {{ difficulty }}</h3>
-       
+
         <div class="player1-points" *ngIf="person">
             <h3>{{ person.name }}: {{ person.differencesFound }}/{{ this.differences }}</h3>
         </div>
@@ -15,23 +15,23 @@
         <div class="time-container">
             <h3>Temps: {{ formattedTime }}</h3>
         </div>
-        <app-hints></app-hints>
+        <app-hints ></app-hints>
     </div>
     <div class="play-area-container" tabindex="0" autofocus (keyup.t)="playArea.blink()" (keyup.i)="playArea.hint()">
         <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area"></app-play-area>
     </div>
-    
+
     <div class="replay-options-container">
         <button mat-stroked-button color="primary" *ngIf="isReplayPlaying && !isReplayPaused" (click)="pauseReplay()">Pause Replay</button>
         <button mat-stroked-button color="primary" *ngIf="isReplayPaused" (click)="resumeReplay()">Resume Replay</button>
-        <button mat-stroked-button color="primary"  *ngIf="isReplayPlaying" (click)="restartReplay()">Restart Replay</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="restartReplay()">Restart Replay</button>
         <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(1)">1X</button>
         <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(2)">2X</button>
         <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(3)">3X</button>
     </div>
     <app-hint-message class="hints"> </app-hint-message>
     <p id="time-penalty" *ngIf="hint.activateHint">Pénalité: 5 secondes</p>
-   
+
     <div class="chat-zone-container">
         <app-chat-zone
             [playerName]="playerName"
