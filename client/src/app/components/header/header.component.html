@@ -1,6 +1,6 @@
 <mat-toolbar class="header" color="primary">
     <span>{{ pageTitle }}</span>
-    <span *ngIf="pageTitle !== 'PolyPixels'">
+    <span *ngIf="this.displayShortcuts">
         <button mat-icon-button matTooltip="Retour à l'accueil" routerLink="/home">
             <mat-icon>home</mat-icon>
         </button>
