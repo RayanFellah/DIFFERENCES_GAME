@@ -14,7 +14,6 @@ import { SocketClientService } from '@app/services/socket-client/socket-client.s
 import { ChatMessage } from '@common/chat-message';
 import { PlayRoom } from '@common/play-room';
 import { Player } from '@common/player';
-import { Score } from '@common/score';
 import { ONE_SECOND, SCRUTATION_DELAY } from 'src/constants';
 @Component({
     selector: 'app-game-page',
@@ -42,13 +41,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
     replaySpeed = 1;
     elapsedTimeInSeconds: number;
     messageTime: string;
-    currentSoloScores: Score[];
-    currentMultiScores: Score[];
-    mode: string;
-    winner1: boolean;
-    winner2: boolean;
-    gaveUp1: boolean;
-    gaveUp2: boolean;
     constructor(
         private activatedRoute: ActivatedRoute,
         private socketService: SocketClientService,
@@ -97,9 +89,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
         this.socketService.on<PlayRoom>('roomInfo', (room: PlayRoom) => {
             this.differences = room.numberOfDifferences;
-            this.currentSoloScores = room.sheet.top3Solo;
-            this.currentMultiScores = room.sheet.top3Multi;
-            this.mode = room.gameType;
             if (!room.player2) this.person = room.player1;
             else {
                 if (room.player1.socketId === this.socketService.socket.id) {
@@ -125,57 +114,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (this.person.name === winner) {
                 const congratsMessage = `Félicitations ${winner}! Tu Gagnes :)`;
                 this.gameDone(congratsMessage);
-                this.checkTop3(winner, this.mode === 'solo' ? this.currentSoloScores : this.currentMultiScores);
-                const history = {
-                    gameStart: this.startTime,
-                    duration: this.formattedTime,
-                    gameMode: this.mode === 'solo' ? 'ClassicSolo' : 'ClassicMultiplayer',
-                    player1: winner,
-                    winner1: true,
-                    gaveUp1: false,
-                    player2: this.opponent ? this.opponent.name : undefined,
-                    winner2: false,
-                    gaveUp2: false,
-                };
-                this.socketService.send('new_history', history);
             } else {
-                const hardLuckMessage = 'Tu as perdu :( , Bonne chance pour la prochaine fois!)';
+                const hardLuckMessage = 'Tu as perdu :( , Bonne chance pour la prochaine fois!';
                 this.gameDone(hardLuckMessage);
             }
         });
         this.socketService.on<string>('playerLeft', () => {
             const quitMessage = 'Adversaire a quitté, tu Gagnes :)';
             this.gameDone(quitMessage);
-            this.socketService.send('new_history', {
-                gameStart: this.startTime,
-                duration: this.formattedTime,
-                gameMode: this.mode === 'solo' ? 'ClassicSolo' : 'ClassicMultiplayer',
-                player1: this.person.name,
-                winner1: true,
-                gaveUp1: false,
-                player2: this.opponent.name,
-                winner2: false,
-                gaveUp2: true,
-            });
         });
-    }
-    checkTop3(winner: string, scores: Score[]) {
-        console.log('meshe l7al');
-        if (this.person.name === winner) {
-            const index: number = scores.findIndex((score) => score.time > this.elapsedTimeInSeconds);
-            const notFound = -1;
-            if (index !== notFound) {
-                scores.splice(index, 0, { playerName: winner, time: this.elapsedTimeInSeconds });
-                scores = scores.slice(0, 3);
-                this.socketService.send('updateScores', {
-                    scores,
-                    sheetId: this.sheetId,
-                    name: winner,
-                    position: index + 1,
-                    mode: this.mode,
-                });
-            }
-        }
     }
 
     gameDone(message: string) {

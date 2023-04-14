@@ -7,6 +7,7 @@ export interface PlayRoom {
     player1: Player;
     player2: Player;
     sheet: Sheet;
+    startTime: Date;
     differences: DifferenceService[];
     numberOfDifferences: number;
     gameType: string;

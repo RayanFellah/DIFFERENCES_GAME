@@ -1,5 +1,6 @@
 import { ID_LENGTH, MULTIPLAYER_MODE, SOLO_MODE } from '@app/constants';
 import { Coord } from '@app/interfaces/coord';
+import { Sheet } from '@app/model/database/sheet';
 import { HistoryInterface } from '@app/model/schema/history.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
@@ -15,7 +16,6 @@ import { unlinkSync } from 'fs';
 import { Server, Socket } from 'socket.io';
 import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
 import { ChatEvents } from './chat.gateway.events';
-import { Sheet } from '@app/model/database/sheet';
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
@@ -41,6 +41,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             roomName: payload.roomName,
             player1: player,
             player2: undefined,
+            startTime: new Date(),
             sheet: playSheet,
             differences: diffs,
             numberOfDifferences: diffs.length,
@@ -63,7 +64,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
                     isError = false;
-                    this.server.to(payload.roomName).emit('roomMessage', { content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
+                    this.server.to(payload.roomName).emit('roomMessage', { content: `${player.name} a trouvé une différence!`, type: 'game' });
                     player.differencesFound++;
                     this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
@@ -89,7 +90,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             (player.differencesFound >= (room.numberOfDifferences + ((room.numberOfDifferences + 1) % 2)) / 2 && room.gameType === MULTIPLAYER_MODE)
         ) {
             this.server.to(payload.roomName).emit('gameDone', player.name);
+            const timeInSeconds = Math.floor((new Date().getTime() - room.startTime.getTime()) / 1000);
+            this.checkTopScores(room, timeInSeconds, player.name);
             room.isGameDone = true;
+            const history = {
+                gameStart: room.startTime.toTimeString(),
+                duration: this.elapsedTime(room.startTime),
+                gameMode: room.gameType === 'solo' ? 'ClassicSolo' : 'ClassicMultiplayer',
+                player1: player.name,
+                winner1: true,
+                gaveUp1: false,
+                player2: room.player2 ? room.player2.name : undefined,
+                winner2: false,
+                gaveUp2: false,
+            };
+            this.gameHistoryService.addHistory(history);
+
             return;
         }
     }
@@ -171,6 +187,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             player1: { name: player1, socketId: socket.id, differencesFound: 0 },
             player2: undefined,
             sheet: playSheet,
+            startTime: new Date(),
             differences: diffs,
             numberOfDifferences: diffs.length,
             gameType: MULTIPLAYER_MODE,
@@ -269,17 +286,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.server.emit('reinitialized', payload);
     }
 
-    @SubscribeMessage('updateScores')
-    updateScores(socket: Socket, payload) {
-        if (payload.mode === SOLO_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Solo: payload.scores });
-        if (payload.mode === MULTIPLAYER_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Multi: payload.scores });
-        const globalMessage: ChatMessage = {
-            content: `le joueur ${payload.name} a pris la position ${payload.position} au jeu en Mode ${payload.mode}`,
-            type: 'global',
-            time: '',
-        };
-        this.server.emit(ChatEvents.RoomMessage, globalMessage);
-    }
+    // @SubscribeMessage('updateScores')
+    // updateScores(socket: Socket, payload) {
+    //     if (payload.mode === SOLO_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Solo: payload.scores });
+    //     if (payload.mode === MULTIPLAYER_MODE) this.sheetService.modifySheet({ _id: payload.sheetId, top3Multi: payload.scores });
+    //     const globalMessage: ChatMessage = {
+    //         content: `le joueur ${payload.name} a pris la position ${in} au jeu en Mode ${payload.mode}`,
+    //         type: 'global',
+    //         time: '',
+    //     };
+    //     this.server.emit(ChatEvents.RoomMessage, globalMessage);
+    // }
     @SubscribeMessage('delete_all_sheets')
     async deleteAllSheets() {
         try {
@@ -308,20 +325,37 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const room = this.rooms.find((iterRoom) => iterRoom.player1?.socketId === socket.id || iterRoom.player2?.socketId === socket.id);
         if (!room) return;
         socket.leave(room.roomName);
-        if (room.gameType === 'solo') {
-            // const history = {
-            //     //         gameStart: this.startTime,
-            //     //         duration: this.formattedTime,
-            //     //         gameMode: this.mode,
-            //     //         player1: this.person.name,
-            //     //         winner1: false,
-            //     //         gaveUp1: true,
-            //     //     };
-            // };
-            if (!room.isGameDone) this.server.to(room.roomName).emit('playerLeft');
-            else this.deleteRoom(room);
-        }
+        if (!room.isGameDone) {
+            if (room.gameType === 'solo') {
+                const history: HistoryInterface = {
+                    gameStart: room.startTime.toLocaleTimeString(),
+                    duration: this.elapsedTime(room.startTime),
+                    gameMode: 'solo',
+                    player1: room.player1.name,
+                    winner1: false,
+                    gaveUp1: true,
+                };
+                this.gameHistoryService.addHistory(history);
+                this.deleteRoom(room);
+            } else {
+                room.isGameDone = true;
+                const history: HistoryInterface = {
+                    gameStart: room.startTime.toLocaleTimeString(),
+                    duration: this.elapsedTime(room.startTime),
+                    gameMode: 'multi',
+                    player1: room.player1.name,
+                    player2: room.player2.name,
+                    winner1: room.player2.socketId === socket.id,
+                    winner2: room.player1.socketId === socket.id,
+                    gaveUp1: room.player1.socketId === socket.id,
+                    gaveUp2: room.player2.socketId === socket.id,
+                };
+                this.gameHistoryService.addHistory(history);
+                this.server.to(room.roomName).emit('playerLeft');
+            }
+        } else this.deleteRoom(room);
     }
+
     private generateRandomId(length: number): string {
         let result = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -335,12 +369,27 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     private emitTime() {
         this.server.emit(ChatEvents.Clock, new Date());
     }
-
-    private sendPlayers(roomName: string, player1: Player, player2?: Player) {
-        const players: Player[] = [player1, player2];
-        this.server.to(roomName).emit('players', players);
+    private checkTopScores(room: PlayRoom, time: number, name: string): void {
+        console.log('hello');
+        let scores = room.gameType === 'solo' ? room.sheet.top3Solo : room.sheet.top3Multi;
+        console.log(scores);
+        console.log(time);
+        const index: number = scores.findIndex((score) => score.time > time);
+        const notFound = -1;
+        if (index !== notFound) {
+            console.log(index);
+            scores.splice(index, 0, { playerName: name, time });
+            scores = scores.slice(0, 3);
+            if (room.gameType === SOLO_MODE) this.sheetService.modifySheet({ _id: room.sheet._id, top3Solo: scores });
+            if (room.gameType === MULTIPLAYER_MODE) this.sheetService.modifySheet({ _id: room.sheet._id, top3Multi: scores });
+            const globalMessage: ChatMessage = {
+                content: `le joueur ${name} a pris la position ${index + 1} au jeu ${room.sheet.title} en Mode ${room.gameType}`,
+                type: 'global',
+                time: '',
+            };
+            this.server.emit(ChatEvents.RoomMessage, globalMessage);
+        }
     }
-
     private deleteRoom(room: PlayRoom) {
         this.rooms = this.rooms.filter((res) => res.roomName !== room.roomName);
     }
@@ -351,5 +400,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const sheet = await this.sheetService.getSheet(sheetId);
         const index = sheet.title.charCodeAt(0) % scores.length;
         this.sheetService.modifySheet({ _id: sheetId, top3Solo: scores[index], top3Multi: scores[(index * 3) % scores.length] });
+    }
+    private elapsedTime(startTime: Date): string {
+        const MILLISECONDS = 1000;
+        const MINUTES = 60;
+        const elapsedTimeInSeconds = Math.floor((new Date().getTime() - startTime.getTime()) / MILLISECONDS);
+        const minutes = Math.floor(elapsedTimeInSeconds / MINUTES);
+        const seconds = elapsedTimeInSeconds % MINUTES;
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 }

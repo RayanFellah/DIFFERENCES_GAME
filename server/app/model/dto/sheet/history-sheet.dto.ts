@@ -27,15 +27,15 @@ export class HistorySheetDto {
 
     @ApiProperty()
     @IsOptional()
-    player2: string;
+    player2?: string;
 
     @ApiProperty()
     @IsOptional()
     @IsBoolean()
-    winner2: boolean;
+    winner2?: boolean;
 
     @ApiProperty()
     @IsOptional()
     @IsBoolean()
-    gaveUp2: boolean;
+    gaveUp2?: boolean;
 }
