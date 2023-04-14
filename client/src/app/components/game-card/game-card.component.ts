@@ -85,6 +85,8 @@ export class GameCardComponent implements OnInit {
         this.joinEvent.emit(joinGame);
     }
 
+ 
+
     onDelete() {
         this.delete.emit();
         this.socketService.send('sheetDeleted', this.sheet);
