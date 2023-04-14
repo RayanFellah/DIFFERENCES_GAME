@@ -1,4 +1,4 @@
-<app-header [displayShortcuts]="false" pageTitle="Bienvenue{{ playerName }}"></app-header>
+<app-header [displayShortcuts]="false" pageTitle="Bienvenue {{ playerName }}"></app-header>
 <button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
     <mat-icon>exit_to_app</mat-icon>
 </button>
@@ -15,7 +15,7 @@
         <div class="time-container">
             <h3>Temps: {{ formattedTime }}</h3>
         </div>
-        <app-hints ></app-hints>
+        <app-hints></app-hints>
     </div>
     <div class="play-area-container" tabindex="0" autofocus (keyup.t)="playArea.blink()" (keyup.i)="playArea.hint()">
         <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area"></app-play-area>

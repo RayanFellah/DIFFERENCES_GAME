@@ -241,8 +241,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 this.sheetService.deleteSheet(sheetId);
                 this.server.to(`GameRoom${sheetId}`).emit('CurrentGameDeleted', sheetId);
                 this.server.emit('sheetDeleted', sheetId);
-                console.log(this.rooms);
-                console.log(sheetId);
                 for (const room of this.rooms) {
                     if (room.sheet._id.toString() === sheetId) {
                         this.server.to(room.roomName).emit('kickOut');
@@ -381,7 +379,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             if (room.gameType === SOLO_MODE) this.sheetService.modifySheet({ _id: room.sheet._id, top3Solo: scores });
             if (room.gameType === MULTIPLAYER_MODE) this.sheetService.modifySheet({ _id: room.sheet._id, top3Multi: scores });
             const globalMessage: ChatMessage = {
-                content: `le joueur ${name} a pris la position ${index + 1} au jeu ${room.sheet.title} en Mode ${room.gameType}`,
+                content: `le joueur ${name.toUpperCase()} a pris la position ${
+                    index === 0 ? '1🥇' : index === 1 ? '2🥈' : index === 2 ? '3🥉' : ''
+                } au jeu "${room.sheet.title}" en Mode ${room.gameType === 'solo' ? 'Solo' : 'MultiJoueur'}`,
                 type: 'global',
             };
             this.server.emit(ChatEvents.RoomMessage, globalMessage);

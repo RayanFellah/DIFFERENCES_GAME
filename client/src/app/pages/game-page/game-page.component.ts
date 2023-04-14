@@ -89,7 +89,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.chatMessages.push(message);
         });
         this.socketService.on('kickOut', () => {
-            const kickOutMessage = "La partie n'existe plus, tu es renvoyé à la page principale";
+            const kickOutMessage = "La partie n'existe plus 💀 Tu es renvoyé à la page principale.";
             this.gameDone(kickOutMessage);
             const delay = 3000;
             setTimeout(() => {
@@ -122,7 +122,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
         this.socketService.on('gameDone', (winner: string) => {
             if (this.person.name === winner) {
-                const congratsMessage = `Félicitations ${winner}! Tu Gagnes :)`;
+                const congratsMessage = `Félicitations ${winner}! Tu Gagnes 🥳`;
                 this.gameDone(congratsMessage);
             } else {
                 const hardLuckMessage = 'Tu as perdu :( , Bonne chance pour la prochaine fois!';
@@ -130,7 +130,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             }
         });
         this.socketService.on<string>('playerLeft', () => {
-            const quitMessage = 'Adversaire a quitté, tu Gagnes :)';
+            const quitMessage = 'Adversaire a quitté 🏃‍♂️💨, tu Gagnes!';
             this.gameDone(quitMessage);
         });
     }
