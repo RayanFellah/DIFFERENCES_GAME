@@ -240,7 +240,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 sheet.modifiedImagePath = null;
                 this.sheetService.deleteSheet(sheetId);
                 this.server.to(`GameRoom${sheetId}`).emit('CurrentGameDeleted', sheetId);
-                this.server.to('GridRoom').emit('sheetDeleted', sheetId);
+                this.server.emit('sheetDeleted', sheetId);
+                console.log(this.rooms);
+                console.log(sheetId);
+                for (const room of this.rooms) {
+                    if (room.sheet._id.toString() === sheetId) {
+                        this.server.to(room.roomName).emit('kickOut');
+                    }
+                }
+                this.rooms.filter((room) => room.sheet._id !== sheetId);
             } catch (error) {
                 this.logger.error(`Failed to delete sheet with id ${sheetId}: ${error}`);
             }
@@ -289,6 +297,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         try {
             await this.sheetService.deleteAllSheets();
             this.server.to('GridRoom').emit('sheetDeleted', 'all');
+            for (const room of this.rooms) {
+                this.server.to(room.roomName).emit('kickOut');
+            }
         } catch (error) {
             this.logger.error(error);
         }

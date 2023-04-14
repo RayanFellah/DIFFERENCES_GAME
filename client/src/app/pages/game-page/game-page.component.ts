@@ -88,6 +88,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
             });
             this.chatMessages.push(message);
         });
+        this.socketService.on('kickOut', () => {
+            const kickOutMessage = "La partie n'existe plus, tu es renvoyé à la page principale";
+            this.gameDone(kickOutMessage);
+            const delay = 3000;
+            setTimeout(() => {
+                this.router.navigate(['/main']);
+            }, delay);
+        });
+
         this.socketService.on<PlayRoom>('roomInfo', (room: PlayRoom) => {
             this.differences = room.numberOfDifferences;
             if (!room.player2) this.person = room.player1;
