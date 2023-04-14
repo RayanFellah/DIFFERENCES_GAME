@@ -1,13 +1,16 @@
 <mat-toolbar class="header" color="primary">
     <span>{{ pageTitle }}</span>
     <span *ngIf="pageTitle !== 'PolyPixels'">
-        <button mat-icon-button matTooltip="Retour à l'accueil" routerLink="/home">
+        <button mat-icon-button  matTooltip="Retour à l'accueil" routerLink="/home">
             <mat-icon>home</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Mode classique" routerLink="/selection">
-            <mat-icon>dashboard</mat-icon>
+        <button mat-icon-button  matTooltip="Mode classique" routerLink="/selection">
+            <mat-icon>videogame_asset</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Configuration" routerLink="/config">
+        <button mat-icon-button  matTooltip="Mode Temps Limité" routerLink="/limited-time">
+            <mat-icon>timer</mat-icon>
+        </button>
+        <button mat-icon-button  matTooltip="Configuration" routerLink="/config">
             <mat-icon>settings</mat-icon>
         </button>
     </span>
