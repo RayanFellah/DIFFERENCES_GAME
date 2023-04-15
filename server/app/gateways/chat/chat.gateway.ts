@@ -89,10 +89,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             (player.differencesFound === room.numberOfDifferences && room.gameType === SOLO_MODE) ||
             (player.differencesFound >= (room.numberOfDifferences + ((room.numberOfDifferences + 1) % 2)) / 2 && room.gameType === MULTIPLAYER_MODE)
         ) {
+            room.isGameDone = true;
             this.server.to(payload.roomName).emit('gameDone', player.name);
             const timeInSeconds = Math.floor((new Date().getTime() - room.startTime.getTime()) / 1000);
             this.checkTopScores(room, timeInSeconds, player.name);
-            room.isGameDone = true;
             const history = {
                 gameStart: room.startTime.toTimeString(),
                 duration: this.elapsedTime(room.startTime),
