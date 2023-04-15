@@ -12,6 +12,7 @@ import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
 import { HintsService } from './hints.service';
+import { GameReplayService } from './game-replay/game-replay.service';
 import { ImageHttpService } from './image-http.service';
 import { SheetHttpService } from './sheet-http.service';
 @Injectable({
@@ -33,6 +34,8 @@ export class GameLogicService {
     clickIgnored: boolean;
     isGameDone = false;
     differences: Vec2[][];
+    isReplay = false;
+
     constructor(
         private leftCanvas: CanvasHelperService,
         private rightCanvas: CanvasHelperService,
@@ -42,6 +45,7 @@ export class GameLogicService {
         private socketService: SocketClientService,
         private cheatMode: CheatModeService,
         private hintService: HintsService,
+        private gameReplayService: GameReplayService,
     ) {
         this.audio = new AudioService();
     }
@@ -157,6 +161,12 @@ export class GameLogicService {
     }
 
     cheat() {
+        this.gameReplayService.events.push({
+            type: 'cheat',
+            timestamp: Date.now(),
+            data: {},
+        });
+        this.cheatMode.getDifferences(this.sheet);
         this.cheatMode.cheatBlink(this.leftCanvas, this.rightCanvas, this.originalImageData, this.modifiedImageData);
     }
     async restart() {

@@ -14,6 +14,7 @@ import { ImageToMatrixService } from './services/image-to-matrix/image-to-matrix
 import { RadiusEnlargementService } from './services/radius-enlargement/radius-enlargement.service';
 import { SheetService } from './services/sheet/sheet.service';
 import { GameGateway } from './gateways/game/game.gateway';
+import { GameEventService } from './services/game-event/game-event.service';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -38,6 +39,7 @@ import { GameGateway } from './gateways/game/game.gateway';
         GameLogicService,
         ImageCompareService,
         GameGateway,
+        GameEventService,
     ],
 })
 export class AppModule {}

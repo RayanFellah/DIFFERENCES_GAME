@@ -5,6 +5,7 @@ import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
 import { GameLogicService } from '@app/services/game-logic.service';
 import { HintsService } from '@app/services/hints.service';
+import { GameReplayService } from '@app/services/game-replay/game-replay.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
@@ -39,6 +40,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
         private cheatMode: CheatModeService,
         private dialog: DialogComponent,
         public hintService: HintsService,
+        private gameReplayService: GameReplayService,
     ) {}
 
     get width(): number {
@@ -58,6 +60,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
             this.socketService,
             this.cheatMode,
             this.hintService,
+            this.gameReplayService,
         );
         await this.logic.start().then((difficulty: string) => {
             this.difficulty.emit(difficulty);
