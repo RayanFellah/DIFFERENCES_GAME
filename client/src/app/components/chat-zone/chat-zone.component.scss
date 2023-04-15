@@ -1,27 +1,64 @@
-.input-area {
-    width: 300px;
-    padding-top: 10px;
+$my-indigo: #3F51B5;
+$my-pink: #E91E63;
+* {
+    margin: 0 !important;
+    padding: 0 !important;
 }
+.chat-zone {
+    padding-left: 1% !important;
+    display: flex;
+    flex-direction: column;
+    width: 18vw;
+    height: 20vh;
+    background-color: rgba(0, 0, 0, 0.1);
+    pointer-events: none;
 
-.op-name {
-    text-align: start;
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
 }
 
 .chat-area {
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    height: 320px;
-    width: 300px;
-    background: linear-gradient(to bottom, #f2f0f0, #d1d1d1);
+    width: 100%;
+    height: calc(100% - 20px);
+    background: transparent;
     overflow-y: scroll;
     display: flex;
     flex-flow: column nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: $my-indigo transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: $my-indigo;
+        border-radius: 20px;
+    }
 }
+
+.input-area {
+    border: none;
+    background:  rgba(0, 0, 0, 0.1);;
+    pointer-events: all;
+
+    &:focus {
+        border: none;
+        outline: none;
+    }
+}
+
 
 .chat-area > :first-child {
     margin-top: auto !important;
+}
+.message-span {
+    color: $my-indigo;
 }
 
 .message-wrapper {
@@ -31,57 +68,17 @@
 }
 
 .message-player {
-    justify-content: flex-end;
-    align-self: flex-end;
+    color: $my-indigo;
 }
 
 .message-opponent {
-    justify-content: flex-start;
-    align-self: flex-start;
+    color: $my-pink;
 }
 
 .message-game {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    justify-content: center;
+    color: #66BB6A;
 }
 
-.message-content {
-    word-wrap: break-word;
-    min-width: 0;
-    max-width: 180px;
-    margin: 8px;
-    padding: 12px;
-    border-radius: 20px;
-    background-color: #eceff1;
-    font-family: 'Open Sans', sans-serif;
-}
-
-.player {
-    background-color: #3f51b5;
-    color: #fff;
-}
-
-.opponent {
-    background-color: #757575;
-    color: #fff;
-}
-
-.game {
-    background-color: #ffd600;
-    color: #444444;
-}
-.send-button {
-    margin-left: 10px;
-    color: #ffffff;
-    background-color: #3f51b5;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
-}
-
-.send-button:hover {
-    background-color: #1a237e;
-    transform: scale(1.1);
+.message-error {
+    color: $my-pink;
 }

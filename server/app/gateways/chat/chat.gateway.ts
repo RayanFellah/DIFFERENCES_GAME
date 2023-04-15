@@ -54,7 +54,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             for (const coords of diff.coords) {
                 if (JSON.stringify(clickCoord) === JSON.stringify(coords)) {
                     isError = false;
-                    this.server.to(payload.roomName).emit('roomMessage', { content: `${payload.playerName} a trouvé une différence!`, type: 'game' });
+                    this.server.to(payload.roomName).emit('roomMessage', {
+                        playerName: payload.playerName,
+                        content: 'une nouvelle différence trouvée',
+                        type: 'game',
+                    });
                     player.differencesFound++;
                     this.server.to(payload.roomName).emit('clickFeedBack', {
                         coords: diff.coords,
@@ -72,7 +76,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 player,
                 diffsLeft: room.differences.length - player.differencesFound,
             });
-            const errorMessage: ChatMessage = { content: `ERROR FROM ${player.name}`, type: 'game' };
+            const errorMessage: ChatMessage = { playerName: player.name, content: " ERREUR ceci n'est pas une différence. ", type: 'error' };
             this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, errorMessage);
         }
         if (
@@ -92,6 +96,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage(ChatEvents.RoomMessage)
     roomMessage(socket: Socket, payload) {
         const message: ChatMessage = {
+            playerName: payload.message.playerName,
             content: payload.message.content,
             type: '',
         };

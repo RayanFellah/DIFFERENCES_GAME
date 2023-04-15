@@ -3,10 +3,12 @@
         <mat-card-title>{{ sheet.title }}</mat-card-title>
         <mat-card-subtitle>{{ sheet.difficulty }}</mat-card-subtitle>
     </mat-card-header>
-    <mat-card-content> <img [src]="trustedUrl" alt="Image" /> </mat-card-content>
-    <mat-card-content><app-game-score></app-game-score></mat-card-content>
+    <mat-card-content class="content"> 
+        <img [src]="trustedUrl" alt="Image" *ngIf="trustedUrl" /> 
+        <app-game-score></app-game-score>
+    </mat-card-content>
 
-    <mat-card-actions>
+    <mat-card-actions class="action-container">
         <button mat-stroked-button color="primary" (click)="play()" [disabled]="isConfig">
             {{ isConfig ? 'Réinitialiser' : 'Jouer' }}
         </button>

@@ -1,6 +1,4 @@
 <app-header pageTitle="Création"></app-header>
-
-<main>
     <form [formGroup]="createGame" (ngSubmit)="submit(leftImageArea, rightImageArea)">
         <div class="head">
             <mat-form-field>
@@ -20,7 +18,7 @@
         </button>
         <app-image-area #rightImageArea id="rightCanvas" [side]="'right'"></app-image-area>
 
-        <div id="leftUpload">
+        <div class="upload" id="leftUpload">
             <button type="button" mat-raised-button color="primary" (click)="duplicate(leftImageArea, rightImageArea)">
                 <mat-icon>content_copy</mat-icon>
                 Dupliquer
@@ -39,7 +37,7 @@
         </div>
 
         <div id="options">
-            <button type="button" mat-stroked-button color="accent" routerLink="/config">retour</button>
+            <button type="button" mat-stroked-button color="accent" routerLink="/config">Retour</button>
             <input type="file" class="file-input" (change)="onFileChange($event)" accept=".bmp" #fileUpload />
             <button mat-stroked-button type="button" color="primary" class="file-upload" (click)="fileUpload.click()">
                 {{ 'Téléverser dans les deux zones' }}
@@ -64,4 +62,3 @@
             </button>
         </div>
     </form>
-</main>

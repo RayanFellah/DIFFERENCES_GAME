@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+
 import { ChatMessage } from '@common/chat-message';
 
 @Component({
@@ -11,12 +12,13 @@ export class ChatZoneComponent {
     @Input() opponent: string;
     @Input() chatMessages: ChatMessage[] = [];
     @Output() messageEvent = new EventEmitter<ChatMessage>();
+
     messageContent: string = '';
     newMessage: ChatMessage;
 
     sendMessage() {
         if (this.messageContent.length > 0) {
-            this.newMessage = { content: this.messageContent, type: 'player' };
+            this.newMessage = { playerName: this.playerName, content: this.messageContent, type: 'player' };
             this.messageEvent.emit(this.newMessage);
             this.messageContent = '';
         }
