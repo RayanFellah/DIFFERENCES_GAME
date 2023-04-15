@@ -132,7 +132,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.replaySpeed = speed;
     }
     async replayEvents() {
-        this.playArea.logic.isReplay = true;
         this.isReplayPlaying = true;
         await new Promise((resolve) => setTimeout(resolve, ONE_SECOND));
 
@@ -166,15 +165,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
         for (const event of sortedEvents) {
             await processEvent(event);
-        }
-    }
-    async restartReplay() {
-        if (this.playArea.logic.isReplay) {
-            this.isReplayPaused = true;
-            await this.resetReplayState().then(() => {
-                this.isReplayPaused = false;
-                this.replayEvents();
-            });
         }
     }
     async resetReplayState() {

@@ -1,4 +1,4 @@
-<app-header pageTitle="Bienvenue {{playerName}}"></app-header>
+<app-header pageTitle="Bienvenue {{ playerName }}"></app-header>
 <main class="main-container">
     <div class="info-container">
         <h3>Difficulté: {{ difficulty }}</h3>
@@ -15,17 +15,7 @@
     <div class="play-area-container" tabindex="0" autofocus (keyup.t)="playArea.blink()">
         <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area"></app-play-area>
     </div>
-    
-    <div class="replay-options-container">
-        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying && !isReplayPaused" (click)="pauseReplay()">Pause Replay</button>
-        <button mat-stroked-button color="primary" *ngIf="isReplayPaused" (click)="resumeReplay()">Resume Replay</button>
-        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="restartReplay()">Restart Replay</button>
-        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(1)">1X</button>
-        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(2)">2X</button>
-        <button mat-stroked-button color="primary" *ngIf="isReplayPlaying" (click)="setReplaySpeed(3)">3X</button>
-    </div>
-    
-    
+
     <div class="chat-zone-container">
         <app-chat-zone
             [playerName]="playerName"

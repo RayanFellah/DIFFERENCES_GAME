@@ -106,10 +106,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     @SubscribeMessage(ChatEvents.Hint)
     hintActivated() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('en-US', { hour12: false });
-        const hintUsed: ChatMessage = { content: `${timeString} - Indice utilisé`, type: 'game' };
-        this.server.emit(ChatEvents.RoomMessage, hintUsed);
+        // const now = new Date();
+        // const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+        // const hintUsed: ChatMessage = { content: `${timeString} - Indice utilisé`, type: 'game' };
+        // this.server.emit(ChatEvents.RoomMessage, hintUsed);
     }
 
     @SubscribeMessage(ChatEvents.JoinGridRoom)
