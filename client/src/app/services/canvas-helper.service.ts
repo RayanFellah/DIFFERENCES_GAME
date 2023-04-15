@@ -25,13 +25,6 @@ export class CanvasHelperService implements OnDestroy {
         return canvas;
     }
 
-    setCanvas(canvas: HTMLCanvasElement) {
-        this.canvasRef = canvas;
-        this.context = canvas.getContext('2d', { willReadFrequently: true });
-        if (this.context) {
-            this.tempImageData = this.context.getImageData(0, 0, WIDTH, HEIGHT);
-        }
-    }
     getCanvas() {
         return this.canvasRef;
     }
@@ -43,12 +36,13 @@ export class CanvasHelperService implements OnDestroy {
     drawImageOnCanvas(blob: Blob) {
         this.url = URL.createObjectURL(blob);
         const image = new Image();
-        image.src = this.url;
         image.onload = () => {
             if (this.context) {
                 this.context.drawImage(image, 0, 0);
             }
         };
+        URL.revokeObjectURL(this.url);
+        image.src = this.url;
     }
 
     getColor() {
@@ -90,36 +84,17 @@ export class CanvasHelperService implements OnDestroy {
             this.disable = false;
         }, ONE_SECOND);
     }
-
-    // drawingOnImage() {
-    //     const mouseDownStream = fromEvent(this.canvasRef, 'mousedown');
-    //     const mouseMoveStream = fromEvent(this.canvasRef, 'mousemove');
-    //     const mouseUpStream = fromEvent(window, 'mouseup');
-
-    //     mouseDownStream.pipe(
-    //         tap((event: MouseEvent) => {
-    //             if (this.context) {
-    //                 this.context.beginPath();
-    //                 this.context.strokeStyle = 'this.color';
-    //                 this.context.lineWidth = 5;
-    //                 this.context.lineJoin = 'round';
-    //                 this.context?.moveTo(event.offsetX, event.offsetY);
-    //             }
-    //         }) as OperatorFunction<Event, MouseEvent>,
-    //         switchMap(() =>
-    //             mouseMoveStream.pipe(
-    //                 tap((event: MouseEvent) => {
-    //                     this.context?.lineTo(event.offsetX, event.offsetY);
-    //                     this.context?.stroke();
-    //                 }) as OperatorFunction<Event, MouseEvent>,
-    //                 takeUntil(mouseUpStream),
-    //                 finalize(() => {
-    //                     this.context?.closePath();
-    //                 }),
-    //             ),
-    //         ),
-    //     );
-    // }
+    displayErrorMessage2(event: MouseEvent, context: CanvasRenderingContext2D) {
+        if (this.disable) return;
+        this.disable = true;
+        const temp: ImageData | undefined = context?.getImageData(0, 0, this.width, this.height);
+        if (context) context.font = FONT_STYLE;
+        context?.fillText('ERROR', event.offsetX, event.offsetY);
+        setTimeout(() => {
+            if (temp) context?.putImageData(temp, 0, 0);
+            this.disable = false;
+        }, ONE_SECOND);
+    }
     ngOnDestroy(): void {
         URL.revokeObjectURL(this.url);
     }

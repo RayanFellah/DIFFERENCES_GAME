@@ -74,5 +74,8 @@ export class DialogService {
         this.playerConfirmed.next(null);
         this.playerRejected.next(null);
         this.playerName.next([]);
+        this.lunchCoopGame.next(false);
+        this.selectCoopLimitedTime.next(false);
+        this.selectSoloLimitedTime.next(false);
     }
 }
