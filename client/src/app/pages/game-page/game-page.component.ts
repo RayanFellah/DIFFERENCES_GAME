@@ -125,7 +125,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 const congratsMessage = `Félicitations ${winner}! Tu Gagnes 🥳`;
                 this.gameDone(congratsMessage);
             } else {
-                const hardLuckMessage = 'Tu as perdu :( , Bonne chance pour la prochaine fois!';
+                const hardLuckMessage = 'Tu as perdu 🤕 Bonne chance pour la prochaine fois!';
                 this.gameDone(hardLuckMessage);
             }
         });
