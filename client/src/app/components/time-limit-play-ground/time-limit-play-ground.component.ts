@@ -1,6 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
-import { GameStateService } from '@app/services/game-state/game-state.service';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { TimeLimitModeService } from '@app/services/time-limit-mode.service';
 import { HEIGHT, WIDTH } from 'src/constants';
 
@@ -10,12 +8,12 @@ import { HEIGHT, WIDTH } from 'src/constants';
     styleUrls: ['./time-limit-play-ground.component.scss'],
     providers: [],
 })
-export class TimeLimitPlayGroundComponent implements OnInit, AfterViewInit, OnDestroy {
+export class TimeLimitPlayGroundComponent implements AfterViewInit {
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
     private canvasSize = { x: WIDTH, y: HEIGHT };
 
-    constructor(private gameLogic: TimeLimitModeService, private gameState: GameStateService, private router: Router) {}
+    constructor(private gameLogic: TimeLimitModeService) {}
 
     get width(): number {
         return this.canvasSize.x;
@@ -25,12 +23,6 @@ export class TimeLimitPlayGroundComponent implements OnInit, AfterViewInit, OnDe
         return this.canvasSize.y;
     }
 
-    ngOnInit(): void {
-        if (!this.gameState.isGameInitialized) {
-            this.router.navigate(['/main']);
-        }
-    }
-
     ngAfterViewInit() {
         this.gameLogic.bindCanvasRefs(this.canvas1.nativeElement, this.canvas2.nativeElement);
         this.gameLogic.drawOnCanvas();
@@ -38,9 +30,5 @@ export class TimeLimitPlayGroundComponent implements OnInit, AfterViewInit, OnDe
 
     handleClick(event: MouseEvent) {
         this.gameLogic.sendClick(event);
-    }
-
-    ngOnDestroy(): void {
-        location.reload();
     }
 }

@@ -1,28 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { GameStateService } from '@app/services/game-state/game-state.service';
 import { TimeLimitModeService } from '@app/services/time-limit-mode.service';
-import { ChatMessage } from '@common/chat-message';
-import { Player } from '@common/player';
 
 @Component({
     selector: 'app-limited-time-game-page',
     templateUrl: './limited-time-game-page.component.html',
     styleUrls: ['./limited-time-game-page.component.scss'],
 })
-export class LimitedTimeGamePageComponent {
-    difficulty: string;
-    chatMessages: ChatMessage[] = [];
-    sheetId: string | null;
-    roomName: string | null;
-    differences: number;
-    person: Player;
-    opponent: Player;
+export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
     timeLeft: number;
-    constructor(public gameLogic: TimeLimitModeService) {
+    gameType = 'TL';
+    playerName: string;
+    opponent: string = 'opp';
+    roomName: string = 'room';
+    constructor(public gameLogic: TimeLimitModeService, private gameState: GameStateService, private router: Router) {}
+    ngOnInit() {
+        if (!this.gameState.isGameInitialized) {
+            this.router.navigate(['/main']);
+        }
         this.timeLeft = this.gameLogic.timeLimit;
-        this.person = this.gameLogic.player;
-        this.opponent = this.gameLogic.playRoom.player2;
-        this.sheetId = this.gameLogic.sheet;
+        this.playerName = this.gameLogic.player.name;
         this.roomName = this.gameLogic.playRoom.roomName;
-        this.differences = this.gameLogic.playRoom.currentDifferences.length;
+    }
+    ngOnDestroy(): void {
+        location.reload();
     }
 }
