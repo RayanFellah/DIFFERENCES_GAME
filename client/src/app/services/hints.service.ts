@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
+import seedrandom from 'seedrandom';
 import { FOUR, HEIGHT, INITIAL_HINTS, THREE_SECONDS, WIDTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { GameHttpService } from './game-http.service';
+
+// Seed the random number generator
 
 @Injectable({
     providedIn: 'root',
@@ -15,8 +19,18 @@ export class HintsService {
     tempContext: CanvasRenderingContext2D;
     blockClick: boolean = false;
     activateHint: boolean = false;
-
-    constructor(private readonly gameHttp: GameHttpService, private readonly audioService: AudioService) {}
+    rng: any;
+    _secretSeed: string = '';
+    constructor(private readonly gameHttp: GameHttpService, private readonly audioService: AudioService) {
+        this._secretSeed = Date.now().toString();
+        this.rng = seedrandom(this.secretSeed);
+    }
+    get secretSeed() {
+        return this._secretSeed;
+    }
+    set seed(seed: string) {
+        this.rng = seedrandom(seed);
+    }
 
     getDifferences(id: string) {
         this.gameHttp.getAllDifferences(id).subscribe((res) => {
@@ -31,17 +45,17 @@ export class HintsService {
         this.activateHint = false;
     }
 
-    executeHint(container: HTMLElement): void {
+    executeHint(container: HTMLElement, delay: number): void {
         if (this.hintsLeft === 0 || this.blockClick) return;
         this.blockClick = true;
         this.activateHint = true;
         switch (this.hintsLeft) {
             case 3: {
-                this.executeFirstHint(container);
+                this.executeFirstHint(delay, container);
                 break;
             }
             case 2: {
-                this.executeSecondHint(container);
+                this.executeSecondHint(delay, container);
                 break;
             }
             case 1: {
@@ -55,15 +69,16 @@ export class HintsService {
 
     executeThirdHint() {
         const diff = this.chooseRandomDifference();
+
         return diff;
     }
 
-    executeSecondHint(container?: HTMLElement) {
-        this.showDial(FOUR, FOUR, container);
+    executeSecondHint(delay: number, container?: HTMLElement) {
+        this.showDial(FOUR, FOUR, container, delay);
     }
 
-    executeFirstHint(container?: HTMLElement) {
-        this.showDial(2, 2, container);
+    executeFirstHint(delay: number, container?: HTMLElement) {
+        this.showDial(2, 2, container, delay);
     }
 
     selectDial(randomPoint: Vec2, noColumns: number, noRows: number) {
@@ -79,8 +94,8 @@ export class HintsService {
         return dial;
     }
 
-    showDial(noColumns: number, noRows: number, container?: HTMLElement) {
-        const randomPoint = this.chooseRandomDifference()[Math.floor(Math.random() * this.differences.length)];
+    showDial(noColumns: number, noRows: number, container?: HTMLElement, delay = THREE_SECONDS) {
+        const randomPoint = this.chooseRandomDifference()[Math.floor(this.rng() * this.differences.length)];
         const dial = this.selectDial(randomPoint, noColumns, noRows);
         this.createTempCanvas(container);
         this.tempContext.fillRect(dial.startPos.posX, dial.startPos.posY, dial.width, dial.height);
@@ -92,7 +107,7 @@ export class HintsService {
             this.tempCanvas.remove();
             this.blockClick = false;
             this.activateHint = false;
-        }, THREE_SECONDS);
+        }, delay);
     }
 
     removeDifference(diff: Vec2[]) {
@@ -108,7 +123,7 @@ export class HintsService {
     }
 
     private chooseRandomDifference(): Vec2[] {
-        const randomDifference = this.differences[Math.floor(Math.random() * this.differences.length)];
+        const randomDifference = this.differences[Math.floor(this.rng() * this.differences.length)];
         return randomDifference;
     }
 

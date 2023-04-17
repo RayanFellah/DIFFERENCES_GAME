@@ -1,7 +1,7 @@
 <div *ngIf="hintService.activateHint && hintService.hintsLeft !== 0">
     <h3>Une différence se trouve dans le cadran indiqué</h3>
 </div>
-<div *ngIf="hintService.activateHint && hintService.hintsLeft === 0">
+<div *ngIf="(hintService.activateHint && hintService.hintsLeft === 0) || (this.gameReplayService.isReplay && hintService.hintsLeft === 0)">
     <h3>Voici la forme d'une des différences</h3>
     <canvas #diff id="canvas"> </canvas>
 </div>

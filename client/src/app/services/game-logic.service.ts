@@ -7,7 +7,7 @@ import { Vec2 } from '@app/interfaces/vec2';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { Player } from '@common/player';
 import { Sheet } from '@common/sheet';
-import { BLINK_DURATION, RGBA_LENGTH } from 'src/constants';
+import { BLINK_DURATION, CHEAT_BLINK_INTERVAL, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
@@ -105,7 +105,7 @@ export class GameLogicService {
         });
     }
 
-    makeBlink(diff: Vec2[]) {
+    makeBlink(diff: Vec2[], delay = BLINK_DURATION) {
         if (diff) {
             if (this.leftCanvas.context) {
                 const leftDiffColor = this.leftCanvas.getColor();
@@ -122,7 +122,7 @@ export class GameLogicService {
                     this.isBlinking = false;
                     this.updateImagesInformation();
                     clearInterval(intervalId);
-                }, BLINK_DURATION);
+                }, delay);
             }
         }
     }
@@ -140,13 +140,13 @@ export class GameLogicService {
         }
         this.rightCanvas.context!.putImageData(this.modifiedImageData, 0, 0);
     }
-    handleClick(event: MouseEvent, diff: Vec2[] | undefined, player: string) {
+    handleClick(event: MouseEvent, diff: Vec2[] | undefined, player: string, delay = BLINK_DURATION) {
         if (!event) return;
         const canvasClicked = event.target as HTMLCanvasElement;
         const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
         if (diff) {
             if (player === this.socketService.socket.id) {
-                this.makeBlink(diff);
+                this.makeBlink(diff, delay);
                 this.audio.playSuccessSound();
                 if (!this.isReplay) {
                     this.gameReplayService.events.push({
@@ -174,14 +174,14 @@ export class GameLogicService {
         return undefined;
     }
 
-    cheat() {
+    cheat(delay = CHEAT_BLINK_INTERVAL) {
         this.gameReplayService.events.push({
             type: 'cheat',
             timestamp: Date.now(),
             data: {},
         });
         this.cheatMode.getDifferences(this.sheet);
-        this.cheatMode.cheatBlink(this.leftCanvas, this.rightCanvas, this.originalImageData, this.modifiedImageData);
+        this.cheatMode.cheatBlink(this.leftCanvas, this.rightCanvas, this.originalImageData, this.modifiedImageData, delay);
     }
     async restart() {
         await this.start();

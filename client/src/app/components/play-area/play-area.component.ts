@@ -1,17 +1,17 @@
 /* eslint-disable max-params */
 import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { HintMessageComponent } from '@app/components/hint-message/hint-message.component';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
 import { GameLogicService } from '@app/services/game-logic.service';
-import { HintsService } from '@app/services/hints.service';
 import { GameReplayService } from '@app/services/game-replay/game-replay.service';
+import { HintsService } from '@app/services/hints.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { PlayRoom } from '@common/play-room';
 import { HEIGHT, THREE_SECONDS, WIDTH } from 'src/constants';
-import { HintMessageComponent } from '@app/components/hint-message/hint-message.component';
 // eslint-disable-next-line no-restricted-imports
 @Component({
     selector: 'app-play-area',
@@ -29,7 +29,6 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
     clickEnabled = true;
     room: PlayRoom;
     initialHtml: string;
-
     private canvasSize = { x: WIDTH, y: HEIGHT };
 
     constructor(
@@ -41,7 +40,10 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
         public hintService: HintsService,
         private gameReplayService: GameReplayService,
     ) {}
-
+    get isGameDone(): boolean {
+        if (this.logic) return this.logic.isGameDone;
+        return false;
+    }
     get width(): number {
         return this.canvasSize.x;
     }
@@ -84,12 +86,19 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
     blink() {
         this.logic.cheat();
     }
-    hint() {
+    hint(delay = THREE_SECONDS) {
         if (this.hintService.blockClick || this.hintService.differences.toString() === [].toString()) return;
         this.socketService.send('hint', this.playerName);
-        this.hintService.executeHint(this.playAreaContainer.nativeElement);
+        this.hintService.executeHint(this.playAreaContainer.nativeElement, delay);
+        if (!this.gameReplayService.isReplay) {
+            this.gameReplayService.events.push({
+                type: 'hint',
+                timestamp: Date.now(),
+                data: this.playAreaContainer.nativeElement,
+            });
+        }
         setTimeout(() => {
             this.hintService.activateHint = false;
-        }, THREE_SECONDS);
+        }, delay);
     }
 }

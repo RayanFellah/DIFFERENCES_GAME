@@ -25,7 +25,7 @@ export class CheatModeService {
     setColor(color: Uint8ClampedArray, canvas: CanvasHelperService, index: number) {
         canvas.context!.fillStyle = `rgba(${color[index]},${color[index + 1]},${color[index + 2]},${color[index + 3]})`;
     }
-    cheatBlink(canvas1: CanvasHelperService, canvas2: CanvasHelperService, original: ImageData, modified: ImageData) {
+    cheatBlink(canvas1: CanvasHelperService, canvas2: CanvasHelperService, original: ImageData, modified: ImageData, delay = CHEAT_BLINK_INTERVAL) {
         this.color1 = canvas1.context!.getImageData(0, 0, WIDTH, HEIGHT);
         this.color2 = canvas2.context!.getImageData(0, 0, WIDTH, HEIGHT);
         let condition = true;
@@ -51,7 +51,7 @@ export class CheatModeService {
                 this.stopCheating(canvas1, canvas2, original, modified);
                 clearInterval(interval);
             }
-        }, CHEAT_BLINK_INTERVAL);
+        }, delay);
     }
     stopCheating(canvas1: CanvasHelperService, canvas2: CanvasHelperService, original: ImageData, modified: ImageData) {
         canvas1.context?.putImageData(original, 0, 0);

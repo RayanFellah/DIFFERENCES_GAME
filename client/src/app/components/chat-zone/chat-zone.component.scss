@@ -16,11 +16,8 @@ $my-global: #9c27b0;
     width: 18vw;
     height: 20vh;
     background-color: rgba(0, 0, 0, 0.1);
-    pointer-events: none;
-
-    &:hover {
-        background-color: rgba(0, 0, 0, 0.3);
-    }
+    border-radius: 0%;
+    outline: 0;
 }
 
 .chat-area {
@@ -43,19 +40,24 @@ $my-global: #9c27b0;
 
     &::-webkit-scrollbar-thumb {
         background-color: $my-indigo;
-        border-radius: 20px;
     }
+}
+
+.message-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    word-wrap: break-word;
 }
 
 .input-area {
     box-sizing: border-box;
     border: none;
     background: rgba(0, 0, 0, 0.1);
-    pointer-events: all;
     resize: vertical; /* Add this line to enable vertical resizing */
     min-height: 20px; /* Set a minimum height to avoid collapsing */
     overflow: auto; /* Enable scrolling when input exceeds container height */
-
+    width: 100%;
     &:focus {
         border: none;
         outline: none;
@@ -68,12 +70,6 @@ $my-global: #9c27b0;
 
 .message-span {
     color: $my-indigo;
-}
-
-.message-wrapper {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
 }
 
 .message-player {

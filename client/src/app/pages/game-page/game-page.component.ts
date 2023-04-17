@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-params */
-import { Component, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
+import { HintMessageComponent } from '@app/components/hint-message/hint-message.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { ChatEvents } from '@app/interfaces/chat-events';
 import { GameEvents } from '@app/interfaces/game-events';
@@ -14,7 +16,7 @@ import { SocketClientService } from '@app/services/socket-client/socket-client.s
 import { ChatMessage } from '@common/chat-message';
 import { PlayRoom } from '@common/play-room';
 import { Player } from '@common/player';
-import { ONE_SECOND, SCRUTATION_DELAY } from 'src/constants';
+import { BLINK_DURATION, CHEAT_BLINK_INTERVAL, ONE_SECOND, SCRUTATION_DELAY, THREE_SECONDS } from 'src/constants';
 @Component({
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
@@ -23,6 +25,8 @@ import { ONE_SECOND, SCRUTATION_DELAY } from 'src/constants';
 })
 export class GamePageComponent implements OnInit, OnDestroy {
     @ViewChild(PlayAreaComponent) playArea: PlayAreaComponent;
+    @ViewChild('replayCanvas') replayCanvas: ElementRef<HTMLDivElement>;
+    @ViewChild('hintMessage') hintMessage: HintMessageComponent;
     @Output() playerName: string;
     difficulty: string;
     chatMessages: ChatMessage[] = [];
@@ -41,6 +45,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     replaySpeed = 1;
     elapsedTimeInSeconds: number;
     messageTime: string;
+    seed: any;
     constructor(
         private activatedRoute: ActivatedRoute,
         private socketService: SocketClientService,
@@ -55,25 +60,34 @@ export class GamePageComponent implements OnInit, OnDestroy {
     get hint() {
         return this.hintService;
     }
+    get isReplayStarted() {
+        return this.gameReplayService.isReplay;
+    }
     ngOnInit() {
         if (!this.gameStateService.isGameInitialized) {
             this.router.navigate(['/main']);
         } else {
-            this.playerName = this.activatedRoute.snapshot.paramMap.get('name') as string;
-            this.sheetId = this.activatedRoute.snapshot.paramMap.get('id');
-            this.roomName = this.activatedRoute.snapshot.paramMap.get('roomId');
-            this.startTime = new Date();
-            this.timer = true;
+            this.fetchParams();
+            this.initTimer();
             if (this.socketService.isSocketAlive()) this.handleResponses();
         }
         this.dialogService.shouldReplay$.subscribe(async (shouldReplay: boolean) => {
             if (shouldReplay) {
+                this.seed = this.hintService.secretSeed;
                 await this.resetReplayState();
                 await this.replayEvents();
             }
         });
     }
-
+    fetchParams() {
+        this.playerName = this.activatedRoute.snapshot.paramMap.get('name') as string;
+        this.sheetId = this.activatedRoute.snapshot.paramMap.get('id');
+        this.roomName = this.activatedRoute.snapshot.paramMap.get('roomId');
+    }
+    initTimer() {
+        this.startTime = new Date();
+        this.timer = true;
+    }
     onDifficultyChange(eventData: string) {
         this.difficulty = eventData;
     }
@@ -164,8 +178,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.replaySpeed = speed;
     }
     async replayEvents() {
-        this.playArea.logic.isReplay = true;
-        this.isReplayPlaying = true;
         await new Promise((resolve) => setTimeout(resolve, ONE_SECOND));
 
         const sortedEvents: GameEvents[] = this.gameReplayService.events.slice().sort((a, b) => a.timestamp - b.timestamp);
@@ -184,13 +196,24 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.chatMessages.push(event.data as ChatMessage);
             }
             if (event.type === 'found') {
-                this.playArea.logic.handleClick(event.data.event as MouseEvent, event.data.diff as Vec2[], event.data.player);
+                this.playArea.logic.handleClick(
+                    event.data.event as MouseEvent,
+                    event.data.diff as Vec2[],
+                    event.data.player,
+                    BLINK_DURATION / this.replaySpeed,
+                );
                 this.person.differencesFound++;
             }
             if (event.type === 'error') {
                 this.playArea.logic.handleClick(event.data.event as MouseEvent, event.data.diff as Vec2[], event.data.player);
-            } else if (event.type === 'cheat') {
-                this.playArea.logic.cheat();
+            }
+            if (event.type === 'cheat') {
+                this.playArea.logic.cheat(CHEAT_BLINK_INTERVAL / this.replaySpeed);
+            } else if (event.type === 'hint') {
+                if (this.hintService.hintsLeft === 1) {
+                    this.gameReplayService.isLastHint = true;
+                }
+                this.playArea.hint(THREE_SECONDS / this.replaySpeed);
             }
 
             previousTimestamp = event.timestamp;
@@ -199,31 +222,42 @@ export class GamePageComponent implements OnInit, OnDestroy {
         for (const event of sortedEvents) {
             await processEvent(event);
         }
+        this.gameReplayService.isReplay = false;
     }
     async restartReplay() {
-        if (this.playArea.logic.isReplay) {
+        if (this.gameReplayService.isReplay) {
             this.isReplayPaused = true;
             await this.resetReplayState().then(() => {
                 this.isReplayPaused = false;
+                this.gameReplayService.isReplay = true;
+                this.gameReplayService.isLastHint = false;
                 this.replayEvents();
             });
         }
     }
     async resetReplayState() {
+        this.fetchParams();
+        this.initTimer();
+        this.hintService.seed = this.seed;
+        this.hintService.reset();
+        this.hintService.getDifferences(this.sheetId as string);
+        this.replaySpeed = 1;
         await this.playArea.reset();
         this.person.differencesFound = 0;
         this.formattedTime = '00:00';
         this.chatMessages = [];
     }
     pauseReplay() {
-        this.isReplayPaused = true;
+        this.gameReplayService.isReplay = false;
     }
     resumeReplay() {
-        this.isReplayPaused = false;
+        this.gameReplayService.isReplay = false;
     }
+
     ngOnDestroy(): void {
-        this.isReplayPlaying = false;
+        this.gameReplayService.isReplay = false;
         this.gameReplayService.events = [];
+        this.dialogService.emitReplay(false);
         if (this.socketService.isSocketAlive()) this.socketService.disconnect();
     }
 }

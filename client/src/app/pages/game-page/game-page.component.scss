@@ -6,8 +6,10 @@ $my-pink: #e91e63;
     grid-template-areas:
         'info info'
         'overlay overlay'
-        'replay hints';
+        'replay replay'
+        'chat hints';
 }
+
 .exit {
     position: absolute;
     top: 10px;
@@ -33,7 +35,7 @@ $my-pink: #e91e63;
 .chat-zone-container {
     width: fit-content;
     height: fit-content;
-    grid-area: overlay;
+    grid-area: chat;
     display: flex;
     justify-content: flex-start;
 }

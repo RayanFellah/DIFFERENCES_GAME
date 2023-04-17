@@ -3,7 +3,8 @@
         <div *ngFor="let message of chatMessages">
             <span>@{{ message.time }}</span>
             <span *ngIf="message.name" class="message-span">[{{ message.name }}] </span>
-            <span
+            <div
+                class="message-wrapper"
                 [ngClass]="{
                     'message-player': message.type === 'player',
                     'message-opponent': message.type === 'opponent',
@@ -12,19 +13,21 @@
                     'message-global': message.type === 'global'
                 }"
             >
-                {{ message.content }}
-            </span>
+                <span>
+                    {{ message.content }}
+                </span>
+            </div>
         </div>
     </div>
+    <input
+        matInput
+        class="input-area"
+        placeholder="type..."
+        maxlength="200"
+        type="text"
+        [(ngModel)]="messageContent"
+        tabindex="0"
+        *ngIf="opponent"
+        (keyup.enter)="sendMessage()"
+    />
 </mat-card>
-<input
-    matInput
-    class="input-area"
-    placeholder="type..."
-    maxlength="200"
-    type="text"
-    [(ngModel)]="messageContent"
-    tabindex="0"
-    *ngIf="opponent"
-    (keyup.enter)="sendMessage()"
-/>

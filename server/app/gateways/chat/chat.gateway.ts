@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { ID_LENGTH, MULTIPLAYER_MODE, SOLO_MODE } from '@app/constants';
 import { Coord } from '@app/interfaces/coord';
 import { Sheet } from '@app/model/database/sheet';
@@ -50,7 +51,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         };
         this.rooms.push(newRoom);
         socket.join(newRoom.roomName);
-        this.server.to(newRoom.roomName).emit(ChatEvents.JoinedRoom, newRoom);
         this.sendRoomInfo(newRoom);
     }
 
@@ -366,14 +366,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.server.emit(ChatEvents.Clock, new Date());
     }
     private checkTopScores(room: PlayRoom, time: number, name: string): void {
-        console.log('hello');
         let scores = room.gameType === 'solo' ? room.sheet.top3Solo : room.sheet.top3Multi;
-        console.log(scores);
-        console.log(time);
         const index: number = scores.findIndex((score) => score.time > time);
         const notFound = -1;
         if (index !== notFound) {
-            console.log(index);
             scores.splice(index, 0, { playerName: name, time });
             scores = scores.slice(0, 3);
             if (room.gameType === SOLO_MODE) this.sheetService.modifySheet({ _id: room.sheet._id, top3Solo: scores });
