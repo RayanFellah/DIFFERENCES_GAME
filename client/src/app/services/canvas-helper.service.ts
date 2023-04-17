@@ -41,7 +41,7 @@ export class CanvasHelperService implements OnDestroy {
                 this.context.drawImage(image, 0, 0);
             }
         };
-        URL.revokeObjectURL(this.url);
+
         image.src = this.url;
     }
 

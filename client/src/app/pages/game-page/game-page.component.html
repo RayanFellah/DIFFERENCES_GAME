@@ -24,7 +24,7 @@
     <div class="replay-options-container">
         <button mat-stroked-button color="primary" *ngIf="isReplayPlaying && !isReplayPaused" (click)="pauseReplay()">Pause Replay</button>
         <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="resumeReplay()">Resume Replay</button>
-        <button mat-stroked-button color="primary" *ngIf="" (click)="restartReplay()">Restart Replay</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="restartReplay()">Restart Replay</button>
         <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="setReplaySpeed(1)">1X</button>
         <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="setReplaySpeed(2)">2X</button>
         <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="setReplaySpeed(4)">3X</button>

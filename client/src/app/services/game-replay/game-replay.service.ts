@@ -6,9 +6,10 @@ import { GameEvents } from '@app/interfaces/game-events';
 })
 export class GameReplayService {
     events: GameEvents[] = [];
-    _isReplay = false;
-    _isReplayPaused = false;
     isLastHint = false;
+    private _isReplay = false;
+    private _isReplayPaused = false;
+
     get isReplay() {
         return this._isReplay;
     }

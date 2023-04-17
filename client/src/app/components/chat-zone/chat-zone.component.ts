@@ -29,7 +29,7 @@ export class ChatZoneComponent implements OnInit {
     sendMessage() {
         if (this.messageContent.length > 0) {
             if (this.gameMode === 'Classic') {
-                this.newMessage = { playerName: this.playerName, content: this.messageContent, type: 'player' };
+                this.newMessage = { name: this.playerName, content: this.messageContent, type: 'player' };
                 this.messageEvent.emit(this.newMessage);
                 this.messageContent = '';
             } else {
@@ -40,7 +40,7 @@ export class ChatZoneComponent implements OnInit {
 
     sendMessageTL() {
         if (this.messageContent.length > 0) {
-            this.newMessage = { playerName: this.playerName, content: this.messageContent, type: 'player' };
+            this.newMessage = { name: this.playerName, content: this.messageContent, type: 'player' };
             this.chatService.sendMessage(this.newMessage);
             this.messageContent = '';
         }

@@ -73,6 +73,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
         this.dialogService.shouldReplay$.subscribe(async (shouldReplay: boolean) => {
             if (shouldReplay) {
+                this.gameReplayService.isReplay = true;
                 this.seed = this.hintService.secretSeed;
                 await this.resetReplayState();
                 await this.replayEvents();

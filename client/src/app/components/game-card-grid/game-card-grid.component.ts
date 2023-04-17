@@ -63,8 +63,8 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         });
         this.dialogService.cancel$.subscribe((isCancelled: boolean) => {
             if (isCancelled && this.currentSheetId) {
-                this.currentSheetId = '';
                 this.socketService.send('cancelGameCreation', this.currentSheetId);
+                this.currentSheetId = '';
             }
         });
         this.dialogService.playerRejected$.subscribe((playerName: string | null) => {
