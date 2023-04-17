@@ -148,13 +148,6 @@ export class GameLogicService {
             if (player === this.socketService.socket.id) {
                 this.makeBlink(diff, delay);
                 this.audio.playSuccessSound();
-                if (!this.isReplay) {
-                    this.gameReplayService.events.push({
-                        type: 'found',
-                        timestamp: Date.now(),
-                        data: { event, diff, player },
-                    });
-                }
             }
 
             this.differencesFound++;
@@ -162,11 +155,6 @@ export class GameLogicService {
             this.hintService.removeDifference(diff);
             return diff;
         } else if (player === this.socketService.socket.id) {
-            this.gameReplayService.events.push({
-                type: 'error',
-                timestamp: Date.now(),
-                data: { event, diff, player },
-            });
             this.ignoreClicks();
             canvas.displayErrorMessage(event);
             this.audio.playFailSound();

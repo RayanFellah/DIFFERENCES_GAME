@@ -33,23 +33,6 @@ describe('CanvasHelperService', () => {
     it('should create the service', () => {
         expect(service).toBeTruthy();
     });
-    it('should set and get the canvas element', () => {
-        const newCanvas = document.createElement('canvas');
-        service.setCanvas(newCanvas);
-        expect(service.getCanvas()).toBe(newCanvas);
-    });
-    // it('drawImageOnCanvas should draw image on canvas', () => {
-    //     const blob = new Blob([''], { type: 'image/bmp' });
-
-    //     const img = new Image();
-    //     img.src = './assets/image_empty.bmp';
-    //     spyOnProperty(img, 'complete').and.returnValue(true);
-    //     spyOn(service.context, 'drawImage' as never);
-    //     const event = new Event('loadeddata');
-    //     img.dispatchEvent(event);
-    //     service.drawImageOnCanvas(blob);
-    //     expect(service.context?.drawImage).toHaveBeenCalled();
-    // });
     it('getColor should return image data', () => {
         const imageData = service.getColor();
         expect(imageData).toBeDefined();

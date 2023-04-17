@@ -1,14 +1,11 @@
-<app-header pageTitle="Bienvenue {{person.name}}"></app-header>
-<button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
-    <mat-icon>exit_to_app</mat-icon>
-</button>
+<app-header pageTitle="Bienvenue {{ this.playerName }}"></app-header>
 <main class="main-container">
     <div class="info-container">
-        <div class="player1-points" *ngIf="person">
-            <h3>{{ person.name }}: {{ person.differencesFound }}/{{ this.differences }}</h3>
+        <div class="player1-points" *ngIf="playerName">
+            <h3>{{ playerName }}: {{ 3 }}/{{ 3 }}</h3>
         </div>
         <div class="player2-points" *ngIf="opponent">
-            <h3>{{ opponent.name }}: {{ opponent.differencesFound }}/{{ this.differences }}</h3>
+            <h3>{{ this.opponent }}: {{ 3 }}/{{ 3 }}</h3>
         </div>
         <div class="time-container">
             <h3>Temps: {{ timeLeft }}</h3>
@@ -17,12 +14,13 @@
     <div class="play-area-container" tabindex="0" autofocus>
         <app-time-limit-play-ground></app-time-limit-play-ground>
     </div>
-    
+
     <div class="chat-zone-container">
         <app-chat-zone
-            [playerName]="person.name"
-            [opponent]="opponent ? opponent.name : ''"
-            [chatMessages]="this.chatMessages"
+            [roomName]="this.roomName"
+            [gameMode]="this.gameType"
+            [playerName]="playerName"
+            [opponent]="opponent ? opponent : ''"
             class="chat-zone"
         ></app-chat-zone>
     </div>
