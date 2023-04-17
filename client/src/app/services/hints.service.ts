@@ -6,6 +6,7 @@ import { FOUR, HEIGHT, INITIAL_HINTS, THREE_SECONDS, WIDTH } from 'src/constants
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { GameHttpService } from './game-http.service';
+import { GameReplayService } from './game-replay/game-replay.service';
 
 // Seed the random number generator
 
@@ -14,22 +15,33 @@ import { GameHttpService } from './game-http.service';
 })
 export class HintsService {
     hintsLeft: number = INITIAL_HINTS;
-    differences: Vec2[][];
+
     tempCanvas: HTMLCanvasElement;
     tempContext: CanvasRenderingContext2D;
     blockClick: boolean = false;
     activateHint: boolean = false;
     rng: any;
     _secretSeed: string = '';
-    constructor(private readonly gameHttp: GameHttpService, private readonly audioService: AudioService) {
+    private _differences: Vec2[][];
+    constructor(
+        private readonly gameHttp: GameHttpService,
+        private readonly audioService: AudioService,
+        private readonly gameReplayService: GameReplayService,
+    ) {
         this._secretSeed = Date.now().toString();
         this.rng = seedrandom(this.secretSeed);
     }
     get secretSeed() {
         return this._secretSeed;
     }
+    get differences() {
+        return this._differences;
+    }
     set seed(seed: string) {
         this.rng = seedrandom(seed);
+    }
+    set differences(differences: Vec2[][]) {
+        this._differences = differences;
     }
 
     getDifferences(id: string) {
@@ -116,9 +128,10 @@ export class HintsService {
         });
     }
 
-    applyTimePenalty(time: Date, timePenalty: number) {
+    applyTimePenalty(timePenalty: number, time?: Date) {
         if (this.hintsLeft !== INITIAL_HINTS) {
-            time.setSeconds(time.getSeconds() + timePenalty * (INITIAL_HINTS - this.hintsLeft));
+            if (time) time.setSeconds(time.getSeconds() + timePenalty * (INITIAL_HINTS - this.hintsLeft));
+            else this.gameReplayService.addTime(timePenalty);
         }
     }
 

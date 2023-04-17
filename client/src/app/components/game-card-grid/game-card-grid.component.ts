@@ -42,7 +42,8 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         private snackBar: SnackBarService,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
-            if (shouldNavigate) this.router.navigate(['/game', this.playRoom.sheet._id, this.name, this.playRoom.roomName]);
+            if (shouldNavigate)
+                this.router.navigate(['/game', this.playRoom.sheet._id, this.name, this.playRoom.roomName, this.gameConstants.gamePenalty]);
         });
     }
 
@@ -160,6 +161,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
                 },
             });
         });
+
         this.socketService.on('gameConstants', (constants: GameConstants) => {
             this.gameConstants = constants;
         });

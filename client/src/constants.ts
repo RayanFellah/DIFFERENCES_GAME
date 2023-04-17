@@ -24,3 +24,4 @@ export const TIME_PENALTY_UPPER_LIMIT = 20;
 export const TIME_PENALTY_LOWER_LIMIT = 3;
 export const TIME_BONUS_UPPER_LIMIT = 20;
 export const TIME_BONUS_LOWER_LIMIT = 3;
+export const ONE_MINUTE = 60;

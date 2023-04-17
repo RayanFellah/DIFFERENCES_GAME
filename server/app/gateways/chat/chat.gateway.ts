@@ -25,8 +25,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     rooms: PlayRoom[] = [];
     waitingRooms: WaitingRoom[] = [];
-    private readonly room = PRIVATE_ROOM_ID;
     private readonly gameConstantsService: GameConstantsService;
+    private readonly room = PRIVATE_ROOM_ID;
+
     constructor(
         readonly logger: Logger,
         readonly sheetService: SheetService,
@@ -114,10 +115,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     @SubscribeMessage(ChatEvents.RoomMessage)
     roomMessage(socket: Socket, payload) {
-        const message: ChatMessage = {
-            content: payload.message.content,
-            type: 'opponent',
-        };
+        const message = payload.message;
+        message.type = 'opponent';
         if (payload.message.content.length > 0) {
             socket.broadcast.to(payload.roomName).emit('roomMessage', message);
         }
@@ -210,7 +209,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
         this.sendRoomInfo(room);
         const wait = this.waitingRooms.find((iter) => JSON.stringify(iter.sheetId) === JSON.stringify(room.sheet._id));
-        socket.rooms.delete(`GameRoom${wait.sheetId}`);
+        socket.leave(`GameRoom${room.sheet._id}`);
         this.waitingRooms = this.waitingRooms.filter((iter) => iter.sheetId !== wait.sheetId);
     }
 
@@ -316,7 +315,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const constants = this.gameConstantsService.readGameConstantsFile();
         socket.emit('gameConstants', constants);
     }
-
     sendSheetCreated(sheet: Sheet) {
         this.server.to('GridRoom').emit('sheetCreated', sheet);
     }

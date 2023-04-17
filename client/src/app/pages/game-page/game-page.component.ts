@@ -16,7 +16,7 @@ import { SocketClientService } from '@app/services/socket-client/socket-client.s
 import { ChatMessage } from '@common/chat-message';
 import { PlayRoom } from '@common/play-room';
 import { Player } from '@common/player';
-import { BLINK_DURATION, CHEAT_BLINK_INTERVAL, ONE_SECOND, SCRUTATION_DELAY, THREE_SECONDS } from 'src/constants';
+import { CHEAT_BLINK_INTERVAL, ONE_SECOND, SCRUTATION_DELAY, THREE_SECONDS } from 'src/constants';
 @Component({
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
@@ -40,8 +40,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     timer: boolean;
     initialHtml: string;
     count = 0;
-    isReplayPaused = false;
-    isReplayPlaying = false;
+
     replaySpeed = 1;
     elapsedTimeInSeconds: number;
     messageTime: string;
@@ -63,6 +62,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
     get isReplayStarted() {
         return this.gameReplayService.isReplay;
+    }
+    get isReplayPaused() {
+        return this.gameReplayService.isReplayPaused;
+    }
+    get elapsedTime() {
+        return this.gameReplayService.elapsedTime;
     }
     ngOnInit() {
         if (!this.gameStateService.isGameInitialized) {
@@ -89,6 +94,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
     initTimer() {
         this.startTime = new Date();
         this.timer = true;
+    }
+    stopTimer() {
+        this.timer = false;
     }
     onDifficultyChange(eventData: string) {
         this.difficulty = eventData;
@@ -171,7 +179,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         const MILLISECONDS = 1000;
         const MINUTES = 60;
         const now = new Date(time);
-        this.hintService.applyTimePenalty(now, parseInt(this.penaltyTime, 10));
+        this.hintService.applyTimePenalty(parseInt(this.penaltyTime, 10), now);
         this.messageTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         this.elapsedTimeInSeconds = Math.floor((now.getTime() - this.startTime.getTime()) / MILLISECONDS);
         const minutes = Math.floor(this.elapsedTimeInSeconds / MINUTES);
@@ -180,6 +188,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
     setReplaySpeed(speed: number) {
         this.replaySpeed = speed;
+        this.gameReplayService.speed = speed;
     }
     async replayEvents() {
         this.gameReplayService.isReplay = true;
@@ -201,12 +210,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.chatMessages.push(event.data as ChatMessage);
             }
             if (event.type === 'found') {
-                this.playArea.logic.handleClick(
-                    event.data.event as MouseEvent,
-                    event.data.diff as Vec2[],
-                    event.data.player,
-                    BLINK_DURATION / this.replaySpeed,
-                );
+                this.playArea.logic.makeBlink(event.data);
+                this.playArea.logic.audio.playSuccessSound();
                 this.person.differencesFound++;
             }
             if (event.type === 'error') {
@@ -219,22 +224,20 @@ export class GamePageComponent implements OnInit, OnDestroy {
                     this.gameReplayService.isLastHint = true;
                 }
                 this.playArea.hint(THREE_SECONDS / this.replaySpeed);
+                this.hintService.applyTimePenalty(parseInt(this.penaltyTime, 10));
             }
-
             previousTimestamp = event.timestamp;
         };
 
         for (const event of sortedEvents) {
             await processEvent(event);
         }
-        this.gameReplayService.isReplayPaused = true;
+        this.gameReplayService.stopTimer();
     }
     async restartReplay() {
         if (this.gameReplayService.isReplay) {
-            console.log('restarting replay');
-            this.isReplayPaused = true;
             await this.resetReplayState().then(() => {
-                this.isReplayPaused = false;
+                this.gameReplayService.isReplayPaused = false;
                 this.gameReplayService.isReplay = true;
                 this.gameReplayService.isLastHint = false;
                 this.replayEvents();
@@ -243,26 +246,29 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
     async resetReplayState() {
         this.fetchParams();
-        this.initTimer();
+        this.gameReplayService.startTimer();
         this.hintService.seed = this.seed;
         this.hintService.reset();
         this.hintService.getDifferences(this.sheetId as string);
         this.replaySpeed = 1;
         await this.playArea.reset();
-        this.person.differencesFound = 0;
+        if (this.person) this.person.differencesFound = 0;
+        if (this.opponent) this.opponent.differencesFound = 0;
         this.formattedTime = '00:00';
         this.chatMessages = [];
     }
     pauseReplay() {
+        this.gameReplayService.stopTimer();
         this.gameReplayService.isReplayPaused = true;
-        this.gameReplayService.isReplay = false;
     }
     resumeReplay() {
+        this.gameReplayService.startTimer();
         this.gameReplayService.isReplayPaused = false;
         this.gameReplayService.isReplay = true;
     }
 
     ngOnDestroy(): void {
+        this.gameReplayService.resetTimer();
         this.gameReplayService.isReplay = false;
         this.gameReplayService.events = [];
         this.dialogService.emitReplay(false);

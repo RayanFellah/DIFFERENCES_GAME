@@ -11,6 +11,7 @@ import { BLINK_DURATION, CHEAT_BLINK_INTERVAL, RGBA_LENGTH } from 'src/constants
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
+import { GameHttpService } from './game-http.service';
 import { GameReplayService } from './game-replay/game-replay.service';
 import { HintsService } from './hints.service';
 import { ImageHttpService } from './image-http.service';
@@ -46,6 +47,7 @@ export class GameLogicService {
         private cheatMode: CheatModeService,
         private hintService: HintsService,
         private gameReplayService: GameReplayService,
+        private gameHttp: GameHttpService,
     ) {
         this.audio = new AudioService();
     }
@@ -69,7 +71,9 @@ export class GameLogicService {
                     if (this.socketService.isSocketAlive()) this.handleResponses();
                     this.playRoom = this.activatedRoute.snapshot.paramMap.get('roomId') as string;
                     this.cheatMode.getDifferences(this.sheet);
-                    this.hintService.getDifferences(this.sheet._id);
+                    this.gameHttp.getAllDifferences(this.sheet._id).subscribe((res) => {
+                        this.hintService.differences = res;
+                    });
                     resolve(this.sheet.difficulty);
                 });
             }
@@ -94,6 +98,7 @@ export class GameLogicService {
     handleResponses() {
         this.socketService.on('clickFeedBack', (res: { coords: Vec2[]; player: Player; diffsLeft: number }) => {
             this.makeBlink(res.coords);
+
             this.handleClick(this.currentClick, res.coords, res.player.socketId);
         });
 
@@ -107,6 +112,13 @@ export class GameLogicService {
 
     makeBlink(diff: Vec2[], delay = BLINK_DURATION) {
         if (diff) {
+            if (!this.gameReplayService.isReplay) {
+                this.gameReplayService.events.push({
+                    type: 'found',
+                    timestamp: Date.now(),
+                    data: diff,
+                });
+            }
             if (this.leftCanvas.context) {
                 const leftDiffColor = this.leftCanvas.getColor();
                 const rightDiffColor = this.rightCanvas.getColor();
@@ -148,13 +160,6 @@ export class GameLogicService {
             if (player === this.socketService.socket.id) {
                 this.makeBlink(diff, delay);
                 this.audio.playSuccessSound();
-                if (!this.gameReplayService.isReplay) {
-                    this.gameReplayService.events.push({
-                        type: 'found',
-                        timestamp: Date.now(),
-                        data: { event, diff, player },
-                    });
-                }
             }
 
             this.differencesFound++;
@@ -162,13 +167,6 @@ export class GameLogicService {
             this.hintService.removeDifference(diff);
             return diff;
         } else if (player === this.socketService.socket.id) {
-            if (!this.gameReplayService.isReplay) {
-                this.gameReplayService.events.push({
-                    type: 'error',
-                    timestamp: Date.now(),
-                    data: { event, diff, player },
-                });
-            }
             this.ignoreClicks();
             canvas.displayErrorMessage(event);
             this.audio.playFailSound();

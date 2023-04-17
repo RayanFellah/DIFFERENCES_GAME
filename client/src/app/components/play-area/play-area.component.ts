@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HintMessageComponent } from '@app/components/hint-message/hint-message.component';
 import { CanvasHelperService } from '@app/services/canvas-helper.service';
 import { CheatModeService } from '@app/services/cheat-mode.service';
+import { GameHttpService } from '@app/services/game-http.service';
 import { GameLogicService } from '@app/services/game-logic.service';
 import { GameReplayService } from '@app/services/game-replay/game-replay.service';
 import { HintsService } from '@app/services/hints.service';
@@ -39,6 +40,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
         private cheatMode: CheatModeService,
         public hintService: HintsService,
         private gameReplayService: GameReplayService,
+        private gameHttp: GameHttpService,
     ) {}
     get isGameDone(): boolean {
         if (this.logic) return this.logic.isGameDone;
@@ -62,6 +64,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
             this.cheatMode,
             this.hintService,
             this.gameReplayService,
+            this.gameHttp,
         );
         await this.logic.start().then((difficulty: string) => {
             this.difficulty.emit(difficulty);
