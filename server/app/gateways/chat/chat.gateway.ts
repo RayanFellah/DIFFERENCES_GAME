@@ -3,6 +3,7 @@ import { ID_LENGTH, MULTIPLAYER_MODE, SOLO_MODE } from '@app/constants';
 import { Coord } from '@app/interfaces/coord';
 import { Sheet } from '@app/model/database/sheet';
 import { HistoryInterface } from '@app/model/schema/history.schema';
+import { GameConstantsService } from '@app/services/game-constants/game-constants.service';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
@@ -25,13 +26,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     rooms: PlayRoom[] = [];
     waitingRooms: WaitingRoom[] = [];
     private readonly room = PRIVATE_ROOM_ID;
-
+    private readonly gameConstantsService: GameConstantsService;
     constructor(
         readonly logger: Logger,
         readonly sheetService: SheetService,
         public gameService: GameLogicService,
         public gameHistoryService: GameHistoryService,
-    ) {}
+    ) {
+        this.gameConstantsService = new GameConstantsService();
+    }
 
     @SubscribeMessage('createSoloGame')
     async createSoloRoom(socket: Socket, payload: { name: string; sheetId: string; roomName: string }) {
@@ -302,6 +305,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             this.logger.error(error);
         }
     }
+    @SubscribeMessage('updateConstants')
+    async updateConstants(socket: Socket, payload) {
+        this.gameConstantsService.readGameConstantsFile();
+        this.gameConstantsService.updateGameConstantsFile(payload);
+        this.server.emit('gameConstants', payload);
+    }
+    @SubscribeMessage('getConstants')
+    async getConstants(socket: Socket) {
+        const constants = this.gameConstantsService.readGameConstantsFile();
+        socket.emit('gameConstants', constants);
+    }
+
     sendSheetCreated(sheet: Sheet) {
         this.server.to('GridRoom').emit('sheetCreated', sheet);
     }

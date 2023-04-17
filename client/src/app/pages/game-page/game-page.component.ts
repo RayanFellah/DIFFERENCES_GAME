@@ -46,6 +46,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     elapsedTimeInSeconds: number;
     messageTime: string;
     seed: any;
+    penaltyTime: string;
     constructor(
         private activatedRoute: ActivatedRoute,
         private socketService: SocketClientService,
@@ -73,7 +74,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
         this.dialogService.shouldReplay$.subscribe(async (shouldReplay: boolean) => {
             if (shouldReplay) {
-                this.gameReplayService.isReplay = true;
                 this.seed = this.hintService.secretSeed;
                 await this.resetReplayState();
                 await this.replayEvents();
@@ -84,6 +84,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.playerName = this.activatedRoute.snapshot.paramMap.get('name') as string;
         this.sheetId = this.activatedRoute.snapshot.paramMap.get('id');
         this.roomName = this.activatedRoute.snapshot.paramMap.get('roomId');
+        this.penaltyTime = this.activatedRoute.snapshot.paramMap.get('penalty') as string;
     }
     initTimer() {
         this.startTime = new Date();
@@ -157,18 +158,20 @@ export class GamePageComponent implements OnInit, OnDestroy {
     sendMessage(message: ChatMessage) {
         message.time = this.messageTime;
         this.chatMessages.push(message);
-        this.gameReplayService.events.push({
-            type: 'chat',
-            timestamp: Date.now(),
-            data: message,
-        });
+        if (this.gameReplayService.isReplay) {
+            this.gameReplayService.events.push({
+                type: 'chat',
+                timestamp: Date.now(),
+                data: message,
+            });
+        }
         this.socketService.send('roomMessage', { message, roomName: this.roomName });
     }
     startTimer(time: Date) {
         const MILLISECONDS = 1000;
         const MINUTES = 60;
         const now = new Date(time);
-        this.hintService.applyTimePenalty(now, 5);
+        this.hintService.applyTimePenalty(now, parseInt(this.penaltyTime, 10));
         this.messageTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         this.elapsedTimeInSeconds = Math.floor((now.getTime() - this.startTime.getTime()) / MILLISECONDS);
         const minutes = Math.floor(this.elapsedTimeInSeconds / MINUTES);
@@ -179,6 +182,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.replaySpeed = speed;
     }
     async replayEvents() {
+        this.gameReplayService.isReplay = true;
         await new Promise((resolve) => setTimeout(resolve, ONE_SECOND));
 
         const sortedEvents: GameEvents[] = this.gameReplayService.events.slice().sort((a, b) => a.timestamp - b.timestamp);
@@ -189,7 +193,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
             await new Promise((resolve) => setTimeout(resolve, delay));
 
-            while (this.isReplayPaused) {
+            while (this.gameReplayService.isReplayPaused) {
                 await new Promise((resolve) => setTimeout(resolve, SCRUTATION_DELAY));
             }
 
@@ -223,10 +227,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
         for (const event of sortedEvents) {
             await processEvent(event);
         }
-        this.gameReplayService.isReplay = false;
+        this.gameReplayService.isReplayPaused = true;
     }
     async restartReplay() {
         if (this.gameReplayService.isReplay) {
+            console.log('restarting replay');
             this.isReplayPaused = true;
             await this.resetReplayState().then(() => {
                 this.isReplayPaused = false;
@@ -249,10 +254,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.chatMessages = [];
     }
     pauseReplay() {
+        this.gameReplayService.isReplayPaused = true;
         this.gameReplayService.isReplay = false;
     }
     resumeReplay() {
-        this.gameReplayService.isReplay = false;
+        this.gameReplayService.isReplayPaused = false;
+        this.gameReplayService.isReplay = true;
     }
 
     ngOnDestroy(): void {

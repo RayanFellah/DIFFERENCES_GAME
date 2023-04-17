@@ -10,6 +10,7 @@ import { GameStateService } from '@app/services/game-state/game-state.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SnackBarService } from '@app/services/snack-bar.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
+import { GameConstants } from '@common/game-constants';
 import { PlayRoom } from '@common/play-room';
 import { Sheet } from '@common/sheet';
 import { BehaviorSubject } from 'rxjs';
@@ -24,6 +25,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     @Output() sheets: Sheet[] = [];
     @Input() isConfig: boolean;
     @Input() playerName: string;
+    gameConstants: GameConstants;
     name: string;
     currentPage = 0;
     currentSheetId: string;
@@ -82,6 +84,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.connect();
         const startIndex = this.currentPage * SHEETS_PER_PAGE;
         this.sheets.slice(startIndex, startIndex + SHEETS_PER_PAGE);
+        this.socketService.send('getConstants');
     }
     navigate(type: boolean) {
         this.shouldNavigate$.next(type);
@@ -93,7 +96,6 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     }
     handleResponse() {
         this.socketService.on('sheetCreated', (sheet: Sheet) => {
-            console.log('sheetCreated', sheet);
             this.sheets.push(sheet);
         });
         this.socketService.on('Joinable', (sheetId: string) => {
@@ -157,6 +159,9 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
                     this.sheets = response;
                 },
             });
+        });
+        this.socketService.on('gameConstants', (constants: GameConstants) => {
+            this.gameConstants = constants;
         });
     }
 

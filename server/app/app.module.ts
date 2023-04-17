@@ -17,6 +17,7 @@ import { GameGateway } from './gateways/game/game.gateway';
 import { GameEventService } from './services/game-event/game-event.service';
 import { GameHistoryService } from './services/game-history/game-history.service';
 import { History, historyInterface } from './model/database/history';
+import { GameConstantsService } from './services/game-constants/game-constants.service';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -46,6 +47,7 @@ import { History, historyInterface } from './model/database/history';
         GameGateway,
         GameEventService,
         GameHistoryService,
+        GameConstantsService,
     ],
 })
 export class AppModule {}

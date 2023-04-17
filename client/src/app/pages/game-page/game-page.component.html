@@ -30,7 +30,7 @@
         <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="setReplaySpeed(4)">3X</button>
     </div>
     <app-hint-message #hintMessage class="hints"> </app-hint-message>
-    <p id="time-penalty" *ngIf="hint.activateHint">Pénalité: 5 secondes</p>
+    <p id="time-penalty" *ngIf="hint.activateHint">Pénalité: {{ penaltyTime }} secondes</p>
 
     <div class="chat-zone-container">
         <app-chat-zone

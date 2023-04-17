@@ -7,6 +7,7 @@ import { JoinGame } from '@app/interfaces/join-game';
 import { GameStateService } from '@app/services/game-state/game-state.service';
 import { ImageHttpService } from '@app/services/image-http.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
+import { GameConstants } from '@common/game-constants';
 import { Sheet } from '@common/sheet';
 import { BehaviorSubject } from 'rxjs';
 @Component({
@@ -17,6 +18,7 @@ import { BehaviorSubject } from 'rxjs';
 export class GameCardComponent implements OnInit {
     @Input() sheet: Sheet;
     @Input() isConfig: boolean;
+    @Input() gameConstants: GameConstants;
     @Output() delete = new EventEmitter<void>();
     @Output() createEvent = new EventEmitter<JoinGame>();
     @Output() joinEvent = new EventEmitter<JoinGame>();
@@ -40,7 +42,7 @@ export class GameCardComponent implements OnInit {
                 if (!this.sheet.isJoinable) {
                     this.createSoloGame(playerName);
                 }
-                this.router.navigate(['/game', this.sheet._id, this.playerName, this.roomName]);
+                this.router.navigate(['/game', this.sheet._id, this.playerName, this.roomName, this.gameConstants.gamePenalty]);
             }
         });
     }
@@ -84,9 +86,6 @@ export class GameCardComponent implements OnInit {
         const joinGame: JoinGame = { playerName, sheetId: this.sheet._id };
         this.joinEvent.emit(joinGame);
     }
-
- 
-
     onDelete() {
         this.delete.emit();
         this.socketService.send('sheetDeleted', this.sheet);
