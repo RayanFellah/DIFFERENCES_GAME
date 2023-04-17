@@ -86,28 +86,27 @@ export class GameLogicService {
         }
         this.currentClick = click;
         const data = {
-            x: click.offsetX,
-            y: click.offsetY,
             roomName: this.playRoom,
             playerName: name,
+            click: { x: click.offsetX, y: click.offsetY, target: click.target },
         };
+
+        console.log(data.click);
 
         this.socketService.send('click', data);
     }
 
     handleResponses() {
-        this.socketService.on('clickFeedBack', (res: { coords: Vec2[]; player: Player; diffsLeft: number }) => {
-            this.makeBlink(res.coords);
+        this.socketService.on('clickFeedBack', (res: { click: MouseEvent; coords: Vec2[]; player: Player; diffsLeft: number }) => {
             if (!this.gameReplayService.isReplay) {
-                if (!res.coords) {
-                    this.gameReplayService.events.push({
-                        type: 'error',
-                        timestamp: Date.now(),
-                        data: { event: this.currentClick, coords: res.coords, name: res.player.socketId },
-                    });
-                }
+                this.gameReplayService.events.push({
+                    playerName: res.player.name,
+                    type: res.coords ? 'found' : 'error',
+                    timestamp: Date.now(),
+                    data: { click: res.click, coords: res.coords, name: res.player.socketId },
+                });
             }
-            this.handleClick(this.currentClick, res.coords, res.player.socketId);
+            this.handleClick(res.click, res.coords, res.player.socketId);
         });
 
         this.socketService.on('gameDone', () => {
@@ -120,13 +119,13 @@ export class GameLogicService {
 
     makeBlink(diff: Vec2[], delay = BLINK_DURATION) {
         if (diff) {
-            if (!this.gameReplayService.isReplay) {
-                this.gameReplayService.events.push({
-                    type: 'found',
-                    timestamp: Date.now(),
-                    data: diff,
-                });
-            }
+            // if (!this.gameReplayService.isReplay) {
+            //     this.gameReplayService.events.push({
+            //         type: 'found',
+            //         timestamp: Date.now(),
+            //         data: diff,
+            //     });
+            // }
             if (this.leftCanvas.context) {
                 const leftDiffColor = this.leftCanvas.getColor();
                 const rightDiffColor = this.rightCanvas.getColor();
@@ -160,13 +159,14 @@ export class GameLogicService {
         }
         this.rightCanvas.context!.putImageData(this.modifiedImageData, 0, 0);
     }
-    handleClick(event: MouseEvent, diff: Vec2[] | undefined, player: string, delay = BLINK_DURATION) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    handleClick(event: any, diff: Vec2[] | undefined, player: string, delay = BLINK_DURATION) {
         if (!event) return;
         const canvasClicked = event.target as HTMLCanvasElement;
         const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
         if (diff) {
+            this.makeBlink(diff, delay);
             if (player === this.socketService.socket.id) {
-                this.makeBlink(diff, delay);
                 this.audio.playSuccessSound();
             }
 
@@ -176,7 +176,7 @@ export class GameLogicService {
             return diff;
         } else if (player === this.socketService.socket.id) {
             this.ignoreClicks();
-            canvas.displayErrorMessage(event);
+            canvas.displayErrorMessage2(event, canvas.getCanvas().getContext('2d')!);
             this.audio.playFailSound();
         }
         return undefined;

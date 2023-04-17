@@ -73,23 +73,28 @@ export class CanvasHelperService implements OnDestroy {
         return undefined;
     }
 
-    displayErrorMessage(event: MouseEvent) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    displayErrorMessage(event: any) {
+        console.log(event.x, event.y);
+        console.log('displayErrorMessage1');
         if (this.disable) return;
+        console.log('displayErrorMessage2');
         this.disable = true;
         const temp: ImageData | undefined = this.context?.getImageData(0, 0, this.width, this.height);
         if (this.context) this.context.font = FONT_STYLE;
-        this.context?.fillText('ERROR', event.offsetX, event.offsetY);
+        this.context?.fillText('ERROR', event.x, event.y);
         setTimeout(() => {
             if (temp) this.context?.putImageData(temp, 0, 0);
             this.disable = false;
         }, ONE_SECOND);
     }
-    displayErrorMessage2(event: MouseEvent, context: CanvasRenderingContext2D) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    displayErrorMessage2(event: any, context: CanvasRenderingContext2D) {
         if (this.disable) return;
         this.disable = true;
         const temp: ImageData | undefined = context?.getImageData(0, 0, this.width, this.height);
         if (context) context.font = FONT_STYLE;
-        context?.fillText('ERROR', event.offsetX, event.offsetY);
+        context?.fillText('ERROR', event.x, event.y);
         setTimeout(() => {
             if (temp) context?.putImageData(temp, 0, 0);
             this.disable = false;

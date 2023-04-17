@@ -60,7 +60,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('click')
     validateClick(client: Socket, payload) {
-        const clickCoord: Coord = { posX: payload.x, posY: payload.y };
+        console.log(payload);
+        const clickCoord: Coord = { posX: payload.click.x, posY: payload.click.y };
         const room = this.rooms.find((res) => res.roomName === payload.roomName);
         const player: Player = room.player1.name === payload.playerName ? room.player1 : room.player2;
         let isError = true;
@@ -74,6 +75,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                         coords: diff.coords,
                         player,
                         diffsLeft: room.numberOfDifferences - player.differencesFound,
+                        click: payload.click,
                     });
                     this.server.to(payload.roomName).emit('foundDiff', player);
                     room.differences = room.differences.filter((it) => JSON.stringify(diff) !== JSON.stringify(it));
@@ -85,6 +87,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 coords: undefined,
                 player,
                 diffsLeft: room.differences.length - player.differencesFound,
+                click: payload.click,
             });
             const errorMessage: ChatMessage = { name: player.name, content: `ERROR FROM ${player.name}`, type: 'error' };
             this.server.to(payload.roomName).emit(ChatEvents.RoomMessage, errorMessage);

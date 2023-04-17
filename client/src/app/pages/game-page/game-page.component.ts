@@ -164,14 +164,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
     sendMessage(message: ChatMessage) {
         message.time = this.messageTime;
-        if (this.gameReplayService.isReplay) {
-            this.gameReplayService.events.push({
-                type: 'chat',
-                timestamp: Date.now(),
-                data: message,
-            });
-        }
-        this.socketService.send('roomMessage', { message, roomName: this.roomName });
+        this.gameReplayService.events.push({
+            type: 'chat',
+            timestamp: Date.now(),
+            data: message,
+        });
     }
     startTimer(time: Date) {
         const MILLISECONDS = 1000;
@@ -208,12 +205,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.replayMessages.push(event.data as ChatMessage);
             }
             if (event.type === 'found') {
-                this.playArea.logic.makeBlink(event.data);
-                this.playArea.logic.audio.playSuccessSound();
-                this.person.differencesFound++;
+                if (this.person.name === event.playerName) this.person.differencesFound++;
+                if (this.opponent && this.opponent.name === event.playerName) this.opponent.differencesFound++;
+                this.playArea.logic.handleClick(event.data.click as MouseEvent, event.data.coords as Vec2[], event.data.name);
             }
             if (event.type === 'error') {
-                this.playArea.logic.handleClick(event.data.event as MouseEvent, event.data.coords as Vec2[], event.data.name);
+                this.playArea.logic.handleClick(event.data.click as MouseEvent, event.data.coords as Vec2[], event.data.name);
             }
             if (event.type === 'cheat') {
                 this.playArea.logic.cheat(CHEAT_BLINK_INTERVAL / this.replaySpeed);
