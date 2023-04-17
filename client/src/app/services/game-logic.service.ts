@@ -98,7 +98,15 @@ export class GameLogicService {
     handleResponses() {
         this.socketService.on('clickFeedBack', (res: { coords: Vec2[]; player: Player; diffsLeft: number }) => {
             this.makeBlink(res.coords);
-
+            if (!this.gameReplayService.isReplay) {
+                if (!res.coords) {
+                    this.gameReplayService.events.push({
+                        type: 'error',
+                        timestamp: Date.now(),
+                        data: { event: this.currentClick, coords: res.coords, name: res.player.socketId },
+                    });
+                }
+            }
             this.handleClick(this.currentClick, res.coords, res.player.socketId);
         });
 

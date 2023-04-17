@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ChatService } from '@app/services/chat.service';
 
 import { ChatMessage } from '@common/chat-message';
@@ -8,8 +8,10 @@ import { ChatMessage } from '@common/chat-message';
     templateUrl: './chat-zone.component.html',
     styleUrls: ['./chat-zone.component.scss'],
 })
-export class ChatZoneComponent implements OnInit {
+export class ChatZoneComponent implements OnInit, OnDestroy {
     @Input() playerName: string;
+    @Input() replayMessages: ChatMessage[] = [];
+    @Input() isReplay: boolean = false;
     @Input() opponent: string;
     @Input() chatMessages: ChatMessage[] = [];
     @Output() messageEvent = new EventEmitter<ChatMessage>();
@@ -28,21 +30,25 @@ export class ChatZoneComponent implements OnInit {
     }
     sendMessage() {
         if (this.messageContent.length > 0) {
-            if (this.gameMode === 'Classic') {
-                this.newMessage = { name: this.playerName, content: this.messageContent, type: 'player' };
-                this.messageEvent.emit(this.newMessage);
-                this.messageContent = '';
-            } else {
-                this.sendMessageTL();
-            }
+            // if (this.gameMode === 'Classic') {
+            //     this.newMessage = { name: this.playerName, content: this.messageContent, type: 'player' };
+            //     this.messageEvent.emit(this.newMessage);
+            //     this.messageContent = '';
+            // } else {
+            this.sendMessageTL();
+            // }
         }
     }
 
     sendMessageTL() {
         if (this.messageContent.length > 0) {
             this.newMessage = { name: this.playerName, content: this.messageContent, type: 'player' };
+            this.messageEvent.emit(this.newMessage);
             this.chatService.sendMessage(this.newMessage);
             this.messageContent = '';
         }
+    }
+    ngOnDestroy(): void {
+        location.reload();
     }
 }

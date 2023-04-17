@@ -34,9 +34,11 @@
 
     <div class="chat-zone-container">
         <app-chat-zone
+            [isReplay]="isReplayStarted"
+            [roomName]="this.roomName"
+            [replayMessages]="replayMessages"
             [playerName]="playerName"
             [opponent]="opponent ? opponent.name : ''"
-            [chatMessages]="this.chatMessages"
             (messageEvent)="sendMessage($event)"
             class="chat-zone"
         ></app-chat-zone>

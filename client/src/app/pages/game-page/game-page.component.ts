@@ -29,9 +29,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
     @ViewChild('hintMessage') hintMessage: HintMessageComponent;
     @Output() playerName: string;
     difficulty: string;
-    chatMessages: ChatMessage[] = [];
+    replayMessages: ChatMessage[] = [];
     sheetId: string | null;
-    roomName: string | null;
+    roomName: string;
     differences: number;
     person: Player;
     opponent: Player;
@@ -88,7 +88,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     fetchParams() {
         this.playerName = this.activatedRoute.snapshot.paramMap.get('name') as string;
         this.sheetId = this.activatedRoute.snapshot.paramMap.get('id');
-        this.roomName = this.activatedRoute.snapshot.paramMap.get('roomId');
+        this.roomName = this.activatedRoute.snapshot.paramMap.get('roomId') as string;
         this.penaltyTime = this.activatedRoute.snapshot.paramMap.get('penalty') as string;
     }
     initTimer() {
@@ -110,7 +110,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 timestamp: Date.now(),
                 data: message,
             });
-            this.chatMessages.push(message);
         });
         this.socketService.on('kickOut', () => {
             const kickOutMessage = "La partie n'existe plus 💀 Tu es renvoyé à la page principale.";
@@ -165,7 +164,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
     sendMessage(message: ChatMessage) {
         message.time = this.messageTime;
-        this.chatMessages.push(message);
         if (this.gameReplayService.isReplay) {
             this.gameReplayService.events.push({
                 type: 'chat',
@@ -207,7 +205,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             }
 
             if (event.type === 'chat') {
-                this.chatMessages.push(event.data as ChatMessage);
+                this.replayMessages.push(event.data as ChatMessage);
             }
             if (event.type === 'found') {
                 this.playArea.logic.makeBlink(event.data);
@@ -215,7 +213,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.person.differencesFound++;
             }
             if (event.type === 'error') {
-                this.playArea.logic.handleClick(event.data.event as MouseEvent, event.data.diff as Vec2[], event.data.player);
+                this.playArea.logic.handleClick(event.data.event as MouseEvent, event.data.coords as Vec2[], event.data.name);
             }
             if (event.type === 'cheat') {
                 this.playArea.logic.cheat(CHEAT_BLINK_INTERVAL / this.replaySpeed);
@@ -245,6 +243,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
     }
     async resetReplayState() {
+        this.replayMessages = [];
         this.fetchParams();
         this.gameReplayService.startTimer();
         this.hintService.seed = this.seed;
@@ -255,7 +254,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (this.person) this.person.differencesFound = 0;
         if (this.opponent) this.opponent.differencesFound = 0;
         this.formattedTime = '00:00';
-        this.chatMessages = [];
     }
     pauseReplay() {
         this.gameReplayService.stopTimer();

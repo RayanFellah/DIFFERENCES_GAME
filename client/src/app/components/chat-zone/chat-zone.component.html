@@ -1,6 +1,6 @@
 <mat-card class="chat-zone">
     <div class="chat-area" #chatArea swScrollPosition="lorum-ipsum">
-        <div *ngFor="let message of chatMessages">
+        <div *ngFor="let message of isReplay ? replayMessages : chatMessages">
             <span>@{{ message.time }}</span>
             <span *ngIf="message.name" class="message-span">[{{ message.name }}] </span>
             <div
