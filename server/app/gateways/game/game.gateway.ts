@@ -20,9 +20,15 @@ export class GameGateway implements OnGatewayDisconnect {
     @WebSocketServer() server: Server;
 
     rooms: LimitedTimeRoom[] = [];
-    availableSheets: Sheet[];
+    availableSheets: Sheet[] = [];
     private readonly room = PRIVATE_ROOM_ID;
     constructor(readonly logger: Logger, readonly sheetService: SheetService, public gameService: GameLogicService) {
+        this.sheetService.addedSheet.subscribe((sheet) => {
+            this.availableSheets.push(sheet);
+        });
+        this.sheetService.deletedSheet.subscribe((id) => {
+            if (this.availableSheets.length > 0) this.availableSheets.filter((sheet) => sheet && sheet._id !== id);
+        });
         this.sheetService.getAllSheets().then((sheets) => {
             this.availableSheets = sheets;
         });
@@ -59,22 +65,25 @@ export class GameGateway implements OnGatewayDisconnect {
         this.server.to(room.roomName).emit(GameEvents.SecondPlayerJoined, { room, left, right });
     }
 
-    @SubscribeMessage(GameEvents.SheetDeleted)
-    removeSheet(socket: Socket, payload) {
-        this.availableSheets = this.availableSheets.filter((sheet) => JSON.stringify(sheet._id) !== JSON.stringify(payload._id));
-    }
-    @SubscribeMessage(GameEvents.SheetCreated)
-    async updateSheets() {
-        const DELAY = 500;
-        setTimeout(() => {
-            this.sheetService.getAllSheets().then((sheets) => {
-                this.availableSheets = sheets;
-            });
-        }, DELAY);
-    } //
+    // @SubscribeMessage(GameEvents.SheetDeleted)
+    // removeSheet(socket: Socket, payload) {
+    //     this.availableSheets = this.availableSheets.filter((sheet) => JSON.stringify(sheet._id) !== JSON.stringify(payload._id));
+    // }
+    // @SubscribeMessage(GameEvents.SheetCreated)
+    // async updateSheets() {
+    //     console.log('updateSheets');
+    //     const DELAY = 2000;
+    //     setTimeout(() => {
+    //         this.sheetService.getAllSheets().then((sheets) => {
+    //             this.availableSheets = sheets;
+    //         });
+    //     }, DELAY);
+    //     console.log(this.availableSheets.length);
+    // } //
 
     @SubscribeMessage(GameEvents.ClickTL)
     async handleClick(client: Socket, payload) {
+        console.log(payload);
         const click: Coord = { posX: payload.x, posY: payload.y };
         const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload.roomName);
         const player = room.player1?.socketId === client.id ? room.player1 : room.player2;

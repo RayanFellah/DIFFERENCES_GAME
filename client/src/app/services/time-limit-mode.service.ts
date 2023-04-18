@@ -4,7 +4,6 @@ import { Vec2 } from '@app/interfaces/vec2';
 import { GameEvents } from '@common/game-events';
 import { LimitedTimeRoom } from '@common/limited-time-room';
 import { Player } from '@common/player';
-import { AudioService } from './audio.service';
 import { CanvasFormatterService } from './canvas-formatter.service';
 import { DialogService } from './dialog-service/dialog.service';
 import { GameStateService } from './game-state/game-state.service';
@@ -37,8 +36,7 @@ export class TimeLimitModeService implements OnDestroy {
         private socketService: SocketClientService,
         private dialogService: DialogService,
         private gameStateService: GameStateService,
-        private canvasFormatter: CanvasFormatterService,
-        private audio: AudioService,
+        private canvasFormatter: CanvasFormatterService, // private audio: AudioService, // private hintService: HintsService,
     ) {}
     reset() {
         this.timeLimit = TIME;
@@ -140,7 +138,7 @@ export class TimeLimitModeService implements OnDestroy {
             const DELAY = 50;
             this.isGameOver = true;
             setTimeout(() => {
-                this.audio.playWonSound();
+                // this.audio.playWonSound();
             }, DELAY);
         });
 
@@ -193,7 +191,7 @@ export class TimeLimitModeService implements OnDestroy {
         if (diff) {
             this.timeLimit += this.timeBonus;
             if (player === this.socketService.socket.id) {
-                this.audio.playSuccessSound();
+                // this.audio.playSuccessSound();
             }
 
             this.differencesFound++;
@@ -201,7 +199,7 @@ export class TimeLimitModeService implements OnDestroy {
         } else if (player === this.socketService.socket.id) {
             this.ignoreClicks();
             this.canvasFormatter.displayErrorMessage(event, ctx);
-            this.audio.playFailSound();
+            // this.audio.playFailSound();
         }
         return undefined;
     }
