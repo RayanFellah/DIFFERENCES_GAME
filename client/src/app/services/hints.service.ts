@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 import seedrandom from 'seedrandom';
 import { FOUR, HEIGHT, INITIAL_HINTS, THREE_SECONDS, WIDTH } from 'src/constants';
+import { DifferenceService } from '../../../../server/app/services/difference/difference.service';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
 import { GameHttpService } from './game-http.service';
@@ -49,7 +50,13 @@ export class HintsService {
             this.differences = res;
         });
     }
-
+    fetchCoords(differenceService: DifferenceService[]) {
+        const coords = [];
+        for (const diff of differenceService) {
+            coords.push(diff.coords);
+        }
+        return coords;
+    }
     reset() {
         this.hintsLeft = 3;
         this.differences = [];
@@ -61,6 +68,7 @@ export class HintsService {
         if (this.hintsLeft === 0 || this.blockClick) return;
         this.blockClick = true;
         this.activateHint = true;
+
         switch (this.hintsLeft) {
             case 3: {
                 this.executeFirstHint(delay, container);

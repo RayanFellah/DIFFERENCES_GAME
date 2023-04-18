@@ -1,13 +1,8 @@
-#canvas {
-    border: solid 1px #3f51b5;
-}
-
 .canvas {
     position: relative;
     display: inline-block;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
-    border: solid 1px #3f51b5;
 }
 
 canvas {
@@ -16,6 +11,7 @@ canvas {
     position: relative;
     grid-row-start: 1;
     grid-column-start: 1;
+    border: solid 1px #3f51b5;
 }
 
 section {

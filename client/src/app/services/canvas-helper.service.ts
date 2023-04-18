@@ -75,10 +75,7 @@ export class CanvasHelperService implements OnDestroy {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     displayErrorMessage(event: any) {
-        console.log(event.x, event.y);
-        console.log('displayErrorMessage1');
         if (this.disable) return;
-        console.log('displayErrorMessage2');
         this.disable = true;
         const temp: ImageData | undefined = this.context?.getImageData(0, 0, this.width, this.height);
         if (this.context) this.context.font = FONT_STYLE;

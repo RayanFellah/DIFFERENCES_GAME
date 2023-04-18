@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Vec2 } from '@app/interfaces/vec2';
+import { GameConstants } from '@common/game-constants';
 import { GameEvents } from '@common/game-events';
 import { LimitedTimeRoom } from '@common/limited-time-room';
 import { Player } from '@common/player';
@@ -8,7 +9,9 @@ import { AudioService } from './audio.service';
 import { CanvasFormatterService } from './canvas-formatter.service';
 import { DialogService } from './dialog-service/dialog.service';
 import { GameStateService } from './game-state/game-state.service';
+import { HintsService } from './hints.service';
 import { SocketClientService } from './socket-client/socket-client.service';
+import { TimerReplayService } from './timer-replay/timer-replay.service';
 
 const TIME = 60;
 const BONUS = 7;
@@ -30,7 +33,7 @@ export class TimeLimitModeService implements OnDestroy {
     leftCanvasRef: HTMLCanvasElement;
     rightCanvasRef: HTMLCanvasElement;
     isPlayer2Online: boolean = false;
-
+    private _constants: GameConstants;
     // eslint-disable-next-line max-params
     constructor(
         private router: Router,
@@ -38,8 +41,16 @@ export class TimeLimitModeService implements OnDestroy {
         private dialogService: DialogService,
         private gameStateService: GameStateService,
         private canvasFormatter: CanvasFormatterService,
-        private audio: AudioService, // private hintService: HintsService,
+        private audio: AudioService,
+        private hintService: HintsService,
+        private timer: TimerReplayService,
     ) {}
+    get constants() {
+        return this._constants;
+    }
+    set constants(constants: GameConstants) {
+        this._constants = constants;
+    }
     reset() {
         this.timeLimit = TIME;
         this.timeBonus = BONUS;
@@ -82,6 +93,7 @@ export class TimeLimitModeService implements OnDestroy {
             x: event.offsetX,
             y: event.offsetY,
             roomName: this.playRoom.roomName,
+            click: this.currentClick,
         };
 
         this.socketService.send(GameEvents.ClickTL, data);
@@ -125,8 +137,8 @@ export class TimeLimitModeService implements OnDestroy {
     handleResponses() {
         this.socketService.on(
             GameEvents.ClickValidated,
-            async (res: { diffFound: Vec2[]; player: Player; room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
-                this.handleClick(this.currentClick, res.diffFound, res.player.socketId);
+            async (res: { diffFound: Vec2[]; player: Player; room: LimitedTimeRoom; left: Buffer; right: Buffer; click: MouseEvent }) => {
+                this.handleClick(res.click, res.diffFound, res.player.socketId);
                 this.playRoom = res.room;
                 if (res.left && res.right) {
                     this.leftBuffer = res.left;
@@ -140,6 +152,7 @@ export class TimeLimitModeService implements OnDestroy {
             const DELAY = 50;
             this.isGameOver = true;
             setTimeout(() => {
+                this.timer.stopTimer();
                 // this.audio.playWonSound();
             }, DELAY);
         });
@@ -160,6 +173,7 @@ export class TimeLimitModeService implements OnDestroy {
             this.rightBuffer = res.right;
             this.router.navigate(['/limited-time']);
             this.startTimer();
+            this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
         });
 
         this.socketService.on(GameEvents.playerLeft, (/*    player: Player*/) => {
@@ -191,6 +205,8 @@ export class TimeLimitModeService implements OnDestroy {
                 : (this.rightCanvasRef.getContext('2d') as CanvasRenderingContext2D);
 
         if (diff) {
+            this.timer.addTimerBonus(this.constants);
+            this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
             this.timeLimit += this.timeBonus;
             if (player === this.socketService.socket.id) {
                 this.audio.playSuccessSound();

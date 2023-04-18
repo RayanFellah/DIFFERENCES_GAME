@@ -28,12 +28,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     private readonly gameConstantsService: GameConstantsService;
     private readonly room = PRIVATE_ROOM_ID;
 
-    constructor(
-        readonly logger: Logger,
-        readonly sheetService: SheetService,
-        public gameService: GameLogicService,
-        public gameHistoryService: GameHistoryService,
-    ) {
+    constructor(readonly sheetService: SheetService, public gameService: GameLogicService, public gameHistoryService: GameHistoryService) {
         this.gameConstantsService = new GameConstantsService();
     }
 
@@ -60,7 +55,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage('click')
     validateClick(client: Socket, payload) {
-        console.log(payload);
         const clickCoord: Coord = { posX: payload.click.x, posY: payload.click.y };
         const room = this.rooms.find((res) => res.roomName === payload.roomName);
         const player: Player = room.player1.name === payload.playerName ? room.player1 : room.player2;
@@ -98,7 +92,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         ) {
             room.isGameDone = true;
             this.server.to(payload.roomName).emit('gameDone', player.name);
-            const timeInSeconds = Math.floor((new Date().getTime() - room.startTime.getTime()) / 1000);
+            const timeInSeconds = Math.floor((new Date().getTime() - room.startTime.getTime()) / DELAY_BEFORE_EMITTING_TIME);
             this.checkTopScores(room, timeInSeconds, player.name);
             const history = {
                 gameStart: room.startTime.toTimeString(),
@@ -229,7 +223,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                     try {
                         unlinkSync(originalImageFilePath);
                     } catch (error) {
-                        this.logger.error(`Failed to delete original image for sheet with id ${sheetId}: ${error}`);
+                        Logger.error(`Failed to delete original image for sheet with id ${sheetId}: ${error}`);
                     }
                 }
                 sheet.originalImagePath = null;
@@ -239,7 +233,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                     try {
                         unlinkSync(modifiedImageFilePath);
                     } catch (error) {
-                        this.logger.error(`Failed to delete modified image for sheet with id ${sheetId}: ${error}`);
+                        Logger.error(`Failed to delete modified image for sheet with id ${sheetId}: ${error}`);
                     }
                 }
                 sheet.modifiedImagePath = null;
@@ -253,7 +247,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 }
                 this.rooms.filter((room) => room.sheet._id !== sheetId);
             } catch (error) {
-                this.logger.error(`Failed to delete sheet with id ${sheetId}: ${error}`);
+                Logger.error(`Failed to delete sheet with id ${sheetId}: ${error}`);
             }
         });
     }
@@ -263,7 +257,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         try {
             await this.gameHistoryService.deleteAllHistory();
         } catch (error) {
-            this.logger.error(`Failed to reset history: ${error}`);
+            Logger.error(`Failed to reset history: ${error}`);
         }
     }
 
@@ -304,7 +298,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 this.server.to(room.roomName).emit('kickOut');
             }
         } catch (error) {
-            this.logger.error(error);
+            Logger.error(error);
         }
     }
     @SubscribeMessage('updateConstants')
@@ -328,12 +322,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     handleConnection(socket: Socket) {
-        this.logger.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
+        Logger.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
     }
 
     handleDisconnect(socket: Socket) {
         if (!socket) return;
-        this.logger.log(`Client disconnected: ${socket.id}`);
+        Logger.log(`Client disconnected: ${socket.id}`);
         const room = this.rooms.find((iterRoom) => iterRoom.player1?.socketId === socket.id || iterRoom.player2?.socketId === socket.id);
         if (!room) return;
         socket.leave(room.roomName);
@@ -382,14 +376,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.server.emit(ChatEvents.Clock, new Date());
     }
     private checkTopScores(room: PlayRoom, time: number, name: string): void {
-        let scores = room.gameType === 'solo' ? room.sheet.top3Solo : room.sheet.top3Multi;
-        const index: number = scores.findIndex((score) => score.time > time);
+        let roomScores = room.gameType === 'solo' ? room.sheet.top3Solo : room.sheet.top3Multi;
+        const index: number = roomScores.findIndex((score) => score.time > time);
         const notFound = -1;
         if (index !== notFound) {
-            scores.splice(index, 0, { playerName: name, time });
-            scores = scores.slice(0, 3);
-            if (room.gameType === SOLO_MODE) this.sheetService.modifySheet({ _id: room.sheet._id, top3Solo: scores });
-            if (room.gameType === MULTIPLAYER_MODE) this.sheetService.modifySheet({ _id: room.sheet._id, top3Multi: scores });
+            roomScores.splice(index, 0, { playerName: name, time });
+            roomScores = roomScores.slice(0, 3);
+            if (room.gameType === SOLO_MODE) this.sheetService.modifySheet({ _id: room.sheet._id, top3Solo: roomScores });
+            if (room.gameType === MULTIPLAYER_MODE) this.sheetService.modifySheet({ _id: room.sheet._id, top3Multi: roomScores });
             const globalMessage: ChatMessage = {
                 content: `le joueur ${name.toUpperCase()} a pris la position ${
                     index === 0 ? '1🥇' : index === 1 ? '2🥈' : index === 2 ? '3🥉' : ''

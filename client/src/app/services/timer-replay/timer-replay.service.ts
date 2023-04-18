@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { GameConstants } from '@common/game-constants';
 import { ONE_MINUTE, ONE_SECOND } from 'src/constants';
 
 @Injectable({
@@ -28,7 +29,27 @@ export class TimerReplayService {
             this._elapsedTime += this._speed;
         }, ONE_SECOND);
     }
+    startTimerLimitedTime(startTimer: GameConstants) {
+        this._elapsedTime = startTimer.gameTime;
+        this._timerId = window.setInterval(() => {
+            this._elapsedTime -= 1;
+            if (this._elapsedTime <= 0) {
+                this._elapsedTime = 0;
+                window.clearInterval(this._timerId); // Stop the timer when it reaches 0
+            }
+        }, ONE_SECOND);
+    }
 
+    addpenaltyTime(penalty: GameConstants): void {
+        this._elapsedTime -= penalty.gamePenalty;
+        if (this._elapsedTime < 0) {
+            this._elapsedTime = 0; // Set the elapsed time to 0 if it goes below 0
+        }
+    }
+
+    addTimerBonus(bonus: GameConstants): void {
+        this._elapsedTime += bonus.gameBonus;
+    }
     stopTimer(): void {
         if (this._timerId !== undefined) {
             clearInterval(this._timerId);

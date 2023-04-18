@@ -9,4 +9,7 @@
             </div>
         </article>
     </section>
+    <button *ngIf="this.isSolo" (click)="hint()" mat-stroked-button [disabled]="this.hintService.blockClick" color="primary">
+        <mat-icon>search</mat-icon> Indice
+    </button>
 </div>

@@ -23,6 +23,7 @@ import { HEIGHT, THREE_SECONDS, WIDTH } from 'src/constants';
 export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDestroy {
     @Output() difficulty = new EventEmitter();
     @Input() playerName: string;
+    @Input() isSolo: boolean;
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) private canvas2!: ElementRef<HTMLCanvasElement>;
     @ViewChild('playAreaContainer', { static: false }) private playAreaContainer!: ElementRef<HTMLDivElement>;
@@ -46,6 +47,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
         if (this.logic) return this.logic.isGameDone;
         return false;
     }
+
     get width(): number {
         return this.canvasSize.x;
     }

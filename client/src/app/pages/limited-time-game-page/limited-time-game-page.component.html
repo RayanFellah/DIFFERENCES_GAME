@@ -2,19 +2,23 @@
 <main class="main-container">
     <div class="info-container">
         <div class="player1-points" *ngIf="playerName">
-            <h3>{{ playerName }}: {{ 3 }}/{{ 3 }}</h3>
+            <h3>{{ playerName }}</h3>
         </div>
         <div class="player2-points" *ngIf="opponent">
-            <h3>{{ this.opponent }}: {{ 3 }}/{{ 3 }}</h3>
+            <h3>{{ this.opponent }}</h3>
+        </div>
+        <div>
+            <h3>Différences trouvées: {{ this.gameLogic.differencesFound }}</h3>
         </div>
         <div class="time-container">
-            <h3>Temps: {{ timeLeft }}</h3>
+            <h3>Temps: {{ this.time }}</h3>
         </div>
+        <app-hints *ngIf="!opponent"></app-hints>
     </div>
     <div class="play-area-container" tabindex="0" autofocus>
-        <app-time-limit-play-ground></app-time-limit-play-ground>
+        <app-time-limit-play-ground [isSolo]="opponent ? false : true" [constants]="this.constants"></app-time-limit-play-ground>
     </div>
-
+    <app-hint-message #hintMessage class="hints"> </app-hint-message>
     <div class="chat-zone-container">
         <app-chat-zone
             [roomName]="this.roomName"

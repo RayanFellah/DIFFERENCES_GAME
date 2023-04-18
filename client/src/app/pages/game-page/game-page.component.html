@@ -15,10 +15,15 @@
         <div class="time-container">
             <h3>Temps: {{ isReplayStarted ? this.elapsedTime : formattedTime }}</h3>
         </div>
-        <app-hints></app-hints>
+        <app-hints *ngIf="!opponent"></app-hints>
     </div>
     <div class="play-area-container" tabindex="0" autofocus (keyup.t)="playArea.blink()" (keyup.i)="playArea.hint()">
-        <app-play-area [playerName]="this.playerName" (difficulty)="onDifficultyChange($event)" class="play-area"></app-play-area>
+        <app-play-area
+            [isSolo]="opponent ? false : true"
+            [playerName]="this.playerName"
+            (difficulty)="onDifficultyChange($event)"
+            class="play-area"
+        ></app-play-area>
     </div>
 
     <div class="replay-options-container">

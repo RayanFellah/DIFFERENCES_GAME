@@ -1,9 +1,9 @@
-$my-indigo: #3F51B5;
-$my-pink: #E91E63;
+$my-indigo: #3f51b5;
+$my-pink: #e91e63;
 
 .main-container {
     display: grid;
-    grid-template-areas: 
+    grid-template-areas:
         'info'
         'overlay'
         'replay';
@@ -30,17 +30,6 @@ $my-pink: #E91E63;
 }
 .play-area-container {
     grid-area: overlay;
-}
-.chat-zone-container {
-    width: fit-content;
-    height: fit-content;
-    grid-area: overlay;
-    display: flex;
-    justify-content: flex-start;
-}
-.chat-zone {
-    width: fit-content;
-    height: fit-content;
 }
 
 .replay-options-container {

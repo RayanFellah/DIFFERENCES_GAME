@@ -88,11 +88,8 @@ export class GameLogicService {
         const data = {
             roomName: this.playRoom,
             playerName: name,
-            click: { x: click.offsetX, y: click.offsetY, target: click.target },
+            click: { x: click.offsetX, y: click.offsetY, target: (click.target as HTMLCanvasElement).id },
         };
-
-        console.log(data.click);
-
         this.socketService.send('click', data);
     }
 
@@ -119,13 +116,6 @@ export class GameLogicService {
 
     makeBlink(diff: Vec2[], delay = BLINK_DURATION) {
         if (diff) {
-            // if (!this.gameReplayService.isReplay) {
-            //     this.gameReplayService.events.push({
-            //         type: 'found',
-            //         timestamp: Date.now(),
-            //         data: diff,
-            //     });
-            // }
             if (this.leftCanvas.context) {
                 const leftDiffColor = this.leftCanvas.getColor();
                 const rightDiffColor = this.rightCanvas.getColor();
@@ -162,8 +152,9 @@ export class GameLogicService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     handleClick(event: any, diff: Vec2[] | undefined, player: string, delay = BLINK_DURATION) {
         if (!event) return;
-        const canvasClicked = event.target as HTMLCanvasElement;
-        const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
+
+        const canvas: CanvasHelperService = event.target === this.leftCanvas.getCanvas().id ? this.leftCanvas : this.rightCanvas;
+
         if (diff) {
             this.makeBlink(diff, delay);
             if (player === this.socketService.socket.id) {
