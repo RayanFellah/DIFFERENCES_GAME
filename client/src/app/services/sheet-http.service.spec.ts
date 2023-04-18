@@ -36,10 +36,10 @@ describe('SheetHttpService', () => {
                     modifiedImagePath: 'path/to/modified/image',
                     difficulty: 'Easy',
                     radius: 5,
-                    topPlayer: 'John',
+                    top3Multi: [],
                     differences: 10,
                     isJoinable: false,
-                    topScore: 0,
+                    top3Solo: [],
                 },
                 {
                     _id: '2',
@@ -48,10 +48,10 @@ describe('SheetHttpService', () => {
                     modifiedImagePath: 'path/to/modified/image',
                     difficulty: 'Medium',
                     radius: 10,
-                    topPlayer: 'Jane',
+                    top3Multi: [],
                     differences: 15,
                     isJoinable: false,
-                    topScore: 0,
+                    top3Solo: [],
                 },
             ];
 

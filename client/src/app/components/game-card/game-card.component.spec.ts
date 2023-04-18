@@ -41,10 +41,10 @@ describe('GameCardComponent', () => {
             modifiedImagePath: 'https://example.com/test-image2.bmp',
             difficulty: 'easy',
             radius: 3,
-            topPlayer: 'me',
             differences: 7,
             isJoinable: false,
-            topScore: 0,
+            top3Multi: [],
+            top3Solo: [],
         };
         component.isConfig = false;
         fixture.detectChanges();

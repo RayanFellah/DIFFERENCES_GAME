@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TimeLimitModeService } from '@app/services/time-limit-mode.service';
-import { LimitedTimeGamePageComponent } from './limited-time-game-page.component';
 import { LimitedTimeRoom } from '@common/limited-time-room';
+import { Sheet } from '@common/sheet';
+import { LimitedTimeGamePageComponent } from './limited-time-game-page.component';
 
 describe('LimitedTimeGamePageComponent', () => {
     let component: LimitedTimeGamePageComponent;
@@ -29,11 +30,7 @@ describe('LimitedTimeGamePageComponent', () => {
                 modifiedImagePath: 'path',
                 difficulty: 'difficulty',
                 radius: 1,
-                topPlayer: 'me',
-                differences: 1,
-                isJoinable: true,
-                topScore: 1,
-            },
+            } as unknown as Sheet,
             isGameDone: false,
             usedSheets: [],
             timeLimit: 1,

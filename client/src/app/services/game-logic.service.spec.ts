@@ -31,9 +31,9 @@ describe('GameLogicService', () => {
             originalImagePath: 'path1',
             modifiedImagePath: 'path2',
             radius: 3,
-            topPlayer: 'player',
             isJoinable: true,
-            topScore: 2,
+            top3Multi: [],
+            top3Solo: [],
         };
         activatedRouteStub = {
             snapshot: {
@@ -95,9 +95,9 @@ describe('GameLogicService', () => {
             originalImagePath: 'path1',
             modifiedImagePath: 'path2',
             radius: 3,
-            topPlayer: 'player',
             isJoinable: true,
-            topScore: 2,
+            top3Multi: [],
+            top3Solo: [],
         };
         const blob = new Blob(['path1'], { type: 'image/bmp' });
         sheetHttpSpy.getSheet = jasmine.createSpy().and.returnValue(of(sheet));

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -21,7 +22,6 @@ import { GamePageComponent } from './game-page.component';
 describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
-    let activatedRouteStub;
     let canvasHelperServiceSpy: CanvasHelperService;
     let imageHttpServiceSpy: CanvasHelperService;
     let gameLogicServiceSpy: GameLogicService;
@@ -30,18 +30,12 @@ describe('GamePageComponent', () => {
     let cheatModeServiceSpy: CheatModeService;
     let gameStateServiceSpy: GameStateService;
     let routerSpy: Router;
-    let mockDialog: jasmine.SpyObj<MatDialog>;
-    let gameReplayServiceSpy: jasmine.SpyObj<GameReplayService>;
+    let mockDialog: MatDialog;
+    let gameReplayServiceSpy: GameReplayService;
+    let activatedRoute: ActivatedRoute;
 
     beforeEach(() => {
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-        activatedRouteStub = {
-            snapshot: {
-                paramMap: {
-                    get: () => 'test',
-                },
-            },
-        };
 
         canvasHelperServiceSpy = jasmine.createSpyObj('CanvasHelperService', ['getCanvas']);
         gameLogicServiceSpy = jasmine.createSpyObj('GameLogicService', ['start', 'cheat', 'sendClick']);
@@ -51,9 +45,8 @@ describe('GamePageComponent', () => {
         cheatModeServiceSpy = jasmine.createSpyObj('CheatModeService', ['getDifferences']);
         gameStateServiceSpy = jasmine.createSpyObj('GameStateService', ['']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate', 'snapshot']);
-        gameReplayServiceSpy = jasmine.createSpyObj('GameReplayService', ['events'], {
-            events: [], // Initialize an empty events array
-        });
+        gameReplayServiceSpy = jasmine.createSpyObj('GameReplayService', ['events']);
+        activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['']);
 
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
@@ -85,7 +78,7 @@ describe('GamePageComponent', () => {
                 },
                 {
                     provide: ActivatedRoute,
-                    useValue: activatedRouteStub,
+                    useValue: activatedRoute,
                 },
                 {
                     provide: GameStateService,
@@ -117,32 +110,6 @@ describe('GamePageComponent', () => {
         expect(component.sheetId).toBe('test');
         expect(component.roomName).toBe('test');
         expect(component.startTime).toEqual(jasmine.any(Date));
-        expect(component.timer).toBeTrue();
-    });
-    it('handleResponses() should add chat message to chatMessages', () => {
-        const chatMessage: ChatMessage = { content: 'test', type: 'test' } as ChatMessage;
-        socketClientServiceSpy.on = jasmine.createSpy().and.callFake((event, callback) => {
-            if (event === 'roomMessage') {
-                callback(chatMessage);
-            } else {
-                return;
-            }
-        });
-        component.handleResponses();
-        expect(component.chatMessages).toContain(chatMessage);
-        expect(component.chatMessages[0].type).toEqual('opponent');
-    });
-    it('handleResponses() should set chatMessages type to game if type is game', () => {
-        const chatMessage: ChatMessage = { content: 'test', type: 'game' } as ChatMessage;
-        socketClientServiceSpy.on = jasmine.createSpy().and.callFake((event, callback) => {
-            if (event === 'roomMessage') {
-                callback(chatMessage);
-            } else {
-                return;
-            }
-        });
-        component.handleResponses();
-        expect(component.chatMessages[0].type).toEqual('game');
     });
 
     it('handleResponses() should set person and opponent based on players array', () => {

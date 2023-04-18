@@ -224,5 +224,6 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.dialogService.reset();
         if (this.currentSheetId) this.socketService.send('cancelGameCreation', this.currentSheetId);
+        if (this.socketService.isSocketAlive()) this.socketService.disconnect();
     }
 }
