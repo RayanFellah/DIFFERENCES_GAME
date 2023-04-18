@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
+import { GameEvents } from '@common/game-events';
 @Component({
     selector: 'app-reset-dialog',
     templateUrl: './reset-dialog.component.html',
@@ -27,4 +28,17 @@ export class ResetDialogComponent implements OnInit {
     showAlert(actionConfirmed: string) {
         alert(actionConfirmed);
     }
+
+
+    resetConstants() {
+        const data = {
+            gameTime: 30,
+            gamePenalty: 5,
+            gameBonus: 5,
+        };
+        this.socketService.send(GameEvents.UpdateConstants, data);
+    }
+
+
 }
+
