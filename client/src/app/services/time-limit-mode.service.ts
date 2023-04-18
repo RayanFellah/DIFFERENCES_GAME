@@ -64,7 +64,9 @@ export class TimeLimitModeService implements OnDestroy {
     }
 
     logPlayer(player: string) {
-        this.socketService.connect();
+        if (!this.socketService.isSocketAlive()) {
+            this.socketService.connect();
+        }
         this.handleResponses();
         this.player = {
             socketId: this.socketService.socket.id,

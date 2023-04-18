@@ -1,6 +1,8 @@
 /* eslint-disable no-restricted-imports */
 import { ID_LENGTH } from '@app/constants';
 import { Sheet } from '@app/model/database/sheet';
+import { HistoryInterface } from '@app/model/schema/history.schema';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
 import { Coord } from '@common/coord';
@@ -14,21 +16,21 @@ import { readFileSync } from 'fs';
 import * as path from 'path';
 import { Server, Socket } from 'socket.io';
 import { PRIVATE_ROOM_ID } from './chat.gateway.constants';
+
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class GameGateway implements OnGatewayDisconnect {
     @WebSocketServer() server: Server;
 
     rooms: LimitedTimeRoom[] = [];
-    availableSheets: Sheet[] = [];
+    availableSheets: Sheet[];
     private readonly room = PRIVATE_ROOM_ID;
-    constructor(readonly logger: Logger, readonly sheetService: SheetService, public gameService: GameLogicService) {
-        this.sheetService.addedSheet.subscribe((sheet) => {
-            this.availableSheets.push(sheet);
-        });
-        this.sheetService.deletedSheet.subscribe((id) => {
-            if (this.availableSheets.length > 0) this.availableSheets.filter((sheet) => sheet && sheet._id !== id);
-        });
+    constructor(
+        readonly logger: Logger,
+        readonly sheetService: SheetService,
+        public gameService: GameLogicService,
+        public gameHistoryService: GameHistoryService,
+    ) {
         this.sheetService.getAllSheets().then((sheets) => {
             this.availableSheets = sheets;
         });
@@ -59,27 +61,26 @@ export class GameGateway implements OnGatewayDisconnect {
         client.join(room.roomName);
         room.player2 = payload.player;
         room.player2.socketId = client.id;
+        room.playersInRoom = 2;
         const left = this.createImageBuffer(room.currentSheet.originalImagePath);
         const right = this.createImageBuffer(room.currentSheet.modifiedImagePath);
         room.hasStarted = true;
         this.server.to(room.roomName).emit(GameEvents.SecondPlayerJoined, { room, left, right });
     }
 
-    // @SubscribeMessage(GameEvents.SheetDeleted)
-    // removeSheet(socket: Socket, payload) {
-    //     this.availableSheets = this.availableSheets.filter((sheet) => JSON.stringify(sheet._id) !== JSON.stringify(payload._id));
-    // }
-    // @SubscribeMessage(GameEvents.SheetCreated)
-    // async updateSheets() {
-    //     console.log('updateSheets');
-    //     const DELAY = 2000;
-    //     setTimeout(() => {
-    //         this.sheetService.getAllSheets().then((sheets) => {
-    //             this.availableSheets = sheets;
-    //         });
-    //     }, DELAY);
-    //     console.log(this.availableSheets.length);
-    // } //
+    @SubscribeMessage(GameEvents.SheetDeleted)
+    removeSheet(socket: Socket, payload) {
+        this.availableSheets = this.availableSheets.filter((sheet) => JSON.stringify(sheet._id) !== JSON.stringify(payload._id));
+    }
+    @SubscribeMessage(GameEvents.SheetCreated)
+    async updateSheets() {
+        const DELAY = 500;
+        setTimeout(() => {
+            this.sheetService.getAllSheets().then((sheets) => {
+                this.availableSheets = sheets;
+            });
+        }, DELAY);
+    } //
 
     @SubscribeMessage(GameEvents.ClickTL)
     async handleClick(client: Socket, payload) {
@@ -95,7 +96,7 @@ export class GameGateway implements OnGatewayDisconnect {
                 diff.found = true;
                 player.differencesFound++;
                 diffFound = diff.coords;
-                await this.rerollSheet(room);
+                await this.rerollSheet(room, player);
                 if (room.isGameDone) {
                     this.server.to(room.roomName).emit(GameEvents.GameOver, { room, player });
                     break;
@@ -105,36 +106,63 @@ export class GameGateway implements OnGatewayDisconnect {
                 break;
             }
         }
-        this.server.to(room.roomName).emit(GameEvents.ClickValidated, { diffFound, room, player, left, right, click: payload.click });
+        this.server.to(room.roomName).emit(GameEvents.ClickValidated, { diffFound, room, player, left, right });
     }
 
+    // @SubscribeMessage('new_history')
+    // async sendHistoryToServer(history: HistoryInterface, payload) {
+    //     history = payload;
+    //     this.gameHistoryService.addHistory(history);
+    //     this.server.emit('history_recieved', history);
+    // }
+
     handleDisconnect(socket: Socket) {
-        this.logger.log(`Client disconnected: ${socket.id}`);
         let player: Player;
         let foundRoom: LimitedTimeRoom;
         for (const room of this.rooms) {
             if (room.player1?.socketId === socket.id || room.player2?.socketId === socket.id) {
                 foundRoom = room;
-                if (room.player1?.socketId === socket.id) {
-                    player = room.player1;
-                    room.player1 = undefined;
-                } else {
-                    player = room.player2;
-                    room.player2 = undefined;
-                }
                 break;
             }
         }
+
         if (!foundRoom) {
             return;
         }
-        this.server.to(foundRoom.roomName).emit('playerLeft', player);
 
+        if (foundRoom.player1?.socketId === socket.id) {
+            player = foundRoom.player1;
+        } else {
+            player = foundRoom.player2;
+        }
+
+        foundRoom.playersInRoom--;
         socket.leave(foundRoom.roomName);
-        if (foundRoom.player1 === undefined && foundRoom.player2 === undefined) {
-            this.rooms = this.removeRoom(foundRoom);
+        this.server.to(foundRoom.roomName).emit(GameEvents.playerLeft, { room: foundRoom, player });
+        if (!foundRoom.playersInRoom && !foundRoom.isGameDone) {
+            this.createHistoryForDesertedRoom(foundRoom);
+
+            this.removeRoom(foundRoom);
         }
     }
+
+    private createHistoryForDesertedRoom(room: LimitedTimeRoom) {
+        const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
+
+        const history: HistoryInterface = {
+            gameStart: this.getFullDate(room.startTime),
+            duration: this.elapsedTime(room.startTime),
+            gameMode: mode,
+            player1: room.player1.name,
+            player2: room.player2 ? room.player2.name : undefined,
+            winner1: false,
+            gaveUp1: true,
+            winner2: false,
+            gaveUp2: true,
+        };
+        this.gameHistoryService.addHistory(history);
+    }
+
     private getRandomSheet(): Sheet {
         const randomIdx = Math.floor(Math.random() * this.availableSheets.length);
         return this.availableSheets[randomIdx];
@@ -170,6 +198,9 @@ export class GameGateway implements OnGatewayDisconnect {
             usedSheets: [sheet._id],
             mode: gameMode,
             hasStarted: false,
+            startTime: new Date(),
+            playersInRoom: 1,
+            timeLeft: payload.timeLimit,
         };
         this.rooms.push(room);
         client.join(room.roomName);
@@ -180,13 +211,15 @@ export class GameGateway implements OnGatewayDisconnect {
         const fileContent = readFileSync(imgPath);
         return fileContent;
     }
-    private async rerollSheet(room: LimitedTimeRoom) {
+    private async rerollSheet(room: LimitedTimeRoom, player: Player) {
         if (room.usedSheets.length === this.availableSheets.length) {
             room.isGameDone = true;
+            this.createHistoryForWin(room, player);
             return;
         }
+
         let randomSheet = this.getRandomSheet();
-        while (room.usedSheets.find((id) => id === randomSheet._id)) {
+        while (room.usedSheets.includes(randomSheet._id)) {
             randomSheet = this.getRandomSheet();
         }
         const newDiffs = await this.gameService.getAllDifferences(randomSheet);
@@ -196,8 +229,80 @@ export class GameGateway implements OnGatewayDisconnect {
     }
 
     private findRoomToJoin() {
-        return this.rooms.find(
-            (iter) => (iter.player1 === undefined || iter.player2 === undefined) && iter.mode === LIMITED_TIME_COOP && !iter.hasStarted,
-        );
+        return this.rooms.find((iter) => iter.playersInRoom === 1 && iter.mode === LIMITED_TIME_COOP && !iter.hasStarted);
+    }
+
+    // chrono is finished
+    private createHistoryForGameExpired(room: LimitedTimeRoom) {
+        const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
+        const history: HistoryInterface = {
+            gameStart: this.getFullDate(room.startTime),
+            duration: this.elapsedTime(room.startTime),
+            gameMode: mode,
+            player1: room.player1.name,
+            player2: room.player2 ? room.player2.name : undefined,
+            winner1: false,
+            gaveUp1: false,
+            winner2: false,
+            gaveUp2: false,
+        };
+
+        this.gameHistoryService.addHistory(history);
+    }
+
+    private createHistoryForWin(room: LimitedTimeRoom, player: Player) {
+        const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
+        let gaveUp = false;
+        let playerLeft;
+        if (room.playersInRoom === 1 && mode === LIMITED_TIME_COOP) {
+            gaveUp = true;
+        }
+        if (player.socketId === room.player1?.socketId) {
+            playerLeft = room.player2?.name;
+        } else {
+            playerLeft = room.player1?.name;
+        }
+
+        // coop et l un des players a quitté
+        const history: HistoryInterface = {
+            gameStart: this.getFullDate(room.startTime),
+            duration: this.elapsedTime(room.startTime),
+            gameMode: mode,
+            player1: player.name,
+            player2: playerLeft,
+            winner1: true,
+            gaveUp1: false,
+            winner2: false,
+            gaveUp2: true,
+        };
+        // coop et les deux joueurs ont gagne
+        if (room.playersInRoom == 2) {
+            history.winner2 = true;
+            history.gaveUp2 = false;
+        }
+
+        // solo gagne
+        if (room.mode === LIMITED_TIME_SOLO) {
+            history.player2 = undefined;
+        }
+        console.log(history);
+        this.gameHistoryService.addHistory(history);
+    }
+
+    private elapsedTime(startTime: Date): string {
+        const MILLISECONDS = 1000;
+        const MINUTES = 60;
+        const elapsedTimeInSeconds = Math.floor((new Date().getTime() - startTime.getTime()) / MILLISECONDS);
+        const minutes = Math.floor(elapsedTimeInSeconds / MINUTES);
+        const seconds = elapsedTimeInSeconds % MINUTES;
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    private getFullDate(date) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const time = date.toLocaleTimeString();
+        return `${year}/${month}/${day} ${time}`;
     }
 }

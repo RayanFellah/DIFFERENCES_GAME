@@ -95,7 +95,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             const timeInSeconds = Math.floor((new Date().getTime() - room.startTime.getTime()) / DELAY_BEFORE_EMITTING_TIME);
             this.checkTopScores(room, timeInSeconds, player.name);
             const history = {
-                gameStart: room.startTime.toTimeString(),
+                gameStart: this.getFullDate(room.startTime),
                 duration: this.elapsedTime(room.startTime),
                 gameMode: room.gameType === 'solo' ? 'ClassicSolo' : 'ClassicMultiplayer',
                 player1: player.name,
@@ -334,7 +334,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         if (!room.isGameDone) {
             if (room.gameType === 'solo') {
                 const history: HistoryInterface = {
-                    gameStart: room.startTime.toLocaleTimeString(),
+                    gameStart: this.getFullDate(room.startTime),
                     duration: this.elapsedTime(room.startTime),
                     gameMode: 'solo',
                     player1: room.player1.name,
@@ -346,7 +346,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             } else {
                 room.isGameDone = true;
                 const history: HistoryInterface = {
-                    gameStart: room.startTime.toLocaleTimeString(),
+                    gameStart: this.getFullDate(room.startTime),
                     duration: this.elapsedTime(room.startTime),
                     gameMode: 'multi',
                     player1: room.player1.name,
@@ -411,5 +411,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const minutes = Math.floor(elapsedTimeInSeconds / MINUTES);
         const seconds = elapsedTimeInSeconds % MINUTES;
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    private getFullDate(date) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const time = date.toLocaleTimeString();
+        return `${year}/${month}/${day} ${time}`;
     }
 }

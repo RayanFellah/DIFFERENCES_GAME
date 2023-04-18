@@ -84,6 +84,9 @@ export class ConstantsDialogComponent implements OnInit {
                 break;
         }
     }
+    showAlert(actionConfirmed: string) {
+        alert(actionConfirmed);
+    }
     saveValues() {
         const data = {
             gameTime: this.gameTime,
@@ -91,5 +94,7 @@ export class ConstantsDialogComponent implements OnInit {
             gameBonus: this.gameBonus,
         };
         this.socketService.send(GameEvents.UpdateConstants, data);
+        this.showAlert('Les valeurs ont été sauvegardées.');
+        location.reload();
     }
 }
