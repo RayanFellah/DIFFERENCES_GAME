@@ -187,7 +187,7 @@ export class GameGateway implements OnGatewayDisconnect {
             return;
         }
         let randomSheet = this.getRandomSheet();
-        while (room.usedSheets.includes(randomSheet._id)) {
+        while (room.usedSheets.find((id) => id === randomSheet._id)) {
             randomSheet = this.getRandomSheet();
         }
         const newDiffs = await this.gameService.getAllDifferences(randomSheet);
