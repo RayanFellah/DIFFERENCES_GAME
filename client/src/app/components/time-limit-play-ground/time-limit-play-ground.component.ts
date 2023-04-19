@@ -46,7 +46,7 @@ export class TimeLimitPlayGroundComponent implements AfterViewInit {
         this.gameLogic.sendClick(event);
     }
     hint() {
-        if (this.hintService.blockClick || this.hintService.differences.toString() === [].toString()) return;
+        if (this.hintService.blockClick || this.hintService.differences.toString() === [].toString() || !this.isSolo) return;
         this.socketService.send('hint', 'a');
         this.timer.addpenaltyTime(this.constants);
         // if this.timer.elapsedtime == 0: GAMEDONE!!!
