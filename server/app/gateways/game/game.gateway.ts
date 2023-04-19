@@ -82,6 +82,12 @@ export class GameGateway implements OnGatewayDisconnect {
         }, DELAY);
     } //
 
+    @SubscribeMessage(GameEvents.TimeOut)
+    async handleTimeOut(client: Socket, payload) {
+        const message = 'Time Out⏲️! Bien essayé!👍';
+        this.server.to(payload).emit(GameEvents.GameOver, message);
+    }
+
     @SubscribeMessage(GameEvents.ClickTL)
     async handleClick(client: Socket, payload) {
         const click: Coord = { posX: payload.click.x, posY: payload.click.y };

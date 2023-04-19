@@ -46,7 +46,7 @@ export class TimeLimitModeService implements OnDestroy {
         private timer: TimerReplayService,
     ) {
         this.timer.timeDone$.subscribe((res) => {
-            if (res) this.isGameOver = true;
+            if (res) this.timeOutProtocol();
         });
     }
     get constants() {
@@ -239,5 +239,9 @@ export class TimeLimitModeService implements OnDestroy {
         if (this.timeLimit > 0) {
             this.timeLimit = this.timeLimit - 1;
         }
+    }
+    private timeOutProtocol() {
+        this.isGameOver = true;
+        this.socketService.send(GameEvents.TimeOut, this.playRoom.roomName);
     }
 }
