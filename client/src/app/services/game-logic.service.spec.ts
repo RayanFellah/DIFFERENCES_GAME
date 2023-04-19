@@ -61,7 +61,12 @@ describe('GameLogicService', () => {
                 { provide: SocketClientService, useValue: socketServiceSpy },
                 { provide: CheatModeService, useValue: cheatModeSpy },
                 { provide: HttpClient, useValue: {} },
-                { provide: GameHttpService, useValue: {} },
+                {
+                    provide: GameHttpService,
+                    useValue: {
+                        getAllDifferences: () => of([]),
+                    },
+                },
                 {
                     provide: ActivatedRoute,
                     useValue: activatedRouteStub,
