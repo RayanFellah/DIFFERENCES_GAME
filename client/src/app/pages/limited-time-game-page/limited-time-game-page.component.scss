@@ -4,9 +4,9 @@ $my-pink: #e91e63;
 .main-container {
     display: grid;
     grid-template-areas:
-        'info'
-        'overlay'
-        'replay';
+        'info info'
+        'overlay overlay'
+        'chat hints';
 }
 
 .exit {
@@ -32,12 +32,6 @@ $my-pink: #e91e63;
     grid-area: overlay;
 }
 
-.replay-options-container {
-    grid-area: replay;
-    display: flex;
-    flex: row;
-    justify-content: center;
-}
 .player2-points {
     color: $my-pink;
 }
@@ -45,4 +39,12 @@ $my-pink: #e91e63;
 div:focus {
     border: none;
     outline: none;
+}
+
+.chat-zone-container{ 
+    grid-area : chat;
+}
+
+.hints{
+    grid-area: hints;
 }

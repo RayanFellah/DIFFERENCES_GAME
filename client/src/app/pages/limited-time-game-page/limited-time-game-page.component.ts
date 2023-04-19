@@ -22,7 +22,6 @@ export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
     roomName: string = 'room';
     constants: GameConstants;
     points: number;
-    isConstantsSet: boolean = false;
     constructor(
         public gameLogic: TimeLimitModeService,
         private gameState: GameStateService,
@@ -54,14 +53,13 @@ export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
             if (!this.constants) {
                 this.constants = constants;
                 this.gameLogic.constants = constants;
-                this.isConstantsSet = true;
                 if (this.constants) this.timer.startTimerLimitedTime(this.constants);
             }
         });
         this.socketService.on(GameEvents.GameOver, (message: string) => {
             const DELAY = 50;
             setTimeout(() => {}, DELAY);
-            this.dialog.openGameOverDialog(message);
+            this.dialog.openGameOverDialog({ message, isClassicGame: false });
         });
     }
 

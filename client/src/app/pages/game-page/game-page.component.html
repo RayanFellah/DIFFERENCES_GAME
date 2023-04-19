@@ -24,6 +24,7 @@
             (difficulty)="onDifficultyChange($event)"
             class="play-area"
         ></app-play-area>
+        <p id="time-penalty" *ngIf="hint.activateHint">Pénalité: {{ penaltyTime }} secondes</p>
     </div>
 
     <div class="replay-options-container">
@@ -35,7 +36,6 @@
         <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="setReplaySpeed(4)">4X</button>
     </div>
     <app-hint-message #hintMessage class="hints"> </app-hint-message>
-    <p id="time-penalty" *ngIf="hint.activateHint">Pénalité: {{ penaltyTime }} secondes</p>
 
     <div class="chat-zone-container">
         <app-chat-zone
