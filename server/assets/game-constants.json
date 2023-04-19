@@ -1,5 +1,1 @@
-<<<<<<< Updated upstream
-{"gameTime":20,"gamePenalty":5,"gameBonus":20}
-=======
-{"gameTime":30,"gamePenalty":5,"gameBonus":5}
->>>>>>> Stashed changes
+{ "gameTime": 30, "gamePenalty": 5, "gameBonus": 5 }
