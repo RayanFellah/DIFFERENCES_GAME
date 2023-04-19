@@ -84,13 +84,15 @@ export class GameLogicService {
         if (this.clickIgnored) {
             return;
         }
-        this.currentClick = click;
-        const data = {
-            roomName: this.playRoom,
-            playerName: name,
-            click: { x: click.offsetX, y: click.offsetY, target: (click.target as HTMLCanvasElement).id },
-        };
-        this.socketService.send('click', data);
+        if (click) {
+            this.currentClick = click;
+            const data = {
+                roomName: this.playRoom,
+                playerName: name,
+                click: { x: click.offsetX, y: click.offsetY, target: (click.target as HTMLCanvasElement).id },
+            };
+            this.socketService.send('click', data);
+        }
     }
 
     handleResponses() {

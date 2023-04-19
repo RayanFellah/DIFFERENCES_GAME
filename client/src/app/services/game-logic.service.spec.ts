@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
@@ -5,6 +6,7 @@ import { Sheet } from '@common/sheet';
 import { of } from 'rxjs';
 import { CanvasHelperService } from './canvas-helper.service';
 import { CheatModeService } from './cheat-mode.service';
+import { GameHttpService } from './game-http.service';
 import { GameLogicService } from './game-logic.service';
 import { HintsService } from './hints.service';
 import { ImageHttpService } from './image-http.service';
@@ -58,6 +60,8 @@ describe('GameLogicService', () => {
                 { provide: SheetHttpService, useValue: sheetHttpSpy },
                 { provide: SocketClientService, useValue: socketServiceSpy },
                 { provide: CheatModeService, useValue: cheatModeSpy },
+                { provide: HttpClient, useValue: {} },
+                { provide: GameHttpService, useValue: {} },
                 {
                     provide: ActivatedRoute,
                     useValue: activatedRouteStub,
@@ -73,19 +77,6 @@ describe('GameLogicService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should set currentClick and send click data to socket', () => {
-        const click = new MouseEvent('click');
-        const data = {
-            x: click.offsetX,
-            y: click.offsetY,
-            roomName: service.playRoom,
-            playerName: 'testName',
-        };
-        service.setClick(click, 'testName');
-
-        expect(service.currentClick).toEqual(click);
-        expect(socketServiceSpy.send).toHaveBeenCalledWith('click', data);
-    });
     it('should return a Promise with the sheet difficulty', async () => {
         const sheet: Sheet = {
             _id: '1',

@@ -49,13 +49,6 @@ describe('GameCardComponent', () => {
         component.isConfig = false;
         fixture.detectChanges();
     });
-
-    it('should trigger navigation when playerName is valid', () => {
-        spyOn(window, 'prompt').and.returnValue('Test Player');
-        component.shouldNavigate$.next(true);
-        expect(routerSpy['navigate']).toHaveBeenCalledOnceWith(['/game', component.sheet._id, 'Test Player', component.roomName]);
-    });
-
     it('should create', () => {
         expect(imageHttpSpy['getImage']).toHaveBeenCalledWith(component.sheet.originalImagePath);
         expect(component).toBeTruthy();

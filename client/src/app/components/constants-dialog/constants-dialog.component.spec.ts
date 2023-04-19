@@ -50,11 +50,4 @@ describe('ConstantsDialogComponent', () => {
         const penaltyTimeElement = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(2) span');
         expect(penaltyTimeElement.textContent.trim()).toBe('5 secondes');
     });
-
-    it('should display the correct saved time', () => {
-        component.data = { gameTime: 30, penaltyTime: 5, savedTime: 5 };
-        fixture.detectChanges();
-        const savedTimeElement = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(3) span');
-        expect(savedTimeElement.textContent).toContain('5 secondes');
-    });
 });

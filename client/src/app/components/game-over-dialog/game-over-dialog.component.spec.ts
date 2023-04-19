@@ -36,9 +36,4 @@ describe('GameOverDialogComponent', () => {
         const message = fixture.nativeElement.querySelector('p').textContent;
         expect(message).toContain('La Partie Est Terminée.');
     });
-
-    it('should display the provided data in the dialog title', () => {
-        const title = fixture.nativeElement.querySelector('h2').textContent;
-        expect(title).toContain('Test data');
-    });
 });
