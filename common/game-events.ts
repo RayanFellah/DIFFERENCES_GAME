@@ -23,6 +23,7 @@ export enum GameEvents {
     SheetCreated = 'sheetCreated',
     UpdateConstants = 'updateConstants',
     TimeOut = 'timeOut',
+    CancelGame = 'cancelGame',
 }
 
 export const WAITING_ROOM = 'waitingRoom';

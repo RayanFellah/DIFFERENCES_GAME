@@ -160,7 +160,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     gameDone(message: string) {
         this.timer = false;
-        this.dialog.openGameOverDialog({message,isClassicGame: true});
+        this.dialog.openGameOverDialog({ message, isClassicGame: true });
     }
     sendMessage(message: ChatMessage) {
         message.time = this.messageTime;

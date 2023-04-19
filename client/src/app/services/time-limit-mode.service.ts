@@ -33,6 +33,7 @@ export class TimeLimitModeService implements OnDestroy {
     leftCanvasRef: HTMLCanvasElement;
     rightCanvasRef: HTMLCanvasElement;
     isPlayer2Online: boolean = false;
+    allyGaveUp: boolean = false;
     private _constants: GameConstants;
     // eslint-disable-next-line max-params
     constructor(
@@ -183,10 +184,16 @@ export class TimeLimitModeService implements OnDestroy {
 
         this.socketService.on(GameEvents.playerLeft, (/*    player: Player*/) => {
             this.isPlayer2Online = false;
+            this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
+            this.allyGaveUp = true;
         });
     }
     disconnect() {
         this.socketService.disconnect();
+    }
+
+    cancelGame() {
+        this.socketService.send(GameEvents.CancelGame);
     }
     ngOnDestroy(): void {
         this.disconnect();
@@ -241,7 +248,8 @@ export class TimeLimitModeService implements OnDestroy {
         }
     }
     private timeOutProtocol() {
+        this.player.socketId = this.socketService.socket.id;
         this.isGameOver = true;
-        this.socketService.send(GameEvents.TimeOut, this.playRoom.roomName);
+        this.socketService.send(GameEvents.TimeOut, { roomName: this.playRoom.roomName, player: this.player, allyGaveUp: this.allyGaveUp });
     }
 }

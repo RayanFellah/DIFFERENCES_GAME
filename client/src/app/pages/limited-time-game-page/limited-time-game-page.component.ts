@@ -64,6 +64,9 @@ export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
                 this.dialog.openGameOverDialog({ message, isClassicGame: false });
             }, DELAY);
         });
+        this.socketService.on(GameEvents.playerLeft, (/*    player: Player*/) => {
+            this.opponent = '';
+        });
     }
 
     ngOnDestroy(): void {

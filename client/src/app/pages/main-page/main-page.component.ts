@@ -34,7 +34,15 @@ export class MainPageComponent implements OnDestroy {
                 this.dialog.closeJoinLimitedTimeDialog();
             }
         });
+        this.dialogService.cancel$.subscribe((res: boolean) => {
+            if (res) {
+                this.dialog.closeLoadingDialog();
+                this.dialog.closeJoinLimitedTimeDialog();
+                this.limitedGame.cancelGame();
+            }
+        });
     }
+
     ngOnDestroy() {
         this.dialogService.reset();
     }

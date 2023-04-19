@@ -5,6 +5,7 @@ import { HistoryInterface } from '@app/model/schema/history.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
+import { ChatMessage } from '@common/chat-message';
 import { Coord } from '@common/coord';
 import { GameEvents } from '@common/game-events';
 import { LIMITED_TIME_COOP, LIMITED_TIME_SOLO } from '@common/game-types';
@@ -15,6 +16,7 @@ import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServe
 import { readFileSync } from 'fs';
 import * as path from 'path';
 import { Server, Socket } from 'socket.io';
+import { ChatEvents } from '../chat/chat.gateway.events';
 import { PRIVATE_ROOM_ID } from './chat.gateway.constants';
 
 @WebSocketGateway({ cors: true })
@@ -72,6 +74,16 @@ export class GameGateway implements OnGatewayDisconnect {
     removeSheet(socket: Socket, payload) {
         this.availableSheets = this.availableSheets.filter((sheet) => JSON.stringify(sheet._id) !== JSON.stringify(payload._id));
     }
+    @SubscribeMessage(GameEvents.CancelGame)
+    cancelGame(socket: Socket) {
+        console.log('cancel game');
+        console.log(this.rooms.length);
+        const room = this.rooms.find((iter) => iter.player1.socketId === socket.id);
+        this.removeRoom(room);
+        console.log(room);
+        console.log(this.rooms.length);
+    }
+
     @SubscribeMessage(GameEvents.SheetCreated)
     async updateSheets() {
         const DELAY = 500;
@@ -84,12 +96,13 @@ export class GameGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage(GameEvents.TimeOut)
     async handleTimeOut(client: Socket, payload) {
-        const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload);
+        const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload.roomName);
         const message = 'Time Out⏲️! Bien essayé!👍';
+        console.log(room);
         client.emit(GameEvents.GameOver, message);
         if (room.isGameDone) return;
         room.isGameDone = true;
-        this.createHistoryForGameExpired(room);
+        this.createHistoryForGameExpired(room, payload.player, payload.allyGaveUp);
     }
 
     @SubscribeMessage(GameEvents.ClickTL)
@@ -98,33 +111,34 @@ export class GameGateway implements OnGatewayDisconnect {
         const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload.roomName);
         const player = room.player1?.socketId === client.id ? room.player1 : room.player2?.socketId === client.id ? room.player2 : null;
         let diffFound: Coord[] = null;
+        let isError = true;
         let left = null;
         let right = null;
         for (const diff of room.currentDifferences) {
             if (diff.coords.find((coord) => JSON.stringify(coord) === JSON.stringify(click))) {
+                const message: ChatMessage = { content: ' A Trouvé une différence!', name: player.name, type: 'game' };
+                this.server.to(room.roomName).emit(ChatEvents.RoomMessage, message);
                 diff.found = true;
                 player.differencesFound++;
                 diffFound = diff.coords;
                 await this.rerollSheet(room, player);
                 if (room.isGameDone) {
-                    const message = "Fin de la partie! Vous n'avez laissé aucune fiche!🙌";
-                    this.server.to(room.roomName).emit(GameEvents.GameOver, message);
+                    const messageDiff = "Fin de la partie! Vous n'avez laissé aucune fiche!🙌";
+                    this.server.to(room.roomName).emit(GameEvents.GameOver, messageDiff);
                     break;
                 }
                 left = this.createImageBuffer(room.currentSheet.originalImagePath);
                 right = this.createImageBuffer(room.currentSheet.modifiedImagePath);
+                isError = false;
                 break;
             }
         }
+        if (isError) {
+            const errorMessage: ChatMessage = { content: `ERROR_FROM ${player.name}`, name: player.name, type: 'game' };
+            this.server.to(room.roomName).emit(ChatEvents.RoomMessage, errorMessage);
+        }
         this.server.to(room.roomName).emit(GameEvents.ClickValidated, { diffFound, room, player, left, right, click: payload.click });
     }
-
-    // @SubscribeMessage('new_history')
-    // async sendHistoryToServer(history: HistoryInterface, payload) {
-    //     history = payload;
-    //     this.gameHistoryService.addHistory(history);
-    //     this.server.emit('history_recieved', history);
-    // }
 
     handleDisconnect(socket: Socket) {
         let player: Player;
@@ -149,9 +163,12 @@ export class GameGateway implements OnGatewayDisconnect {
         foundRoom.playersInRoom--;
         socket.leave(foundRoom.roomName);
         this.server.to(foundRoom.roomName).emit(GameEvents.playerLeft, { room: foundRoom, player });
+        const message: ChatMessage = { content: 'Ton Allié a quitté la partie😱, Basculé en Mode Solo!', type: 'game' };
+        this.server.to(foundRoom.roomName).emit(ChatEvents.RoomMessage, message);
         if (!foundRoom.playersInRoom && !foundRoom.isGameDone) {
             this.createHistoryForDesertedRoom(foundRoom);
-
+            this.removeRoom(foundRoom);
+        } else if (foundRoom.isGameDone) {
             this.removeRoom(foundRoom);
         }
     }
@@ -179,7 +196,7 @@ export class GameGateway implements OnGatewayDisconnect {
     }
 
     private removeRoom(room: LimitedTimeRoom) {
-        return this.rooms.filter((iter) => iter.roomName !== room.roomName);
+        this.rooms = this.rooms.filter((iter) => iter.roomName !== room.roomName);
     }
 
     private generateRandomId(length: number): string {
@@ -243,30 +260,26 @@ export class GameGateway implements OnGatewayDisconnect {
     }
 
     // chrono is finished
-    private createHistoryForGameExpired(room: LimitedTimeRoom) {
+    private createHistoryForGameExpired(room: LimitedTimeRoom, player: Player, allyGaveUp: boolean) {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
         const history: HistoryInterface = {
             gameStart: this.getFullDate(room.startTime),
             duration: this.elapsedTime(room.startTime),
             gameMode: mode,
-            player1: room.player1.name,
-            player2: room.player2 ? room.player2.name : undefined,
+            player1: room.player1?.name,
+            player2: room.player2?.name,
             winner1: false,
-            gaveUp1: false,
+            gaveUp1: room.player2?.socketId === player.socketId && allyGaveUp,
             winner2: false,
-            gaveUp2: false,
+            gaveUp2: room.player1?.socketId === player.socketId && allyGaveUp,
         };
-
+        console.log(history);
         this.gameHistoryService.addHistory(history);
     }
 
     private createHistoryForWin(room: LimitedTimeRoom, player: Player) {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
-        let gaveUp = false;
         let playerLeft;
-        if (room.playersInRoom === 1 && mode === LIMITED_TIME_COOP) {
-            gaveUp = true;
-        }
         if (player.socketId === room.player1?.socketId) {
             playerLeft = room.player2?.name;
         } else {
