@@ -44,7 +44,11 @@ export class TimeLimitModeService implements OnDestroy {
         private audio: AudioService,
         private hintService: HintsService,
         private timer: TimerReplayService,
-    ) {}
+    ) {
+        this.timer.timeDone$.subscribe((res) => {
+            if (res) this.isGameOver = true;
+        });
+    }
     get constants() {
         return this._constants;
     }

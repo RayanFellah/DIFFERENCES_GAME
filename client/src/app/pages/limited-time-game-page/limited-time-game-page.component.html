@@ -1,4 +1,7 @@
 <app-header pageTitle="Bienvenue {{ this.playerName }}"></app-header>
+<button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
+    <mat-icon>exit_to_app</mat-icon>
+</button>
 <main class="main-container">
     <div class="info-container">
         <div class="player1-points" *ngIf="playerName">

@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { GameConstants } from '@common/game-constants';
+import { BehaviorSubject } from 'rxjs';
 import { ONE_MINUTE, ONE_SECOND } from 'src/constants';
 
 @Injectable({
     providedIn: 'root',
 })
 export class TimerReplayService {
-    private _elapsedTime = 0;
+    timeDone = new BehaviorSubject(false);
+    timeDone$ = this.timeDone.asObservable();
+    private _elapsedTime: number = 0;
     private _timerId: number | undefined;
     private _speed = 1;
 
@@ -34,6 +37,7 @@ export class TimerReplayService {
         this._timerId = window.setInterval(() => {
             this._elapsedTime -= 1;
             if (this._elapsedTime <= 0) {
+                this.timeDone.next(true);
                 this._elapsedTime = 0;
                 window.clearInterval(this._timerId); // Stop the timer when it reaches 0
             }
