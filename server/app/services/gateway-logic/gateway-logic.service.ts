@@ -55,22 +55,23 @@ export class GatewayLogicService {
         this.gameHistoryService.addHistory(history);
     }
 
-    createHistoryForGameExpired(room: LimitedTimeRoom) {
+     createHistoryForGameExpired(room: LimitedTimeRoom, player: Player, allyGaveUp: boolean) {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
         const history: HistoryInterface = {
-            gameStart: room.startTime.toLocaleTimeString(),
+            gameStart: this.getFullDate(room.startTime),
             duration: this.elapsedTime(room.startTime),
             gameMode: mode,
-            player1: room.player1.name,
-            player2: room.player2 ? room.player2.name : undefined,
+            player1: room.player1?.name,
+            player2: room.player2?.name,
             winner1: false,
-            gaveUp1: false,
+            gaveUp1: room.player2?.socketId === player.socketId && allyGaveUp,
             winner2: false,
-            gaveUp2: false,
+            gaveUp2: room.player1?.socketId === player.socketId && allyGaveUp,
         };
-
+        console.log(history);
         this.gameHistoryService.addHistory(history);
     }
+
 
     createHistoryForDesertedRoom(room: LimitedTimeRoom) {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
