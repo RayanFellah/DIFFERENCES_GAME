@@ -96,10 +96,8 @@ export class TimeLimitModeService implements OnDestroy {
         this.currentClick = event;
         const data = {
             playerName: this.player.name,
-            x: event.offsetX,
-            y: event.offsetY,
             roomName: this.playRoom.roomName,
-            click: this.currentClick,
+            click: { target: (this.currentClick.target as HTMLCanvasElement).id, x: this.currentClick.offsetX, y: this.currentClick.offsetY },
         };
 
         this.socketService.send(GameEvents.ClickTL, data);
@@ -143,7 +141,8 @@ export class TimeLimitModeService implements OnDestroy {
     handleResponses() {
         this.socketService.on(
             GameEvents.ClickValidated,
-            async (res: { diffFound: Vec2[]; player: Player; room: LimitedTimeRoom; left: Buffer; right: Buffer; click: MouseEvent }) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            async (res: { diffFound: Vec2[]; player: Player; room: LimitedTimeRoom; left: Buffer; right: Buffer; click: any }) => {
                 this.handleClick(res.click, res.diffFound, res.player.socketId);
                 this.playRoom = res.room;
                 if (res.left && res.right) {
@@ -202,17 +201,18 @@ export class TimeLimitModeService implements OnDestroy {
         this.socketService.send(event, data);
     }
 
-    private handleClick(event: MouseEvent, diff: Vec2[] | undefined, player: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private handleClick(event: any, diff: Vec2[] | undefined, player: string) {
         console.log('click');
         console.log(event);
         if (!event) return;
         console.log('ici');
-        const canvasClicked = event.target as HTMLCanvasElement;
+
         const ctx =
-            canvasClicked === this.leftCanvasRef
+            event.target === this.leftCanvasRef.id
                 ? (this.leftCanvasRef.getContext('2d') as CanvasRenderingContext2D)
                 : (this.rightCanvasRef.getContext('2d') as CanvasRenderingContext2D);
-
+        console.log(event);
         if (diff) {
             console.log('diff found');
             this.timer.addTimerBonus(this.constants);
@@ -226,6 +226,7 @@ export class TimeLimitModeService implements OnDestroy {
             this.differencesFound++;
             return diff;
         } else if (player === this.socketService.socket.id) {
+            console.log('diff not found');
             this.ignoreClicks();
             this.canvasFormatter.displayErrorMessage(event, ctx);
             this.audio.playFailSound();

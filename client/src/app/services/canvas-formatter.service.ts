@@ -17,12 +17,16 @@ export class CanvasFormatterService {
             URL.revokeObjectURL(url);
         };
     }
-    displayErrorMessage(event: MouseEvent, context: CanvasRenderingContext2D) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    displayErrorMessage(event: any, context: CanvasRenderingContext2D) {
         if (this.disable) return;
+        console.log('hi');
+        console.log(event);
+        console.log(context);
         this.disable = true;
         const temp: ImageData | undefined = context?.getImageData(0, 0, this.width, this.height);
         if (context) context.font = FONT_STYLE;
-        context?.fillText('ERROR', event.offsetX, event.offsetY);
+        context?.fillText('ERROR', event.x, event.y);
         setTimeout(() => {
             if (temp) context?.putImageData(temp, 0, 0);
             this.disable = false;
