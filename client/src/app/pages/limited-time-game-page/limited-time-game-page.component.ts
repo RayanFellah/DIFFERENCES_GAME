@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
+import { TimeLimitPlayGroundComponent } from '@app/components/time-limit-play-ground/time-limit-play-ground.component';
 import { GameStateService } from '@app/services/game-state/game-state.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { TimeLimitModeService } from '@app/services/time-limit-mode.service';
@@ -15,6 +16,7 @@ import { GameEvents } from '@common/game-events';
     providers: [DialogComponent],
 })
 export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
+    @ViewChild(TimeLimitPlayGroundComponent) playGround: TimeLimitPlayGroundComponent;
     timeLeft: number;
     gameType = 'TL';
     playerName: string;
@@ -58,8 +60,9 @@ export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
         });
         this.socketService.on(GameEvents.GameOver, (message: string) => {
             const DELAY = 50;
-            setTimeout(() => {}, DELAY);
-            this.dialog.openGameOverDialog({ message, isClassicGame: false });
+            setTimeout(() => {
+                this.dialog.openGameOverDialog({ message, isClassicGame: false });
+            }, DELAY);
         });
     }
 

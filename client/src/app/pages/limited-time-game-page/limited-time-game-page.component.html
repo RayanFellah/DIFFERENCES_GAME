@@ -18,7 +18,7 @@
         </div>
         <app-hints *ngIf="!opponent"></app-hints>
     </div>
-    <div class="play-area-container" tabindex="0" autofocus>
+    <div (keyup.i)="playGround.hint()" class="play-area-container" tabindex="0" autofocus>
         <app-time-limit-play-ground [isSolo]="opponent ? false : true" [constants]="this.constants"></app-time-limit-play-ground>
     </div>
     <app-hint-message #hintMessage class="hints"> </app-hint-message>
