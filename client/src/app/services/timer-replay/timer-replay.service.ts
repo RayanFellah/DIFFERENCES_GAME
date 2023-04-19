@@ -44,7 +44,7 @@ export class TimerReplayService {
         }, ONE_SECOND);
     }
 
-    addpenaltyTime(penalty: GameConstants): void {
+    addPenaltyTime(penalty: GameConstants): void {
         this._elapsedTime -= penalty.gamePenalty;
         if (this._elapsedTime < 0) {
             this._elapsedTime = 0; // Set the elapsed time to 0 if it goes below 0

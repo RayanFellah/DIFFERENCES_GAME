@@ -79,12 +79,8 @@ export class GameGateway implements OnGatewayDisconnect {
     }
     @SubscribeMessage(GameEvents.CancelGame)
     cancelGame(socket: Socket) {
-        console.log('cancel game');
-        console.log(this.rooms.length);
         const room = this.rooms.find((iter) => iter.player1.socketId === socket.id);
         this.removeRoom(room);
-        console.log(room);
-        console.log(this.rooms.length);
     }
 
     @SubscribeMessage(GameEvents.SheetCreated)
@@ -101,7 +97,6 @@ export class GameGateway implements OnGatewayDisconnect {
     async handleTimeOut(client: Socket, payload) {
         const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload.roomName);
         const message = 'Time Out⏲️! Bien essayé!👍';
-        console.log(room);
         client.emit(GameEvents.GameOver, message);
         if (room.isGameDone) return;
         room.isGameDone = true;
@@ -119,7 +114,7 @@ export class GameGateway implements OnGatewayDisconnect {
         let right = null;
         for (const diff of room.currentDifferences) {
             if (diff.coords.find((coord) => JSON.stringify(coord) === JSON.stringify(click))) {
-                const message: ChatMessage = { content: ' A Trouvé une différence!', name: player.name, type: 'game' };
+                const message: ChatMessage = { content: ' A trouvé une différence!', name: player.name, type: 'game' };
                 this.server.to(room.roomName).emit(ChatEvents.RoomMessage, message);
                 diff.found = true;
                 player.differencesFound++;
@@ -141,6 +136,17 @@ export class GameGateway implements OnGatewayDisconnect {
             this.server.to(room.roomName).emit(ChatEvents.RoomMessage, errorMessage);
         }
         this.server.to(room.roomName).emit(GameEvents.ClickValidated, { diffFound, room, player, left, right, click: payload.click });
+    }
+
+    @SubscribeMessage(ChatEvents.Hint)
+    hintActivated(client: Socket) {
+        const room = this.rooms.find((res) => res.player1?.socketId === client.id);
+        if (!room) return ;
+        room.player1.usedHints++;
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+        const hintUsed: ChatMessage = { content: `${timeString} - Indice utilisé`, type: 'game' };
+        client.emit(ChatEvents.RoomMessage, hintUsed);
     }
 
     handleDisconnect(socket: Socket) {
@@ -166,7 +172,7 @@ export class GameGateway implements OnGatewayDisconnect {
         foundRoom.playersInRoom--;
         socket.leave(foundRoom.roomName);
         this.server.to(foundRoom.roomName).emit(GameEvents.playerLeft, { room: foundRoom, player });
-        const message: ChatMessage = { content: 'Ton Allié a quitté la partie😱, Basculé en Mode Solo!', type: 'game' };
+        const message: ChatMessage = { content: 'Ton allié a quitté la partie😱, basculé en mode Solo!', type: 'game' };
         this.server.to(foundRoom.roomName).emit(ChatEvents.RoomMessage, message);
         if (!foundRoom.playersInRoom && !foundRoom.isGameDone) {
             this.gatewayLogicService.createHistoryForDesertedRoom(foundRoom);
