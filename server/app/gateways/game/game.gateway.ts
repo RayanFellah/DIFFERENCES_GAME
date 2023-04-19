@@ -86,7 +86,7 @@ export class GameGateway implements OnGatewayDisconnect {
     async handleClick(client: Socket, payload) {
         const click: Coord = { posX: payload.x, posY: payload.y };
         const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload.roomName);
-        const player = room.player1?.socketId === client.id ? room.player1 : room.player2;
+        const player = room.player1?.socketId === client.id ? room.player1 : room.player2?.socketId === client.id ? room.player2 : null;
         let diffFound: Coord[] = null;
         let left = null;
         let right = null;
@@ -98,7 +98,8 @@ export class GameGateway implements OnGatewayDisconnect {
                 diffFound = diff.coords;
                 await this.rerollSheet(room, player);
                 if (room.isGameDone) {
-                    this.server.to(room.roomName).emit(GameEvents.GameOver, { room, player });
+                    const message = "Fin de la partie! Vous n'avez laissé aucune fiche!🙌";
+                    this.server.to(room.roomName).emit(GameEvents.GameOver, message);
                     break;
                 }
                 left = this.createImageBuffer(room.currentSheet.originalImagePath);
@@ -106,7 +107,8 @@ export class GameGateway implements OnGatewayDisconnect {
                 break;
             }
         }
-        this.server.to(room.roomName).emit(GameEvents.ClickValidated, { diffFound, room, player, left, right });
+        console.log(room, player);
+        this.server.to(room.roomName).emit(GameEvents.ClickValidated, { diffFound, room, player, left, right, click });
     }
 
     // @SubscribeMessage('new_history')
@@ -276,7 +278,7 @@ export class GameGateway implements OnGatewayDisconnect {
             gaveUp2: true,
         };
         // coop et les deux joueurs ont gagne
-        if (room.playersInRoom == 2) {
+        if (room.playersInRoom === 2) {
             history.winner2 = true;
             history.gaveUp2 = false;
         }

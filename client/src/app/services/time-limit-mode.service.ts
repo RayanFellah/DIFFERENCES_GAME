@@ -155,7 +155,7 @@ export class TimeLimitModeService implements OnDestroy {
             this.isGameOver = true;
             setTimeout(() => {
                 this.timer.stopTimer();
-                // this.audio.playWonSound();
+                this.audio.playWonSound();
             }, DELAY);
         });
 
@@ -199,7 +199,10 @@ export class TimeLimitModeService implements OnDestroy {
     }
 
     private handleClick(event: MouseEvent, diff: Vec2[] | undefined, player: string) {
+        console.log('click');
+        console.log(event);
         if (!event) return;
+        console.log('ici');
         const canvasClicked = event.target as HTMLCanvasElement;
         const ctx =
             canvasClicked === this.leftCanvasRef
@@ -207,9 +210,11 @@ export class TimeLimitModeService implements OnDestroy {
                 : (this.rightCanvasRef.getContext('2d') as CanvasRenderingContext2D);
 
         if (diff) {
+            console.log('diff found');
             this.timer.addTimerBonus(this.constants);
             this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
             this.timeLimit += this.timeBonus;
+            console.log(player, this.socketService.socket.id);
             if (player === this.socketService.socket.id) {
                 this.audio.playSuccessSound();
             }
