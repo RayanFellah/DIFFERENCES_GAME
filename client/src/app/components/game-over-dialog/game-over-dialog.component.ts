@@ -7,7 +7,7 @@ import { DialogService } from '@app/services/dialog-service/dialog.service';
     styleUrls: ['./game-over-dialog.component.scss'],
 })
 export class GameOverDialogComponent {
-    constructor(@Inject(MAT_DIALOG_DATA) public data: string, private dialogService: DialogService) {}
+    constructor(@Inject(MAT_DIALOG_DATA) public data: {message : string , isClassicGame : boolean}, private dialogService: DialogService) {}
     replay(): void {
         this.dialogService.emitReplay(true);
     }

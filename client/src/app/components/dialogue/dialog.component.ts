@@ -56,8 +56,8 @@ export class DialogComponent {
         this.loadingDialogRef.close();
     }
 
-    openGameOverDialog(message: string): void {
-        this.dialog.open(GameOverDialogComponent, { data: message, panelClass: 'custom-modalbox' });
+    openGameOverDialog(data : {message : string, isClassicGame: boolean}): void {
+        this.dialog.open(GameOverDialogComponent, { data , panelClass: 'custom-modalbox' });
     }
     openJoinLimitedTimeDialog(): void {
         this.joinLimitedTimeDialogRef = this.dialog.open(JoinLimitedTimeComponent, {

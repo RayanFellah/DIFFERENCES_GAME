@@ -33,7 +33,6 @@ export class GatewayLogicService {
             playerLeft = room.player1?.name;
         }
 
-        // coop et l un des players a quitté
         const history: HistoryInterface = {
             gameStart: this.getFullDate(room.startTime),
             duration: this.elapsedTime(room.startTime),
@@ -45,13 +44,11 @@ export class GatewayLogicService {
             winner2: false,
             gaveUp2: true,
         };
-        // coop et les deux joueurs ont gagne
         if (room.playersInRoom === 2) {
             history.winner2 = true;
             history.gaveUp2 = false;
         }
 
-        // solo gagne
         if (room.mode === LIMITED_TIME_SOLO) {
             history.player2 = undefined;
         }

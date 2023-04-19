@@ -22,6 +22,7 @@ export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
     roomName: string = 'room';
     constants: GameConstants;
     points: number;
+
     constructor(
         public gameLogic: TimeLimitModeService,
         private gameState: GameStateService,
@@ -57,7 +58,7 @@ export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
         this.socketService.on(GameEvents.GameOver, (message: string) => {
             const DELAY = 50;
             setTimeout(() => {}, DELAY);
-            this.dialog.openGameOverDialog(message);
+            this.dialog.openGameOverDialog({message,isClassicGame: false});
         });
     }
 
