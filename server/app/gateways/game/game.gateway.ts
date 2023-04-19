@@ -84,8 +84,12 @@ export class GameGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage(GameEvents.TimeOut)
     async handleTimeOut(client: Socket, payload) {
+        const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload);
         const message = 'Time Out⏲️! Bien essayé!👍';
-        this.server.to(payload).emit(GameEvents.GameOver, message);
+        client.emit(GameEvents.GameOver, message);
+        if (room.isGameDone) return;
+        room.isGameDone = true;
+        this.createHistoryForGameExpired(room);
     }
 
     @SubscribeMessage(GameEvents.ClickTL)
@@ -96,7 +100,6 @@ export class GameGateway implements OnGatewayDisconnect {
         let diffFound: Coord[] = null;
         let left = null;
         let right = null;
-        //
         for (const diff of room.currentDifferences) {
             if (diff.coords.find((coord) => JSON.stringify(coord) === JSON.stringify(click))) {
                 diff.found = true;
