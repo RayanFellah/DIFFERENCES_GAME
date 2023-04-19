@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { GameConstants } from '@common/game-constants';
 import { Injectable } from '@nestjs/common';
 const fs = require('fs');

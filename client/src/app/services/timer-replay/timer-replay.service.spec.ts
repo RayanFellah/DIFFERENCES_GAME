@@ -3,14 +3,14 @@ import { TestBed } from '@angular/core/testing';
 import { TimerReplayService } from './timer-replay.service';
 
 describe('TimerReplayService', () => {
-  let service: TimerReplayService;
+    let service: TimerReplayService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(TimerReplayService);
-  });
+    beforeEach(() => {
+        TestBed.configureTestingModule({});
+        service = TestBed.inject(TimerReplayService);
+    });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 });

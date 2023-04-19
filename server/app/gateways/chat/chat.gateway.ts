@@ -125,7 +125,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage(ChatEvents.Hint)
     hintActivated(client: Socket) {
         const room = this.rooms.find((res) => res.player1?.socketId === client.id);
-        if (!room) return ;
+        if (!room) return;
         room.player1.usedHints++;
         const now = new Date();
         const timeString = now.toLocaleTimeString('en-US', { hour12: false });

@@ -9,7 +9,7 @@ import { Coord } from '@common/coord';
 import { Sheet } from '@common/sheet';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as Jimp from 'jimp';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { GameLogicService } from './game-logic.service';
 
 jest.mock('jimp', () => ({
@@ -64,12 +64,7 @@ describe('GameLogicService', () => {
             const spyGetDifferenceDetector = jest
                 .spyOn(service, 'getDifferenceDetector')
                 .mockResolvedValue(
-                    new DifferenceDetectorService(
-                        new RadiusEnlargementService(),
-                        new DifferenceService(),
-                        new ImageToMatrixService(),
-                        new ImageToMatrixService(),
-                    ),
+                    new DifferenceDetectorService(new RadiusEnlargementService(), new ImageToMatrixService(), new ImageToMatrixService()),
                 );
             const spyGetAllClusters = jest.spyOn(DifferenceDetectorService.prototype, 'getAllClusters').mockResolvedValue([]);
 
@@ -85,12 +80,7 @@ describe('GameLogicService', () => {
             const spyGetDifferenceDetector = jest
                 .spyOn(service, 'getDifferenceDetector')
                 .mockResolvedValue(
-                    new DifferenceDetectorService(
-                        new RadiusEnlargementService(),
-                        new DifferenceService(),
-                        new ImageToMatrixService(),
-                        new ImageToMatrixService(),
-                    ),
+                    new DifferenceDetectorService(new RadiusEnlargementService(), new ImageToMatrixService(), new ImageToMatrixService()),
                 );
             const spyGetDifficultyLevel = jest.spyOn(DifferenceDetectorService.prototype, 'getDifficultyLevel').mockResolvedValueOnce('Hard');
 
@@ -132,11 +122,11 @@ const getFakeSheet = (): Sheet => ({
     radius: 3,
     originalImagePath: getRandomString(),
     modifiedImagePath: getRandomString(),
-    topPlayer: getRandomString(),
-    topScore: 0,
     differences: 5,
     isJoinable: true,
     title: getRandomString(),
+    top3Multi: [],
+    top3Solo: [],
 });
 
 const BASE_36 = 36;
@@ -151,21 +141,6 @@ const getMockDifferenceService = (): DifferenceService => {
         found: false,
         setCoord(coords: Coord[]) {
             this.coords = coords;
-        },
-        findEdges() {
-            for (const coord of this.coords) {
-                if (
-                    this.coords.find((res: Coord) => res.posX === coord.posX + 1 && res.posY === coord.posY) &&
-                    this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY + 1) &&
-                    this.coords.find((res: Coord) => res.posX === coord.posX - 1 && res.posY === coord.posY) &&
-                    this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY - 1)
-                ) {
-                    continue;
-                } else {
-                    this.listEdges.push(coord);
-                }
-            }
-            return this.listEdges;
         },
     };
     return mockDifferenceService;

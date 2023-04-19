@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { ID_LENGTH } from '@app/constants';
 import { HistoryInterface } from '@app/model/schema/history.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
@@ -55,7 +56,7 @@ export class GatewayLogicService {
         this.gameHistoryService.addHistory(history);
     }
 
-     createHistoryForGameExpired(room: LimitedTimeRoom, player: Player, allyGaveUp: boolean) {
+    createHistoryForGameExpired(room: LimitedTimeRoom, player: Player, allyGaveUp: boolean) {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
         const history: HistoryInterface = {
             gameStart: this.getFullDate(room.startTime),
@@ -70,7 +71,6 @@ export class GatewayLogicService {
         };
         this.gameHistoryService.addHistory(history);
     }
-
 
     createHistoryForDesertedRoom(room: LimitedTimeRoom) {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;

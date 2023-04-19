@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';

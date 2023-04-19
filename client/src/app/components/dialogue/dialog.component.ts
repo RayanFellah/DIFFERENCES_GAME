@@ -5,13 +5,13 @@ import { GameHistoryComponent } from '@app/components/game-history/game-history.
 import { GameOverDialogComponent } from '@app/components/game-over-dialog/game-over-dialog.component';
 import { GameScoreComponent } from '@app/components/game-score/game-score.component';
 import { ImageDialogComponent } from '@app/components/image-dialog/image-dialog.component';
+import { JoinLimitedTimeComponent } from '@app/components/join-limited-time/join-limited-time.component';
 import { JoinLoadingDialogComponent } from '@app/components/join-loading-dialog/join-loading-dialog.component';
 import { LoadingDialogComponent } from '@app/components/loading-dialog/loading-dialog.component';
 import { ResetDialogComponent } from '@app/components/reset-dialog/reset-dialog.component';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
 import { Score } from '@common/score';
 import { HEIGHT, WIDTH } from 'src/constants';
-import { JoinLimitedTimeComponent } from '@app/components/join-limited-time/join-limited-time.component';
 @Component({
     selector: 'app-dialog',
     templateUrl: './dialog.component.html',
@@ -56,8 +56,8 @@ export class DialogComponent {
         this.loadingDialogRef.close();
     }
 
-    openGameOverDialog(data : {message : string, isClassicGame: boolean}): void {
-        this.dialog.open(GameOverDialogComponent, { data , panelClass: 'custom-modalbox' });
+    openGameOverDialog(data: { message: string; isClassicGame: boolean }): void {
+        this.dialog.open(GameOverDialogComponent, { data, panelClass: 'custom-modalbox' });
     }
     openJoinLimitedTimeDialog(): void {
         this.joinLimitedTimeDialogRef = this.dialog.open(JoinLimitedTimeComponent, {

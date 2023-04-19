@@ -1,9 +1,9 @@
-/* eslint-disable no-restricted-imports */
-import { ID_LENGTH } from '@app/constants';
+/* eslint-disable max-params */
+import { ChatEvents } from '@app/gateways/chat/chat.gateway.events';
 import { Sheet } from '@app/model/database/sheet';
-import { HistoryInterface } from '@app/model/schema/history.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
+import { GatewayLogicService } from '@app/services/gateway-logic/gateway-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
 import { ChatMessage } from '@common/chat-message';
 import { Coord } from '@common/coord';
@@ -11,15 +11,9 @@ import { GameEvents } from '@common/game-events';
 import { LIMITED_TIME_COOP, LIMITED_TIME_SOLO } from '@common/game-types';
 import { LimitedTimeRoom } from '@common/limited-time-room';
 import { Player } from '@common/player';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { readFileSync } from 'fs';
-import * as path from 'path';
 import { Server, Socket } from 'socket.io';
-import { ChatEvents } from '../chat/chat.gateway.events';
-import { PRIVATE_ROOM_ID } from './chat.gateway.constants';
-import { GatewayLogicService } from '@app/services/gateway-logic/gateway-logic.service';
-
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -28,9 +22,7 @@ export class GameGateway implements OnGatewayDisconnect {
 
     rooms: LimitedTimeRoom[] = [];
     availableSheets: Sheet[];
-    private readonly room = PRIVATE_ROOM_ID;
     constructor(
-        readonly logger: Logger,
         readonly sheetService: SheetService,
         public gameService: GameLogicService,
         public gameHistoryService: GameHistoryService,
@@ -44,7 +36,7 @@ export class GameGateway implements OnGatewayDisconnect {
     @SubscribeMessage(GameEvents.CreateLimitedTimeSolo)
     async createLimitedSoloGame(client: Socket, payload) {
         payload.player.socketId = client.id;
-        const room = await this.gatewayLogicService.createRoom(client, payload, LIMITED_TIME_SOLO, this.rooms ,this.availableSheets);
+        const room = await this.gatewayLogicService.createRoom(client, payload, LIMITED_TIME_SOLO, this.rooms, this.availableSheets);
         room.hasStarted = true;
         const left = this.gatewayLogicService.createImageBuffer(room.currentSheet.originalImagePath);
         const right = this.gatewayLogicService.createImageBuffer(room.currentSheet.modifiedImagePath);
@@ -91,7 +83,7 @@ export class GameGateway implements OnGatewayDisconnect {
                 this.availableSheets = sheets;
             });
         }, DELAY);
-    } 
+    }
 
     @SubscribeMessage(GameEvents.TimeOut)
     async handleTimeOut(client: Socket, payload) {
@@ -141,7 +133,7 @@ export class GameGateway implements OnGatewayDisconnect {
     @SubscribeMessage(ChatEvents.Hint)
     hintActivated(client: Socket) {
         const room = this.rooms.find((res) => res.player1?.socketId === client.id);
-        if (!room) return ;
+        if (!room) return;
         room.player1.usedHints++;
         const now = new Date();
         const timeString = now.toLocaleTimeString('en-US', { hour12: false });
@@ -184,4 +176,4 @@ export class GameGateway implements OnGatewayDisconnect {
     private removeRoom(room: LimitedTimeRoom) {
         this.rooms = this.rooms.filter((iter) => iter.roomName !== room.roomName);
     }
- }
+}

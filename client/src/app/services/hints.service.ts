@@ -1,3 +1,5 @@
+/* eslint-disable max-params */
+/* eslint-disable no-restricted-imports */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';

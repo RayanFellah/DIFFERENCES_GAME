@@ -29,7 +29,6 @@ export class ResetDialogComponent implements OnInit {
         alert(actionConfirmed);
     }
 
-
     resetConstants() {
         const data = {
             gameTime: 30,
@@ -38,7 +37,4 @@ export class ResetDialogComponent implements OnInit {
         };
         this.socketService.send(GameEvents.UpdateConstants, data);
     }
-
-
 }
-
