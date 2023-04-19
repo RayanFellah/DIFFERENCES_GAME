@@ -47,10 +47,8 @@ export class TimeLimitPlayGroundComponent implements AfterViewInit {
     }
     hint() {
         if (this.hintService.blockClick || this.hintService.differences.toString() === [].toString() || !this.isSolo) return;
-        console.log('hint');
         this.socketService.send('hint', 'a');
         this.timer.addPenaltyTime(this.constants);
-        // if this.timer.elapsedtime == 0: GAMEDONE!!!
         this.hintService.executeHint(this.playAreaContainer.nativeElement, ONE_SECOND);
         setTimeout(() => {
             this.hintService.activateHint = false;

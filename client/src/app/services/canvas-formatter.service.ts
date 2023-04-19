@@ -20,9 +20,6 @@ export class CanvasFormatterService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     displayErrorMessage(event: any, context: CanvasRenderingContext2D) {
         if (this.disable) return;
-        console.log('hi');
-        console.log(event);
-        console.log(context);
         this.disable = true;
         const temp: ImageData | undefined = context?.getImageData(0, 0, this.width, this.height);
         if (context) context.font = FONT_STYLE;

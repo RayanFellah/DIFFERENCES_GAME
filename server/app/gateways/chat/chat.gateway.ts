@@ -166,7 +166,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     @SubscribeMessage('cancelJoinGame')
     cancelJoinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
-        console.log('cancelled');
         socket.broadcast.to(`GameRoom${sheetId}`).emit('UserCancelled', { playerName });
         socket.leave(`GameRoom${sheetId}`);
     }

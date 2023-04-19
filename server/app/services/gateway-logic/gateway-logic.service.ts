@@ -68,7 +68,6 @@ export class GatewayLogicService {
             winner2: false,
             gaveUp2: room.player1?.socketId === player.socketId && allyGaveUp,
         };
-        console.log(history);
         this.gameHistoryService.addHistory(history);
     }
 
