@@ -85,7 +85,6 @@ export class GameGateway implements OnGatewayDisconnect {
     @SubscribeMessage(GameEvents.ClickTL)
     async handleClick(client: Socket, payload) {
         const click: Coord = { posX: payload.click.x, posY: payload.click.y };
-        console.log(click);
         const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload.roomName);
         const player = room.player1?.socketId === client.id ? room.player1 : room.player2?.socketId === client.id ? room.player2 : null;
         let diffFound: Coord[] = null;
@@ -108,7 +107,6 @@ export class GameGateway implements OnGatewayDisconnect {
                 break;
             }
         }
-        console.log(room, player);
         this.server.to(room.roomName).emit(GameEvents.ClickValidated, { diffFound, room, player, left, right, click: payload.click });
     }
 
@@ -288,7 +286,6 @@ export class GameGateway implements OnGatewayDisconnect {
         if (room.mode === LIMITED_TIME_SOLO) {
             history.player2 = undefined;
         }
-        console.log(history);
         this.gameHistoryService.addHistory(history);
     }
 

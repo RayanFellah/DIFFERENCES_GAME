@@ -203,22 +203,16 @@ export class TimeLimitModeService implements OnDestroy {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private handleClick(event: any, diff: Vec2[] | undefined, player: string) {
-        console.log('click');
-        console.log(event);
         if (!event) return;
-        console.log('ici');
 
         const ctx =
             event.target === this.leftCanvasRef.id
                 ? (this.leftCanvasRef.getContext('2d') as CanvasRenderingContext2D)
                 : (this.rightCanvasRef.getContext('2d') as CanvasRenderingContext2D);
-        console.log(event);
         if (diff) {
-            console.log('diff found');
             this.timer.addTimerBonus(this.constants);
             this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
             this.timeLimit += this.timeBonus;
-            console.log(player, this.socketService.socket.id);
             if (player === this.socketService.socket.id) {
                 this.audio.playSuccessSound();
             }
@@ -226,7 +220,6 @@ export class TimeLimitModeService implements OnDestroy {
             this.differencesFound++;
             return diff;
         } else if (player === this.socketService.socket.id) {
-            console.log('diff not found');
             this.ignoreClicks();
             this.canvasFormatter.displayErrorMessage(event, ctx);
             this.audio.playFailSound();
