@@ -20,7 +20,7 @@ export class GameLogicService {
         // eslint-disable-next-line import/namespace
         const image2Buffer = await (await Jimp.read(image2Path)).getBufferAsync(Jimp.MIME_BMP);
         image2.setFile(image2Buffer);
-        return new DifferenceDetectorService(new RadiusEnlargementService(), new DifferenceService(), image1, image2);
+        return new DifferenceDetectorService(new RadiusEnlargementService(), image1, image2);
     }
 
     async getAllDifferences(gameSheet: Partial<Sheet>) {

@@ -82,7 +82,7 @@ export class DrawingService {
         this.tempContext = this.tempCanvas.getContext('2d') as CanvasRenderingContext2D;
         container?.insertAdjacentElement('afterbegin', this.tempCanvas);
         this.tempCanvas.style.position = 'absolute';
-        this.tempCanvas.style.top = '8.6%';
+        this.tempCanvas.style.top = '6.9%';
         this.tempCanvas.style.zIndex = '1';
         this.tempContext.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
     }

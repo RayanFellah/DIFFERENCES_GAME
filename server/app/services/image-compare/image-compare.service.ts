@@ -1,7 +1,6 @@
 import { BLACK, HEIGHT, WHITE, WIDTH } from '@app/constants';
 import { Buffers } from '@app/interfaces/buffers.interface';
 import { DifferenceDetectorService } from '@app/services/difference-detector/difference-detector.service';
-import { DifferenceService } from '@app/services/difference/difference.service';
 import { ImageToMatrixService } from '@app/services/image-to-matrix/image-to-matrix.service';
 import { RadiusEnlargementService } from '@app/services/radius-enlargement/radius-enlargement.service';
 import { Injectable } from '@nestjs/common';
@@ -21,12 +20,7 @@ export class ImageCompareService {
             image1.setFile(buffers['originalImagePath']);
             const image2: ImageToMatrixService = new ImageToMatrixService();
             image2.setFile(buffers['modifiedImagePath']);
-            const differenceDetector: DifferenceDetectorService = new DifferenceDetectorService(
-                new RadiusEnlargementService(),
-                new DifferenceService(),
-                image1,
-                image2,
-            );
+            const differenceDetector: DifferenceDetectorService = new DifferenceDetectorService(new RadiusEnlargementService(), image1, image2);
             const differences = await differenceDetector.getAllClusters(parseInt(radius, 10));
             const image = new Jimp(WIDTH, HEIGHT, WHITE);
             const difficulty = await differenceDetector.getDifficultyLevel(differences.length);

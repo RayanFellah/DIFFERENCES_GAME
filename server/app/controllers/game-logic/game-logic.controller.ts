@@ -1,9 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 import { Sheet } from '@app/model/database/sheet';
-import { UpdateSheetDto } from '@app/model/dto/sheet/update-sheet.dto';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
-import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('game')
@@ -30,16 +29,5 @@ export class GameLogicController {
             arr.push(d.coords);
         }
         return arr;
-    }
-
-    @Patch('finish/:sheetId')
-    async finishGame(id: string, @Body() data) {
-        const sheet: Sheet = await this.sheetService.getSheet(id);
-        if (data.bestScore > sheet.topScore) {
-            const updates = new UpdateSheetDto();
-            updates.topPlayer = data.playerName;
-            updates.topScore = data.bestScore;
-            await this.sheetService.modifySheet(updates);
-        }
     }
 }

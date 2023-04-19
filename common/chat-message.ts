@@ -1,5 +1,6 @@
 export interface ChatMessage {
-    playerName: string;
+    name?: string;
     content: string;
     type: string;
+    time?: string;
 }

@@ -1,13 +1,15 @@
 <div id="play-area-container">
     <section>
         <article class="original">
-            <canvas #canvas1 id="canvas" (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
+            <canvas #canvas1 id="canvas1" (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
         </article>
         <article class="modified">
             <div #playAreaContainer>
-                <canvas #canvas2 id="canvas" (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
+                <canvas #canvas2 id="canvas2" (click)="handleClick($event)" [attr.width]="width" [attr.height]="height"></canvas>
             </div>
         </article>
     </section>
-    <button (click)="hint()" mat-stroked-button [disabled]="this.hintService.blockClick" color="primary"><mat-icon>search</mat-icon> Indice</button>
+    <button *ngIf="isSolo" (click)="hint()" mat-stroked-button [disabled]="this.hintService.blockClick || this.isGameDone" color="primary">
+        <mat-icon>search</mat-icon> Indice
+    </button>
 </div>

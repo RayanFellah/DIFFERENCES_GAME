@@ -1,7 +1,6 @@
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { Sheet } from '@app/model/database/sheet';
 import { UpdateSheetDto } from '@app/model/dto/sheet/update-sheet.dto';
-import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
 import { HttpStatus, Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -31,8 +30,10 @@ describe('SheetController', () => {
                     provide: Logger,
                     useValue: {},
                 },
-                ChatGateway,
-                GameLogicService,
+                {
+                    provide: ChatGateway,
+                    useValue: {},
+                },
             ],
         }).compile();
 
@@ -58,10 +59,10 @@ describe('SheetController', () => {
                     radius: 10,
                     originalImagePath: 'path1',
                     modifiedImagePath: 'path2',
-                    topPlayer: 'player1',
-                    topScore: 100,
                     differences: 3,
                     isJoinable: false,
+                    top3Multi: [],
+                    top3Solo: [],
                 },
                 {
                     _id: '2',
@@ -70,10 +71,10 @@ describe('SheetController', () => {
                     radius: 15,
                     originalImagePath: 'path3',
                     modifiedImagePath: 'path4',
-                    topPlayer: 'player2',
-                    topScore: 200,
                     differences: 5,
                     isJoinable: false,
+                    top3Multi: [],
+                    top3Solo: [],
                 },
             ];
 
@@ -112,10 +113,10 @@ describe('SheetController', () => {
                 radius: 10,
                 originalImagePath: 'path1',
                 modifiedImagePath: 'path2',
-                topPlayer: 'player1',
-                topScore: 100,
                 differences: 3,
                 isJoinable: false,
+                top3Multi: [],
+                top3Solo: [],
             };
 
             service.getSheet = jest.fn().mockResolvedValue(mockSheet);
@@ -147,8 +148,6 @@ describe('SheetController', () => {
         it('should modify a sheet', async () => {
             const mockUpdateSheetDto: UpdateSheetDto = {
                 _id: '1',
-                topPlayer: 'player1',
-                topScore: 200,
             };
 
             service.modifySheet = jest.fn().mockResolvedValue(null);
@@ -166,8 +165,6 @@ describe('SheetController', () => {
         it('should return NOT_FOUND when service throws an error', async () => {
             const mockUpdateSheetDto: UpdateSheetDto = {
                 _id: '1',
-                topPlayer: 'player1',
-                topScore: 200,
             };
 
             service.modifySheet = jest.fn().mockRejectedValue(new Error('Sheet not found'));

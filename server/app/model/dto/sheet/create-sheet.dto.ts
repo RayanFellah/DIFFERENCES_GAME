@@ -1,3 +1,4 @@
+import { Score } from '@common/score';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSheetDto {
@@ -21,4 +22,10 @@ export class CreateSheetDto {
 
     @ApiProperty()
     isJoinable: boolean;
+
+    @ApiProperty()
+    top3Solo: Score[];
+
+    @ApiProperty()
+    top3Multi: Score[];
 }

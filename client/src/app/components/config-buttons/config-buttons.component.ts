@@ -13,4 +13,11 @@ export class ConfigButtonsComponent {
     openConstants(): void {
         this.dialog.openConstantsDialog();
     }
+
+    openHistory(): void {
+        this.dialog.openHistoryDialog();
+    }
+    openReset(): void {
+        this.dialog.openResetDialog();
+    }
 }

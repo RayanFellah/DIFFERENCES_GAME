@@ -1,7 +1,8 @@
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
+import { GatewayLogicService } from '@app/services/gateway-logic/gateway-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
 import { Sheet } from '@common/sheet';
-import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Server } from 'socket.io';
@@ -9,38 +10,45 @@ import { GameGateway } from './game.gateway';
 
 describe('GameGateway', () => {
     let gateway: GameGateway;
-    let logger: SinonStubbedInstance<Logger>;
     let sheetService: SinonStubbedInstance<SheetService>;
-    let gameService: SinonStubbedInstance<GameLogicService>;
+    let gatewayService: SinonStubbedInstance<GatewayLogicService>;
     let server: SinonStubbedInstance<Server>;
     const sheetMocks: Sheet[] = [];
-    // let socket: SinonStubbedInstance<Socket>;
 
     beforeEach(async () => {
-        logger = createStubInstance(Logger);
         sheetService = createStubInstance(SheetService);
-        gameService = createStubInstance(GameLogicService);
+        gatewayService = createStubInstance(GatewayLogicService);
         server = createStubInstance<Server>(Server);
+
         jest.spyOn(sheetService, 'getAllSheets').mockImplementation(async () => {
             return new Promise<Sheet[]>((resolve) => {
                 resolve(sheetMocks);
             });
         });
-        // socket = createStubInstance<Socket>(Socket);
+        jest.spyOn(gatewayService, 'getAllSheets').mockImplementation(async () => {
+            return new Promise<Sheet[]>((resolve) => {
+                resolve(sheetMocks);
+            });
+        });
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 GameGateway,
-                {
-                    provide: Logger,
-                    useValue: logger,
-                },
+
                 {
                     provide: SheetService,
-                    useValue: sheetService,
+                    useValue: {},
                 },
                 {
                     provide: GameLogicService,
-                    useValue: gameService,
+                    useValue: {},
+                },
+                {
+                    provide: GameHistoryService,
+                    useValue: {},
+                },
+                {
+                    provide: GatewayLogicService,
+                    useValue: gatewayService,
                 },
             ],
         }).compile();

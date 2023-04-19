@@ -1,9 +1,14 @@
-$my-indigo: #3F51B5;
-$my-pink: #E91E63;
+$my-indigo: #3f51b5;
+$my-pink: #e91e63;
+$my-green: #66bb6a;
+$my-red: #f44336;
+$my-global: #9c27b0;
+
 * {
     margin: 0 !important;
     padding: 0 !important;
 }
+
 .chat-zone {
     padding-left: 1% !important;
     display: flex;
@@ -11,11 +16,8 @@ $my-pink: #E91E63;
     width: 18vw;
     height: 20vh;
     background-color: rgba(0, 0, 0, 0.1);
-    pointer-events: none;
-
-    &:hover {
-        background-color: rgba(0, 0, 0, 0.3);
-    }
+    border-radius: 0%;
+    outline: 0;
 }
 
 .chat-area {
@@ -38,33 +40,36 @@ $my-pink: #E91E63;
 
     &::-webkit-scrollbar-thumb {
         background-color: $my-indigo;
-        border-radius: 20px;
     }
-}
-
-.input-area {
-    border: none;
-    background:  rgba(0, 0, 0, 0.1);;
-    pointer-events: all;
-
-    &:focus {
-        border: none;
-        outline: none;
-    }
-}
-
-
-.chat-area > :first-child {
-    margin-top: auto !important;
-}
-.message-span {
-    color: $my-indigo;
 }
 
 .message-wrapper {
     width: 100%;
     display: flex;
     flex-direction: column;
+    word-wrap: break-word;
+}
+
+.input-area {
+    box-sizing: border-box;
+    border: none;
+    background: rgba(0, 0, 0, 0.1);
+    resize: vertical; /* Add this line to enable vertical resizing */
+    min-height: 20px; /* Set a minimum height to avoid collapsing */
+    overflow: auto; /* Enable scrolling when input exceeds container height */
+    width: 100%;
+    &:focus {
+        border: none;
+        outline: none;
+    }
+}
+
+.chat-area > :first-child {
+    margin-top: auto !important;
+}
+
+.message-span {
+    color: $my-indigo;
 }
 
 .message-player {
@@ -76,9 +81,13 @@ $my-pink: #E91E63;
 }
 
 .message-game {
-    color: #66BB6A;
+    color: $my-green;
 }
 
 .message-error {
-    color: $my-pink;
+    color: $my-red;
+}
+
+.message-global {
+    color: $my-global;
 }

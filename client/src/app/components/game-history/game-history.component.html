@@ -1,0 +1,40 @@
+<div class="buttons">
+    <button mat-icon-button color="primary" class="delete-button" (click)="resetHistory()" matTooltip="Reinstialiser L'Historique">
+        <mat-icon>delete</mat-icon>
+      </button>
+    <h1 class="title-container">Historique des parties jouées:</h1>
+
+    <thead class="column-titles">
+        <tr>
+            <th >Début</th>
+            <th>Durée</th>
+            <th>Mode de jeu</th>
+            <th>Joueur 1</th>
+            <th>Joueur 2</th>
+        </tr>
+    </thead>
+    <div class="table-wrapper">
+        <table >
+            <tbody *ngFor="let party of gamesHistory" class="rows">
+                <tr>
+                    <td class="beginning">{{ party.gameStart }}</td>
+                    <td class="duration"> {{ party.duration }} </td>
+                    <td class="game-mode">{{ party.gameMode }}</td>
+                    <td [ngClass]="{
+                        'winner': party.player2 !== undefined
+                    }" *ngIf="party.winner1">{{ party.player1 }}</td>
+                    <td *ngIf="!party.winner1 && !party.gaveUp1" class="name">{{ party.player1 }}</td>
+                    <td *ngIf="party.gaveUp1" class="gaveUp">{{ party.player1 }}</td>
+                    <td *ngIf="party.winner2" class="winner">{{ party.player2 }}</td>
+                    <td *ngIf="!party.winner2 && !party.gaveUp2" class="name">{{ party.player2 }}</td>
+                    <td *ngIf="party.gaveUp2" class="gaveUp">{{ party.player2 }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <button  mat-icon-button  class="back-container" (click)="closeDialog()" matTooltip="Fermer">
+            <mat-icon color="accent">close</mat-icon>
+        </button>
+    </div>
+</div> 

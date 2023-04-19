@@ -1,0 +1,55 @@
+.mat-dialog-content.delete {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .mat-dialog-content.delete button {
+    flex: 1;
+    margin-top: 20px;
+    text-align: center;
+  }  
+
+
+
+::ng-deep.mat-dialog-container {
+    border-radius: 40px;
+    padding: 10px;
+    
+}
+
+::ng-deep.mat-dialog-actions {
+    margin-top: 20px;
+    justify-content: center;
+}
+
+
+ 
+  
+  mat-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  mat-dialog-actions button {
+    margin-right: 8px;
+  }
+
+section {
+    padding: 65px;
+    background-color: white;
+    border-radius: 40px;
+
+    border: groove 15px black;
+}
+
+h1 {
+    text-align: center;
+    font-weight: bold;
+    margin-top: -40px;
+    color: black;
+}
+
+.content{
+    color: black;
+}

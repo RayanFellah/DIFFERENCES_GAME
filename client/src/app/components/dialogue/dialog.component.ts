@@ -1,31 +1,27 @@
-/* eslint-disable no-restricted-imports */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConstantsDialogComponent } from '@app/components/constants-dialog/constants-dialog.component';
+import { GameHistoryComponent } from '@app/components/game-history/game-history.component';
 import { GameOverDialogComponent } from '@app/components/game-over-dialog/game-over-dialog.component';
+import { GameScoreComponent } from '@app/components/game-score/game-score.component';
 import { ImageDialogComponent } from '@app/components/image-dialog/image-dialog.component';
+import { JoinLimitedTimeComponent } from '@app/components/join-limited-time/join-limited-time.component';
 import { JoinLoadingDialogComponent } from '@app/components/join-loading-dialog/join-loading-dialog.component';
 import { LoadingDialogComponent } from '@app/components/loading-dialog/loading-dialog.component';
+import { ResetDialogComponent } from '@app/components/reset-dialog/reset-dialog.component';
 import { DialogService } from '@app/services/dialog-service/dialog.service';
-import { Subject } from 'rxjs';
+import { Score } from '@common/score';
 import { HEIGHT, WIDTH } from 'src/constants';
-import { HintDialogueComponent } from '../hint-dialogue/hint-dialogue.component';
-import { JoinLimitedTimeComponent } from '../join-limited-time/join-limited-time.component';
-
 @Component({
     selector: 'app-dialog',
     templateUrl: './dialog.component.html',
     styleUrls: ['./dialog.component.scss'],
 })
 export class DialogComponent {
-    soloButtonClicked = new Subject<boolean>();
     playerNames: string[] = [];
     private loadingDialogRef: MatDialogRef<LoadingDialogComponent>;
     private joinLoadingDialogRef: MatDialogRef<JoinLoadingDialogComponent>;
-    private hintDialogRef: MatDialogRef<HintDialogueComponent>;
     private joinLimitedTimeDialogRef: MatDialogRef<JoinLimitedTimeComponent>;
-
     constructor(private dialog: MatDialog, private dialogService: DialogService) {
         this.dialogService.playerNames$.subscribe((playerNames: string[]) => {
             if (this.loadingDialogRef && this.loadingDialogRef.componentInstance) {
@@ -60,10 +56,9 @@ export class DialogComponent {
         this.loadingDialogRef.close();
     }
 
-    openGameOverDialog(message: string): void {
-        this.dialog.open(GameOverDialogComponent, { data: message, panelClass: 'custom-modalbox' });
+    openGameOverDialog(data: { message: string; isClassicGame: boolean }): void {
+        this.dialog.open(GameOverDialogComponent, { data, panelClass: 'custom-modalbox' });
     }
-
     openJoinLimitedTimeDialog(): void {
         this.joinLimitedTimeDialogRef = this.dialog.open(JoinLimitedTimeComponent, {
             width: '90%',
@@ -75,10 +70,16 @@ export class DialogComponent {
     closeJoinLimitedTimeDialog(): void {
         this.joinLimitedTimeDialogRef?.close();
     }
-    openHintDialog(noHints: number): void {
-        this.hintDialogRef = this.dialog.open(HintDialogueComponent, { data: noHints - 1, panelClass: 'custom-modalbox' });
+
+    openHistoryDialog(): void {
+        this.dialog.open(GameHistoryComponent, { data: {}, panelClass: 'custom-modalbox' });
     }
-    closeHintDialog() {
-        this.hintDialogRef.close();
+
+    openScoreDialog(scores: { top3Solo: Score[]; top3Multi: Score[] }): void {
+        this.dialog.open(GameScoreComponent, { data: scores, panelClass: 'custom-modalbox' });
+    }
+
+    openResetDialog(): void {
+        this.dialog.open(ResetDialogComponent, { data: {}, panelClass: 'custom-modalbox' });
     }
 }

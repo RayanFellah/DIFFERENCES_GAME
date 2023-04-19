@@ -20,6 +20,9 @@ describe('sheetService', () => {
             findOne: jest.fn(),
             deleteOne: jest.fn(),
             updateOne: jest.fn(),
+            watch: jest.fn().mockReturnValue({
+                on: jest.fn(),
+            }),
         } as unknown as Model<SheetDocument>;
 
         const module: TestingModule = await Test.createTestingModule({
@@ -147,11 +150,11 @@ const getFakesheet = (): Sheet | any => ({
     radius: 3,
     originalImagePath: getRandomString(),
     modifiedImagePath: getRandomString(),
-    topPlayer: getRandomString(),
-    topScore: 0,
     differences: 5,
     isJoinable: true,
     title: getRandomString(),
+    top3Multi: [],
+    top3Solo: [],
     __v: 0,
 });
 

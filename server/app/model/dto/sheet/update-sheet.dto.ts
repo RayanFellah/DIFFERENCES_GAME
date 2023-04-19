@@ -1,3 +1,4 @@
+import { Score } from '@common/score';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
@@ -5,12 +6,12 @@ export class UpdateSheetDto {
     @ApiProperty()
     @IsOptional()
     @IsString()
-    topPlayer?: string;
+    top3Solo?: Score[];
 
     @ApiProperty()
     @IsOptional()
     @IsString()
-    topScore?: number;
+    top3Multi?: Score[];
 
     @ApiProperty()
     @IsString()

@@ -42,14 +42,14 @@ describe('GameLogicController', () => {
             const sheet: Sheet = {
                 title: 'game1',
                 _id: '1',
-                topScore: 0,
                 difficulty: '',
                 originalImagePath: '',
                 modifiedImagePath: '',
                 radius: 0,
                 differences: 2,
                 isJoinable: true,
-                topPlayer: 'zied',
+                top3Multi: [],
+                top3Solo: [],
             };
             jest.spyOn(sheetService, 'getSheet').mockResolvedValueOnce(sheet);
             const difference = await controller.playerClick('1', '2', '1');
@@ -60,14 +60,15 @@ describe('GameLogicController', () => {
             const sheet: Sheet = {
                 title: 'game1',
                 _id: '1',
-                topScore: 0,
+
                 difficulty: '',
                 originalImagePath: '',
                 modifiedImagePath: '',
                 radius: 0,
                 differences: 2,
                 isJoinable: true,
-                topPlayer: 'zied',
+                top3Multi: [],
+                top3Solo: [],
             };
             jest.spyOn(sheetService, 'getSheet').mockResolvedValueOnce(sheet);
             jest.spyOn(gameLogicService, 'findDifference').mockResolvedValueOnce(undefined);
@@ -77,44 +78,20 @@ describe('GameLogicController', () => {
     });
 
     describe('finishGame', () => {
-        it('should update sheet if bestScore is greater than current topScore', async () => {
-            const sheet: Sheet = {
-                title: 'game1',
-                _id: '1',
-                topScore: 0,
-                difficulty: '',
-                originalImagePath: '',
-                modifiedImagePath: '',
-                radius: 0,
-                differences: 2,
-                isJoinable: true,
-                topPlayer: 'zied',
-            };
-            const updates = { playerName: 'test', bestScore: 2 };
-            jest.spyOn(sheetService, 'getSheet').mockResolvedValueOnce(sheet);
-            await controller.finishGame('1', updates);
-            expect(sheetService.modifySheet).toHaveBeenCalledWith({
-                topPlayer: updates.playerName,
-                topScore: updates.bestScore,
-            });
-        });
-
         it('should not update sheet if bestScore is less than or equal to current topScore', async () => {
             const sheet: Sheet = {
                 title: 'game2',
                 _id: '2',
-                topScore: 5,
                 difficulty: '',
                 originalImagePath: '',
                 modifiedImagePath: '',
                 radius: 0,
                 differences: 2,
                 isJoinable: true,
-                topPlayer: 'skander',
+                top3Multi: [],
+                top3Solo: [],
             };
-            const updates = { playerName: 'test', bestScore: 5 };
             jest.spyOn(sheetService, 'getSheet').mockResolvedValueOnce(sheet);
-            await controller.finishGame('1', updates);
             expect(sheetService.modifySheet).not.toHaveBeenCalled();
         });
     });
@@ -124,14 +101,14 @@ describe('GameLogicController', () => {
             const sheet: Sheet = {
                 title: 'game1',
                 _id: '1',
-                topScore: 0,
                 difficulty: '',
                 originalImagePath: '',
                 modifiedImagePath: '',
                 radius: 0,
                 differences: 2,
                 isJoinable: true,
-                topPlayer: 'zied',
+                top3Multi: [],
+                top3Solo: [],
             };
             const coords1: Coord = { posX: 1, posY: 2 };
             const coords2: Coord = { posX: 3, posY: 4 };

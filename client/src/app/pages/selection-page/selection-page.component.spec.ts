@@ -35,11 +35,9 @@ describe('SelectionPageComponent', () => {
                 modifiedImagePath: 'path2',
                 difficulty: 'easy',
                 radius: 10,
-                topPlayer: 'player1',
                 differences: 5,
                 isJoinable: true,
-                topScore: 0,
-            },
+            } as unknown as Sheet,
             {
                 _id: '2',
                 title: 'Sheet 2',
@@ -47,11 +45,9 @@ describe('SelectionPageComponent', () => {
                 modifiedImagePath: 'path4',
                 difficulty: 'hard',
                 radius: 20,
-                topPlayer: 'player2',
                 differences: 10,
                 isJoinable: false,
-                topScore: 0,
-            },
+            } as unknown as Sheet,
         ];
         mockSheetHttpService.getAllSheets.and.returnValue(of(sheets));
         component.ngOnInit();

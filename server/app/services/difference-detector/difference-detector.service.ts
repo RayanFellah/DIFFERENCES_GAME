@@ -5,7 +5,7 @@ import { Coord } from '@app/interfaces/coord';
 import { DifferenceService } from '@app/services/difference/difference.service';
 import { ImageToMatrixService } from '@app/services/image-to-matrix/image-to-matrix.service';
 import { RadiusEnlargementService } from '@app/services/radius-enlargement/radius-enlargement.service';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class DifferenceDetectorService {
@@ -20,7 +20,6 @@ export class DifferenceDetectorService {
 
     constructor(
         @Inject(RadiusEnlargementService) private readonly radiusEnlargementService: RadiusEnlargementService,
-        @Inject(DifferenceService) private readonly differenceService: DifferenceService,
         img1: ImageToMatrixService,
         img2: ImageToMatrixService,
     ) {
@@ -76,7 +75,7 @@ export class DifferenceDetectorService {
             }
             return matrixOfPixels;
         } catch (err) {
-            console.log(err);
+            Logger.error(err);
         }
     }
 

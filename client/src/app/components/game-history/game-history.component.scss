@@ -1,0 +1,85 @@
+* {
+    font-weight: normal;
+}
+
+.buttons {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-height: 80%;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    overflow-y: scroll;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.title-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.reset-container,
+.back-container {
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    margin: 10px;
+    float: right;
+}
+
+.column-titles th {
+    font-weight: bold;
+    text-align: left;
+    padding: 5px 50px;
+    border-bottom: 2px solid #706f6f;
+}
+
+.rows td {
+    text-align: left;
+    padding: 5px 25px;
+    border-bottom: 2px solid #ccc;
+}
+
+.rows .beginning {
+    width: 120px;
+}
+
+.rows .duration {
+    width: 80px;
+}
+
+.rows .game-mode {
+    width: 120px;
+}
+
+.rows .winner {
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+}
+
+
+.rows .gaveUp {
+    text-decoration: line-through;
+}
+.back-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.delete-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.delete-button:hover {
+    background-color: red;
+    color: white;
+}

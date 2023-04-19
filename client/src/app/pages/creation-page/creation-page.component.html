@@ -1,64 +1,64 @@
-<app-header pageTitle="Création"></app-header>
-    <form [formGroup]="createGame" (ngSubmit)="submit(leftImageArea, rightImageArea)">
-        <div class="head">
-            <mat-form-field>
-                <input matInput id="gameTitle" type="text" formControlName="title" placeholder="Titre du jeu" />
-                <mat-error *ngIf="title!.invalid && (title!.dirty || title!.touched)"> Titre requis </mat-error>
-            </mat-form-field>
-            <div class="radius">
-                <app-radius-sizer [(size)]="radiusSizePx" formControlName="radiusSize"></app-radius-sizer>
-                <span class="dot" [style.width.px]="2 * radiusSizePx" [style.height.px]="2 * radiusSizePx"></span>
-            </div>
+<app-header [displayShortcuts]="true" pageTitle="Création"></app-header>
+<form [formGroup]="createGame" (ngSubmit)="submit(leftImageArea, rightImageArea)">
+    <div class="head">
+        <mat-form-field>
+            <input matInput id="gameTitle" type="text" formControlName="title" placeholder="Titre du jeu" />
+            <mat-error *ngIf="title!.invalid && (title!.dirty || title!.touched)"> Titre requis </mat-error>
+        </mat-form-field>
+        <div class="radius">
+            <app-radius-sizer [(size)]="radiusSizePx" formControlName="radiusSize"></app-radius-sizer>
+            <span class="dot" [style.width.px]="2 * radiusSizePx" [style.height.px]="2 * radiusSizePx"></span>
         </div>
+    </div>
 
-        <app-image-area #leftImageArea id="leftCanvas" [side]="'left'"></app-image-area>
-        <button type="button" mat-raised-button color="primary" id="switchButton" (click)="switch()">
-            <mat-icon>compare_arrows</mat-icon>
-            Inverser
+    <app-image-area #leftImageArea id="leftCanvas" [side]="'left'"></app-image-area>
+    <button type="button" mat-raised-button color="primary" id="switchButton" (click)="switch()">
+        <mat-icon>compare_arrows</mat-icon>
+        Inverser
+    </button>
+    <app-image-area #rightImageArea id="rightCanvas" [side]="'right'"></app-image-area>
+
+    <div class="upload" id="leftUpload">
+        <button type="button" mat-raised-button color="primary" (click)="duplicate(leftImageArea, rightImageArea)">
+            <mat-icon>content_copy</mat-icon>
+            Dupliquer
         </button>
-        <app-image-area #rightImageArea id="rightCanvas" [side]="'right'"></app-image-area>
+        <app-file-upload formControlName="originalImagePath"></app-file-upload>
+        <mat-error *ngIf="originalImagePath!.invalid && (originalImagePath!.dirty || originalImagePath!.touched)"> Image requise </mat-error>
+    </div>
 
-        <div class="upload" id="leftUpload">
-            <button type="button" mat-raised-button color="primary" (click)="duplicate(leftImageArea, rightImageArea)">
-                <mat-icon>content_copy</mat-icon>
-                Dupliquer
+    <div id="rightUpload">
+        <button type="button" mat-raised-button color="primary" (click)="duplicate(rightImageArea, leftImageArea)">
+            <mat-icon>content_copy</mat-icon>
+            Dupliquer
+        </button>
+        <app-file-upload formControlName="modifiedImagePath"></app-file-upload>
+        <mat-error *ngIf="modifiedImagePath!.invalid && (modifiedImagePath!.dirty || modifiedImagePath!.touched)"> Image requise </mat-error>
+    </div>
+
+    <div id="options">
+        <button type="button" mat-stroked-button color="accent" routerLink="/config">Retour</button>
+        <input type="file" class="file-input" (change)="onFileChange($event)" accept=".bmp" #fileUpload />
+        <button mat-stroked-button type="button" color="primary" class="file-upload" (click)="fileUpload.click()">
+            {{ 'Téléverser dans les deux zones' }}
+
+            <button mat-mini-fab color="primary" type="button" class="upload-btn" [ngStyle]="{ transform: 'scale(0.7)' }">
+                <mat-icon>attach_file</mat-icon>
             </button>
-            <app-file-upload formControlName="originalImagePath"></app-file-upload>
-            <mat-error *ngIf="originalImagePath!.invalid && (originalImagePath!.dirty || originalImagePath!.touched)"> Image requise </mat-error>
-        </div>
+        </button>
+        <button mat-stroked-button type="button" color="primary" (click)="verifyDifferences(leftImageArea, rightImageArea)">
+            {{ 'Vérifier les différences' }}
 
-        <div id="rightUpload">
-            <button type="button" mat-raised-button color="primary" (click)="duplicate(rightImageArea, leftImageArea)">
-                <mat-icon>content_copy</mat-icon>
-                Dupliquer
+            <button mat-mini-fab type="button" color="primary" [ngStyle]="{ transform: 'scale(0.7)' }">
+                <mat-icon>compare_arrows</mat-icon>
             </button>
-            <app-file-upload formControlName="modifiedImagePath"></app-file-upload>
-            <mat-error *ngIf="modifiedImagePath!.invalid && (modifiedImagePath!.dirty || modifiedImagePath!.touched)"> Image requise </mat-error>
-        </div>
+        </button>
+        <button mat-stroked-button color="primary" (click)="(submit)">
+            {{ 'Créer la partie' }}
 
-        <div id="options">
-            <button type="button" mat-stroked-button color="accent" routerLink="/config">Retour</button>
-            <input type="file" class="file-input" (change)="onFileChange($event)" accept=".bmp" #fileUpload />
-            <button mat-stroked-button type="button" color="primary" class="file-upload" (click)="fileUpload.click()">
-                {{ 'Téléverser dans les deux zones' }}
-
-                <button mat-mini-fab color="primary" type="button" class="upload-btn" [ngStyle]="{ transform: 'scale(0.7)' }">
-                    <mat-icon>attach_file</mat-icon>
-                </button>
+            <button mat-mini-fab color="primary" [ngStyle]="{ transform: 'scale(0.7)' }">
+                <mat-icon>done_outline</mat-icon>
             </button>
-            <button mat-stroked-button type="button" color="primary" (click)="verifyDifferences(leftImageArea, rightImageArea)">
-                {{ 'Vérifier les différences' }}
-
-                <button mat-mini-fab type="button" color="primary" [ngStyle]="{ transform: 'scale(0.7)' }">
-                    <mat-icon>compare_arrows</mat-icon>
-                </button>
-            </button>
-            <button mat-stroked-button color="primary" (click)="(submit)">
-                {{ 'Créer la partie' }}
-
-                <button mat-mini-fab color="primary" [ngStyle]="{ transform: 'scale(0.7)' }">
-                    <mat-icon>done_outline</mat-icon>
-                </button>
-            </button>
-        </div>
-    </form>
+        </button>
+    </div>
+</form>

@@ -10,6 +10,7 @@ import { GameStateService } from '@app/services/game-state/game-state.service';
 import { SheetHttpService } from '@app/services/sheet-http.service';
 import { SnackBarService } from '@app/services/snack-bar.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
+import { GameConstants } from '@common/game-constants';
 import { PlayRoom } from '@common/play-room';
 import { Sheet } from '@common/sheet';
 import { BehaviorSubject } from 'rxjs';
@@ -24,6 +25,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     @Output() sheets: Sheet[] = [];
     @Input() isConfig: boolean;
     @Input() playerName: string;
+    gameConstants: GameConstants;
     name: string;
     currentPage = 0;
     currentSheetId: string;
@@ -40,7 +42,8 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         private snackBar: SnackBarService,
     ) {
         this.shouldNavigate$.subscribe((shouldNavigate) => {
-            if (shouldNavigate) this.router.navigate(['/game', this.playRoom.sheet._id, this.name, this.playRoom.roomName]);
+            if (shouldNavigate)
+                this.router.navigate(['/game', this.playRoom.sheet._id, this.name, this.playRoom.roomName, this.gameConstants.gamePenalty]);
         });
     }
 
@@ -63,8 +66,8 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         });
         this.dialogService.cancel$.subscribe((isCancelled: boolean) => {
             if (isCancelled && this.currentSheetId) {
-                this.currentSheetId = '';
                 this.socketService.send('cancelGameCreation', this.currentSheetId);
+                this.currentSheetId = '';
             }
         });
         this.dialogService.playerRejected$.subscribe((playerName: string | null) => {
@@ -75,13 +78,14 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         });
         this.dialogService.cancelJoin$.subscribe((isCancelled: boolean) => {
             if (isCancelled && this.currentSheetId) {
-                this.currentSheetId = '';
                 this.socketService.send('cancelJoinGame', { playerName: this.name, sheetId: this.currentSheetId });
+                this.currentSheetId = '';
             }
         });
         this.connect();
         const startIndex = this.currentPage * SHEETS_PER_PAGE;
         this.sheets.slice(startIndex, startIndex + SHEETS_PER_PAGE);
+        this.socketService.send('getConstants');
     }
     navigate(type: boolean) {
         this.shouldNavigate$.next(type);
@@ -92,6 +96,9 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
         this.handleResponse();
     }
     handleResponse() {
+        this.socketService.on('sheetCreated', (sheet: Sheet) => {
+            this.sheets.push(sheet);
+        });
         this.socketService.on('Joinable', (sheetId: string) => {
             this.makeJoinable(sheetId);
         });
@@ -106,6 +113,10 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             this.dialogService.emitRejection(playerName);
         });
         this.socketService.on('sheetDeleted', (sheetId: string) => {
+            if (sheetId === 'all') {
+                this.sheets = [];
+                return;
+            }
             const foundSheet = this.sheets.find((sheet) => sheet._id === sheetId);
             this.currentSheetId = '';
             if (foundSheet) {
@@ -142,6 +153,17 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             if (!this.isCreator) this.dialog.closeJoinLoadingDialog();
             else this.dialog.closeLoadingDialog();
             this.snackBar.openSnackBar('La partie a été supprimée', 'OK');
+        });
+        this.socketService.on('reinitialized', () => {
+            this.sheetHttpService.getAllSheets().subscribe({
+                next: (response) => {
+                    this.sheets = response;
+                },
+            });
+        });
+
+        this.socketService.on('gameConstants', (constants: GameConstants) => {
+            this.gameConstants = constants;
         });
     }
 
@@ -202,5 +224,6 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.dialogService.reset();
         if (this.currentSheetId) this.socketService.send('cancelGameCreation', this.currentSheetId);
+        // if (this.socketService.isSocketAlive()) this.socketService.disconnect();
     }
 }

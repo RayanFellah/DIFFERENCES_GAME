@@ -23,7 +23,6 @@ export class FileValueAccessorDirective implements ControlValueAccessor {
     writeValue(files: FileList) {}
     registerOnChange(fn: (files: FileList) => void) {
         this.onChange = fn;
-        console.log('a');
     }
     registerOnTouched(fn: () => void) {
         this.onTouched = fn;

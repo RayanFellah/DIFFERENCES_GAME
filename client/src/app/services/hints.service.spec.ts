@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
+import { HttpClient } from '@angular/common/http';
 import { AudioService } from './audio.service';
 import { GameHttpService } from './game-http.service';
 import { HintsService } from './hints.service';
@@ -11,7 +12,12 @@ describe('HintsService', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [HintsService, { provide: GameHttpService, useValue: gameHttp }, { provide: AudioService, useValue: audio }],
+            providers: [
+                HintsService,
+                { provide: GameHttpService, useValue: gameHttp },
+                { provide: AudioService, useValue: audio },
+                { provide: HttpClient, useValue: {} },
+            ],
         });
         service = TestBed.inject(HintsService);
     });

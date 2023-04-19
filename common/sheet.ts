@@ -1,3 +1,5 @@
+import { Score } from "./score";
+
 export interface Sheet {
     _id: string;
     title: string;
@@ -5,8 +7,8 @@ export interface Sheet {
     modifiedImagePath: string;
     difficulty: string;
     radius: number;
-    topPlayer: string;
     differences: number;
     isJoinable: boolean;
-    topScore: number;
+    top3Solo: Score[];
+    top3Multi: Score[];
 }

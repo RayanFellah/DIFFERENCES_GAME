@@ -87,10 +87,10 @@ describe('GameCardGridComponent', () => {
                 modifiedImagePath: '',
                 difficulty: 'easy',
                 radius: 0,
-                topPlayer: '',
+                top3Solo: [],
                 differences: 0,
                 isJoinable: true,
-                topScore: 0,
+                top3Multi: [],
             },
             {
                 _id: '2',
@@ -99,10 +99,10 @@ describe('GameCardGridComponent', () => {
                 modifiedImagePath: '',
                 difficulty: 'medium',
                 radius: 0,
-                topPlayer: '',
+                top3Solo: [],
                 differences: 0,
                 isJoinable: true,
-                topScore: 0,
+                top3Multi: [],
             },
         ];
         fixture.detectChanges();
@@ -122,10 +122,10 @@ describe('GameCardGridComponent', () => {
                 modifiedImagePath: '',
                 difficulty: 'easy',
                 radius: 0,
-                topPlayer: '',
+                top3Solo: [],
                 differences: 0,
                 isJoinable: true,
-                topScore: 0,
+                top3Multi: [],
             },
             {
                 _id: '2',
@@ -134,10 +134,10 @@ describe('GameCardGridComponent', () => {
                 modifiedImagePath: '',
                 difficulty: 'medium',
                 radius: 0,
-                topPlayer: '',
+                top3Multi: [],
                 differences: 0,
                 isJoinable: true,
-                topScore: 0,
+                top3Solo: [],
             },
         ];
 
@@ -230,10 +230,10 @@ describe('GameCardGridComponent', () => {
                 modifiedImagePath: '',
                 difficulty: 'medium',
                 radius: 0,
-                topPlayer: '',
+                top3Multi: [],
                 differences: 0,
                 isJoinable: true,
-                topScore: 0,
+                top3Solo: [],
             },
         ];
         component.cancel(sheetId);
@@ -250,10 +250,10 @@ describe('GameCardGridComponent', () => {
                 modifiedImagePath: '',
                 difficulty: 'medium',
                 radius: 0,
-                topPlayer: '',
+                top3Multi: [],
                 differences: 0,
                 isJoinable: true,
-                topScore: 0,
+                top3Solo: [],
             },
         ];
         component.cancel('invalidId');
@@ -300,10 +300,10 @@ describe('GameCardGridComponent', () => {
                     modifiedImagePath: '',
                     difficulty: 'medium',
                     radius: 0,
-                    topPlayer: '',
+                    top3Multi: [],
                     differences: 0,
                     isJoinable: true,
-                    topScore: 0,
+                    top3Solo: [],
                 },
             ];
 
@@ -323,10 +323,10 @@ describe('GameCardGridComponent', () => {
                     modifiedImagePath: '',
                     difficulty: 'medium',
                     radius: 0,
-                    topPlayer: '',
+                    top3Multi: [],
                     differences: 0,
                     isJoinable: true,
-                    topScore: 0,
+                    top3Solo: [],
                 },
             ];
 

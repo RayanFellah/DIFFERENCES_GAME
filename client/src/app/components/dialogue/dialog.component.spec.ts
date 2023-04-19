@@ -77,7 +77,7 @@ describe('DialogComponent', () => {
 
     describe('openGameOverDilog', () => {
         it('should open game over dialog when game is done', () => {
-            const message = 'game over ! ';
+            const message = { message: 'game over ! ', isClassicGame: true };
             component.openGameOverDialog(message);
             expect(mockMatDialog.open).toHaveBeenCalledWith(GameOverDialogComponent, {
                 data: message,

@@ -1,76 +1,85 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Vec2 } from '@app/interfaces/vec2';
+import { GameConstants } from '@common/game-constants';
 import { GameEvents } from '@common/game-events';
 import { LimitedTimeRoom } from '@common/limited-time-room';
 import { Player } from '@common/player';
 import { AudioService } from './audio.service';
-import { CanvasHelperService } from './canvas-helper.service';
+import { CanvasFormatterService } from './canvas-formatter.service';
 import { DialogService } from './dialog-service/dialog.service';
+import { GameStateService } from './game-state/game-state.service';
+import { HintsService } from './hints.service';
 import { SocketClientService } from './socket-client/socket-client.service';
+import { TimerReplayService } from './timer-replay/timer-replay.service';
 
 const TIME = 60;
 const BONUS = 7;
 @Injectable({
     providedIn: 'root',
 })
-export class TimeLimitModeService {
-    sheet: string;
+export class TimeLimitModeService implements OnDestroy {
     player: Player;
     playRoom: LimitedTimeRoom;
     timeLimit: number = TIME;
     timeBonus: number = BONUS;
     hintsLeft: number = 3;
     clickIgnored = false;
-    originalImageData: ImageData;
-    modifiedImageData: ImageData;
-    leftBuffer: Buffer;
-    rightBuffer: Buffer;
-    audio: AudioService;
-    isBlinking: boolean;
+    leftBuffer: Buffer | null;
+    rightBuffer: Buffer | null;
     differencesFound: number = 0;
     currentClick: MouseEvent;
     isGameOver: boolean = false;
     leftCanvasRef: HTMLCanvasElement;
     rightCanvasRef: HTMLCanvasElement;
     isPlayer2Online: boolean = false;
-
+    allyGaveUp: boolean = false;
+    private _constants: GameConstants;
     // eslint-disable-next-line max-params
     constructor(
         private router: Router,
         private socketService: SocketClientService,
-        private leftCanvas: CanvasHelperService,
-        private rightCanvas: CanvasHelperService,
         private dialogService: DialogService,
+        private gameStateService: GameStateService,
+        private canvasFormatter: CanvasFormatterService,
+        private audio: AudioService,
+        private hintService: HintsService,
+        private timer: TimerReplayService,
     ) {
-        this.audio = new AudioService();
+        this.timer.timeDone$.subscribe((res) => {
+            if (res) this.timeOutProtocol();
+        });
+    }
+    get constants() {
+        return this._constants;
+    }
+    set constants(constants: GameConstants) {
+        this._constants = constants;
+    }
+    reset() {
+        this.timeLimit = TIME;
+        this.timeBonus = BONUS;
+        this.hintsLeft = 3;
+        this.clickIgnored = false;
+        this.differencesFound = 0;
+        this.isGameOver = false;
+        this.isPlayer2Online = false;
+        this.leftBuffer = null;
+        this.rightBuffer = null;
     }
 
     logPlayer(player: string) {
-        this.socketService.connect();
-        const DELAY = 10;
-        setTimeout(() => {
-            this.handleResponses();
-            this.player = {
-                socketId: this.socketService.socket.id,
-                name: player,
-                differencesFound: 0,
-            };
-        }, DELAY);
+        if (!this.socketService.isSocketAlive()) {
+            this.socketService.connect();
+        }
+        this.handleResponses();
+        this.player = {
+            socketId: this.socketService.socket.id,
+            name: player,
+            differencesFound: 0,
+        };
+        this.gameStateService.isGameInitialized = true;
     }
-
-    async setCanvas(canvas: HTMLCanvasElement, side: string) {
-        const buffer = side === 'left' ? this.leftBuffer : this.rightBuffer;
-        if (side === 'left') this.leftCanvasRef = canvas;
-        else this.rightCanvasRef = canvas;
-        const DELAY = 30;
-        return new Promise<void>((resolve) => {
-            this.leftCanvas.setCanvas(canvas);
-            this.leftCanvas.drawImageOnCanvas(new Blob([buffer], { type: 'image/bmp' }));
-            setTimeout(() => resolve(), DELAY);
-        });
-    }
-
     setConstants(limit: number, bonus: number) {
         this.timeLimit = limit;
         this.timeBonus = bonus;
@@ -88,9 +97,8 @@ export class TimeLimitModeService {
         this.currentClick = event;
         const data = {
             playerName: this.player.name,
-            x: event.offsetX,
-            y: event.offsetY,
             roomName: this.playRoom.roomName,
+            click: { target: (this.currentClick.target as HTMLCanvasElement).id, x: this.currentClick.offsetX, y: this.currentClick.offsetY },
         };
 
         this.socketService.send(GameEvents.ClickTL, data);
@@ -107,22 +115,22 @@ export class TimeLimitModeService {
         this.createGame(GameEvents.CreateLimitedTimeCoop);
     }
 
-    async drawOnLeftCanvas() {
-        const DELAY = 25;
-        return new Promise<void>((resolve) => {
-            this.leftCanvas.context = this.leftCanvasRef.getContext('2d');
-            this.leftCanvas.drawImageOnCanvas(new Blob([this.leftBuffer], { type: 'image/bmp' }));
-            setTimeout(() => resolve(), DELAY);
-        });
+    bindCanvasRefs(left: HTMLCanvasElement, right: HTMLCanvasElement) {
+        this.leftCanvasRef = left;
+        this.rightCanvasRef = right;
     }
 
-    async drawOnRightCanvas() {
-        const DELAY = 25;
-        return new Promise<void>((resolve) => {
-            this.rightCanvas.context = this.rightCanvasRef.getContext('2d');
-            this.rightCanvas.drawImageOnCanvas(new Blob([this.rightBuffer], { type: 'image/bmp' }));
-            setTimeout(() => resolve(), DELAY);
-        });
+    drawOnCanvas() {
+        this.canvasFormatter.drawImageOnCanvas(
+            new Blob([this.leftBuffer as Buffer], { type: 'image/bmp' }),
+            new Image(),
+            this.leftCanvasRef.getContext('2d') as CanvasRenderingContext2D,
+        );
+        this.canvasFormatter.drawImageOnCanvas(
+            new Blob([this.rightBuffer as Buffer], { type: 'image/bmp' }),
+            new Image(),
+            this.rightCanvasRef.getContext('2d') as CanvasRenderingContext2D,
+        );
     }
 
     startTimer() {
@@ -134,14 +142,14 @@ export class TimeLimitModeService {
     handleResponses() {
         this.socketService.on(
             GameEvents.ClickValidated,
-            async (res: { diffFound: Vec2[]; player: Player; room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
-                this.handleClick(this.currentClick, res.diffFound, res.player.socketId);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            async (res: { diffFound: Vec2[]; player: Player; room: LimitedTimeRoom; left: Buffer; right: Buffer; click: any }) => {
+                this.handleClick(res.click, res.diffFound, res.player.socketId);
                 this.playRoom = res.room;
                 if (res.left && res.right) {
                     this.leftBuffer = res.left;
                     this.rightBuffer = res.right;
-                    await this.drawOnLeftCanvas();
-                    await this.drawOnRightCanvas();
+                    this.drawOnCanvas();
                 }
             },
         );
@@ -150,6 +158,7 @@ export class TimeLimitModeService {
             const DELAY = 50;
             this.isGameOver = true;
             setTimeout(() => {
+                this.timer.stopTimer();
                 this.audio.playWonSound();
             }, DELAY);
         });
@@ -170,18 +179,24 @@ export class TimeLimitModeService {
             this.rightBuffer = res.right;
             this.router.navigate(['/limited-time']);
             this.startTimer();
+            this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
         });
 
         this.socketService.on(GameEvents.playerLeft, (/*    player: Player*/) => {
             this.isPlayer2Online = false;
+            this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
+            this.allyGaveUp = true;
         });
     }
     disconnect() {
         this.socketService.disconnect();
     }
-    updateImagesInformation() {
-        this.originalImageData = this.leftCanvas.getColor();
-        this.modifiedImageData = this.rightCanvas.getColor();
+
+    cancelGame() {
+        this.socketService.send(GameEvents.CancelGame);
+    }
+    ngOnDestroy(): void {
+        this.disconnect();
     }
     private createGame(event: string) {
         const data = {
@@ -193,11 +208,17 @@ export class TimeLimitModeService {
         this.socketService.send(event, data);
     }
 
-    private handleClick(event: MouseEvent, diff: Vec2[] | undefined, player: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private handleClick(event: any, diff: Vec2[] | undefined, player: string) {
         if (!event) return;
-        const canvasClicked = event.target as HTMLCanvasElement;
-        const canvas: CanvasHelperService = canvasClicked === this.leftCanvas.getCanvas() ? this.leftCanvas : this.rightCanvas;
+
+        const ctx =
+            event.target === this.leftCanvasRef.id
+                ? (this.leftCanvasRef.getContext('2d') as CanvasRenderingContext2D)
+                : (this.rightCanvasRef.getContext('2d') as CanvasRenderingContext2D);
         if (diff) {
+            this.timer.addTimerBonus(this.constants);
+            this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
             this.timeLimit += this.timeBonus;
             if (player === this.socketService.socket.id) {
                 this.audio.playSuccessSound();
@@ -207,7 +228,7 @@ export class TimeLimitModeService {
             return diff;
         } else if (player === this.socketService.socket.id) {
             this.ignoreClicks();
-            canvas.displayErrorMessage(event);
+            this.canvasFormatter.displayErrorMessage(event, ctx);
             this.audio.playFailSound();
         }
         return undefined;
@@ -225,5 +246,10 @@ export class TimeLimitModeService {
         if (this.timeLimit > 0) {
             this.timeLimit = this.timeLimit - 1;
         }
+    }
+    private timeOutProtocol() {
+        this.player.socketId = this.socketService.socket.id;
+        this.isGameOver = true;
+        this.socketService.send(GameEvents.TimeOut, { roomName: this.playRoom.roomName, player: this.player, allyGaveUp: this.allyGaveUp });
     }
 }

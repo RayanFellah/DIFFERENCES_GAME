@@ -29,3 +29,13 @@ h1 {
     font-weight: bold;
     margin-top: -40px;
 }
+
+#game-time {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+}
+#saveButton {
+    text-align: center;
+    margin-top: 10%;
+}

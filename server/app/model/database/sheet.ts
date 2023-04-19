@@ -1,3 +1,4 @@
+import { Score } from '@common/score';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
@@ -28,11 +29,11 @@ export class Sheet {
 
     @ApiProperty()
     @Prop({ required: false })
-    topPlayer: string;
+    top3Solo: Score[];
 
     @ApiProperty()
     @Prop({ required: false })
-    topScore: number;
+    top3Multi: Score[];
 
     @ApiProperty()
     _id: string;

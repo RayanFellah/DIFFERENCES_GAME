@@ -4,10 +4,17 @@ import { UpdateSheetDto } from '@app/model/dto/sheet/update-sheet.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class SheetService {
-    constructor(@InjectModel(Sheet.name) public sheetModel: Model<SheetDocument>) {}
+    addedSheetSubject = new BehaviorSubject<Sheet>(null);
+    deletedSheetSubject = new BehaviorSubject<string>(null);
+    addedSheet = this.addedSheetSubject.asObservable();
+    deletedSheet = this.deletedSheetSubject.asObservable();
+    constructor(@InjectModel(Sheet.name) public sheetModel: Model<SheetDocument>) {
+        this.watchChanges();
+    }
 
     async getAllSheets(): Promise<Sheet[]> {
         return await this.sheetModel.find({});
@@ -20,7 +27,7 @@ export class SheetService {
 
     async addSheet(sheet: CreateSheetDto): Promise<Sheet> {
         try {
-            await this.sheetModel.create(sheet);
+            return await this.sheetModel.create(sheet);
         } catch (error) {
             return Promise.reject(`Failed to insert sheet: ${error}`);
         }
@@ -50,5 +57,28 @@ export class SheetService {
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);
         }
+    }
+    async deleteAllSheets(): Promise<void> {
+        try {
+            const res = await this.sheetModel.deleteMany({});
+            if (res.deletedCount === 0) {
+                return Promise.reject('Could not delete sheets');
+            }
+        } catch (error) {
+            return Promise.reject(`Failed to delete sheets: ${error}`);
+        }
+    }
+    watchChanges(): void {
+        this.sheetModel.watch().on('change', (change) => {
+            let addSheet;
+            let deleteSheetID;
+            if (change.operationType === 'insert') {
+                addSheet = change.fullDocument;
+                this.addedSheetSubject.next(addSheet);
+            } else if (change.operationType === 'delete') {
+                deleteSheetID = change.documentKey;
+                this.deletedSheetSubject.next(deleteSheetID);
+            }
+        });
     }
 }

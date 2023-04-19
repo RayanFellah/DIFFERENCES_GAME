@@ -1,15 +1,29 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { ConstantsDialogComponent } from './constants-dialog.component';
 
 describe('ConstantsDialogComponent', () => {
     let component: ConstantsDialogComponent;
     let fixture: ComponentFixture<ConstantsDialogComponent>;
-
+    const socketServiceStub = {
+        send: () => {
+            return;
+        },
+        on: () => {
+            return;
+        },
+    } as unknown as SocketClientService;
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ConstantsDialogComponent],
-            providers: [{ provide: MAT_DIALOG_DATA, useValue: {} }],
+            providers: [
+                { provide: SocketClientService, useValue: socketServiceStub },
+                {
+                    provide: MAT_DIALOG_DATA,
+                    useValue: {},
+                },
+            ],
         }).compileComponents();
     });
 
@@ -35,12 +49,5 @@ describe('ConstantsDialogComponent', () => {
         fixture.detectChanges();
         const penaltyTimeElement = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(2) span');
         expect(penaltyTimeElement.textContent.trim()).toBe('5 secondes');
-    });
-
-    it('should display the correct saved time', () => {
-        component.data = { gameTime: 30, penaltyTime: 5, savedTime: 5 };
-        fixture.detectChanges();
-        const savedTimeElement = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(3) span');
-        expect(savedTimeElement.textContent).toContain('5 secondes');
     });
 });

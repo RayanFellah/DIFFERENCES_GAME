@@ -41,21 +41,14 @@ describe('GameCardComponent', () => {
             modifiedImagePath: 'https://example.com/test-image2.bmp',
             difficulty: 'easy',
             radius: 3,
-            topPlayer: 'me',
             differences: 7,
             isJoinable: false,
-            topScore: 0,
+            top3Multi: [],
+            top3Solo: [],
         };
         component.isConfig = false;
         fixture.detectChanges();
     });
-
-    it('should trigger navigation when playerName is valid', () => {
-        spyOn(window, 'prompt').and.returnValue('Test Player');
-        component.shouldNavigate$.next(true);
-        expect(routerSpy['navigate']).toHaveBeenCalledOnceWith(['/game', component.sheet._id, 'Test Player', component.roomName]);
-    });
-
     it('should create', () => {
         expect(imageHttpSpy['getImage']).toHaveBeenCalledWith(component.sheet.originalImagePath);
         expect(component).toBeTruthy();

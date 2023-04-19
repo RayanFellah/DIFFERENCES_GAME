@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { DialogComponent } from '@app/components/dialogue/dialog.component';
@@ -80,6 +81,10 @@ describe('PlayAreaComponent', () => {
                 {
                     provide: DialogComponent,
                     useValue: dialogComponent,
+                },
+                {
+                    provide: HttpClient,
+                    useValue: {},
                 },
             ],
         }).compileComponents();

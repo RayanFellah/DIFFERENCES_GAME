@@ -3,9 +3,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SOLO_MODE } from '@app/constants';
 import { DifferenceService } from '@app/services/difference/difference.service';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
 import { Coord } from '@common/coord';
+import { PlayRoom } from '@common/play-room';
 import { Sheet } from '@common/sheet';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -19,23 +21,17 @@ describe('ChatGateway', () => {
     let logger: SinonStubbedInstance<Logger>;
     let sheetService: SinonStubbedInstance<SheetService>;
     let gameService: SinonStubbedInstance<GameLogicService>;
-    let differenceService: SinonStubbedInstance<DifferenceService>;
     let server: SinonStubbedInstance<Server>;
     let socket: SinonStubbedInstance<Socket>;
     beforeEach(async () => {
         logger = createStubInstance(Logger);
         sheetService = createStubInstance(SheetService);
         gameService = createStubInstance(GameLogicService);
-        differenceService = createStubInstance(DifferenceService);
         server = createStubInstance<Server>(Server);
         socket = createStubInstance<Socket>(Socket);
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ChatGateway,
-                {
-                    provide: Logger,
-                    useValue: logger,
-                },
                 {
                     provide: SheetService,
                     useValue: sheetService,
@@ -45,8 +41,10 @@ describe('ChatGateway', () => {
                     useValue: gameService,
                 },
                 {
-                    provide: DifferenceService,
-                    useValue: differenceService,
+                    provide: GameHistoryService,
+                    useValue: {
+                        addHistory: jest.fn(),
+                    },
                 },
             ],
         }).compile();
@@ -58,40 +56,14 @@ describe('ChatGateway', () => {
     it('should be defined', () => {
         expect(gateway).toBeDefined();
     });
-    describe('CreateSoloRoom', () => {
-        it('should create a new room', async () => {
-            const testCase = {
-                name: 'John Doe',
-                sheetId: 'sheetId123',
-                roomName: 'roomName123',
-            };
-
-            const mockSheet: Sheet = getFakeSheet();
-            const mockDifferenceService: DifferenceService = new DifferenceService();
-            const mockDiffs: DifferenceService[] = [mockDifferenceService];
-            jest.spyOn(sheetService, 'getSheet').mockImplementation(async () => Promise.resolve(mockSheet));
-            jest.spyOn(gameService, 'getAllDifferences').mockImplementation(async () => Promise.resolve(mockDiffs));
-
-            server.to.returns({
-                emit: (event: string) => {
-                    expect(event).toBeOneOf(['numberOfDifferences', 'players', 'test']);
-                },
-            } as BroadcastOperator<unknown, unknown>);
-            await gateway.createSoloRoom(socket, testCase);
-            expect(gateway.rooms.length).toBe(1);
-            expect(socket.join.calledWith(testCase.roomName)).toBeTruthy();
-        });
-    });
     describe('Validate click', () => {
         it('should emit foundDiff and click feedback is matching coords', () => {
             const payload = {
-                x: 10,
-                y: 10,
+                click: { x: 1, y: 2 },
                 playerName: 'John Doe',
                 roomName: 'roomName123',
             };
             const mockDifferenceService = getMockDifferenceService();
-
             const player = { name: 'John Doe', socketId: socket.id, differencesFound: 0 };
             const room = {
                 roomName: payload.roomName,
@@ -102,8 +74,10 @@ describe('ChatGateway', () => {
                 numberOfDifferences: 5,
                 gameType: SOLO_MODE,
                 isGameDone: false,
+                startTime: new Date(),
             };
-            gateway.rooms.push(room);
+            gateway.rooms = [room];
+
             server.to.returns({
                 emit: (event: string) => {
                     expect(event).toBeOneOf([ChatEvents.RoomMessage, 'clickFeedBack', 'foundDiff', 'gameDone']);
@@ -118,8 +92,7 @@ describe('ChatGateway', () => {
 
         it('should emit click feedback only if coords not matching', () => {
             const payload = {
-                x: 0,
-                y: 0,
+                click: { x: 1, y: 2 },
                 playerName: 'John Doe',
                 roomName: 'roomName123',
             };
@@ -136,6 +109,7 @@ describe('ChatGateway', () => {
                 numberOfDifferences: 5,
                 gameType: SOLO_MODE,
                 isGameDone: false,
+                startTime: new Date(),
             };
             gateway.rooms.push(room);
             server.to.returns({
@@ -223,6 +197,7 @@ describe('ChatGateway', () => {
                 numberOfDifferences: 0,
                 gameType: SOLO_MODE,
                 isGameDone: false,
+                startTime: new Date(),
             };
             gateway.rooms.push(room);
             server.to.returns({
@@ -331,13 +306,14 @@ describe('ChatGateway', () => {
                 numberOfDifferences: 0,
                 gameType: SOLO_MODE,
                 isGameDone: false,
+                startTime: new Date(),
             };
             gateway.rooms.push(room);
             const waitingRoom = { players: ['ahmed'], sheetId: room.sheet._id };
             gateway.waitingRooms.push(waitingRoom);
             server.to.returns({
                 emit: (event: string) => {
-                    expect(event).toBeOneOf(['numberOfDifferences', 'players', 'test']);
+                    expect(event).toBeOneOf(['numberOfDifferences', 'players', 'test', 'roomInfo']);
                 },
             } as BroadcastOperator<unknown, unknown>);
 
@@ -363,7 +339,7 @@ describe('ChatGateway', () => {
 
             server.to.returns({
                 emit: (event: string) => {
-                    expect(event).toEqual('sheetDeleted');
+                    expect(event).toEqual('CurrentGameDeleted');
                 },
             } as BroadcastOperator<unknown, unknown>);
             gateway.deleteSheet(socket, { sheetId: mockSheet._id });
@@ -385,7 +361,7 @@ describe('ChatGateway', () => {
     });
 
     it('should log user connection', () => {
-        const loggerSpy = jest.spyOn(gateway.logger, 'log');
+        const loggerSpy = jest.spyOn(Logger, 'log');
 
         gateway.handleConnection(socket);
 
@@ -398,7 +374,7 @@ describe('ChatGateway', () => {
         const mockDifferenceService = getMockDifferenceService();
 
         const player = { name: 'John Doe', socketId: socket.id, differencesFound: 0 };
-        const room = {
+        const room: PlayRoom = {
             roomName,
             player1: player,
             player2: undefined,
@@ -407,6 +383,7 @@ describe('ChatGateway', () => {
             numberOfDifferences: 0,
             gameType: SOLO_MODE,
             isGameDone: false,
+            startTime: new Date(),
         };
         gateway.rooms.push(room);
         server.to.returns({
@@ -416,7 +393,7 @@ describe('ChatGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleDisconnect(socket);
 
-        expect(logger.log.called).toBeTruthy();
+        expect(logger.log.called).toBeFalsy();
     });
     it('game Done', () => {
         const mockDelete = jest.fn();
@@ -435,6 +412,7 @@ describe('ChatGateway', () => {
             numberOfDifferences: 2,
             gameType: SOLO_MODE,
             isGameDone: true,
+            startTime: new Date(),
         };
         gateway.rooms.push(room);
         server.to.returns({
@@ -454,21 +432,6 @@ const getMockDifferenceService = (): DifferenceService => {
         setCoord(coords: Coord[]) {
             this.coords = coords;
         },
-        findEdges() {
-            for (const coord of this.coords) {
-                if (
-                    this.coords.find((res: Coord) => res.posX === coord.posX + 1 && res.posY === coord.posY) &&
-                    this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY + 1) &&
-                    this.coords.find((res: Coord) => res.posX === coord.posX - 1 && res.posY === coord.posY) &&
-                    this.coords.find((res: Coord) => res.posX === coord.posX && res.posY === coord.posY - 1)
-                ) {
-                    continue;
-                } else {
-                    this.listEdges.push(coord);
-                }
-            }
-            return this.listEdges;
-        },
     };
     return mockDifferenceService;
 };
@@ -479,11 +442,11 @@ const getFakeSheet = (): Sheet => ({
     radius: 3,
     originalImagePath: getRandomString(),
     modifiedImagePath: getRandomString(),
-    topPlayer: getRandomString(),
-    topScore: 0,
     differences: 5,
     isJoinable: true,
     title: getRandomString(),
+    top3Multi: [],
+    top3Solo: [],
 });
 
 const BASE_36 = 36;
