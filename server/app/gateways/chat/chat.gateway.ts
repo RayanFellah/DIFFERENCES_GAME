@@ -36,7 +36,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     async createSoloRoom(socket: Socket, payload: { name: string; sheetId: string; roomName: string }) {
         const playSheet = await this.sheetService.getSheet(payload.sheetId);
         const diffs = await this.gameService.getAllDifferences(playSheet);
-        const player = { name: payload.name, socketId: socket.id, differencesFound: 0 };
+        const player: Player = { name: payload.name, socketId: socket.id, differencesFound: 0, usedHints: 0 };
         const newRoom: PlayRoom = {
             roomName: payload.roomName,
             player1: player,
@@ -92,11 +92,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         ) {
             room.isGameDone = true;
             this.server.to(payload.roomName).emit('gameDone', player.name);
+
+            const penalty = this.calculateTimePenalty(player);
+
             const timeInSeconds = Math.floor((new Date().getTime() - room.startTime.getTime()) / DELAY_BEFORE_EMITTING_TIME);
-            this.checkTopScores(room, timeInSeconds, player.name);
+            this.checkTopScores(room, timeInSeconds + penalty, player.name);
             const history = {
                 gameStart: this.getFullDate(room.startTime),
-                duration: this.elapsedTime(room.startTime),
+                duration: this.elapsedTime(room.startTime, timeInSeconds),
                 gameMode: room.gameType === 'solo' ? 'ClassicSolo' : 'ClassicMultiplayer',
                 player1: player.name,
                 winner1: true,
@@ -105,6 +108,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
                 winner2: false,
                 gaveUp2: false,
             };
+
             this.gameHistoryService.addHistory(history);
 
             return;
@@ -120,6 +124,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     @SubscribeMessage(ChatEvents.Hint)
     hintActivated(client: Socket) {
+        const room = this.rooms.find((res) => res.player1?.socketId === client.id);
+        room.player1.usedHints++;
         const now = new Date();
         const timeString = now.toLocaleTimeString('en-US', { hour12: false });
         const hintUsed: ChatMessage = { content: `${timeString} - Indice utilisé`, type: 'game' };
@@ -159,6 +165,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     @SubscribeMessage('cancelJoinGame')
     cancelJoinGame(socket: Socket, { playerName, sheetId }: { playerName: string; sheetId: string }) {
+        console.log('cancelled');
         socket.broadcast.to(`GameRoom${sheetId}`).emit('UserCancelled', { playerName });
         socket.leave(`GameRoom${sheetId}`);
     }
@@ -182,7 +189,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const diffs = await this.gameService.getAllDifferences(playSheet);
         const newRoom: PlayRoom = {
             roomName: this.generateRandomId(ID_LENGTH),
-            player1: { name: player1, socketId: socket.id, differencesFound: 0 },
+            player1: { name: player1, socketId: socket.id, differencesFound: 0, usedHints: 0 },
             player2: undefined,
             sheet: playSheet,
             startTime: new Date(),
@@ -201,7 +208,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage('player2Joined')
     player2Joined(socket: Socket, { player2, roomName }: { player2: string; roomName: string }) {
         const room = this.rooms.find((res) => res.roomName === roomName);
-        room.player2 = { name: player2, socketId: socket.id, differencesFound: 0 };
+        room.player2 = { name: player2, socketId: socket.id, differencesFound: 0, usedHints: 0 };
         socket.join(room.roomName);
         this.server.to(room.roomName).emit(ChatEvents.JoinedRoom, room);
         this.sendRoomInfo(room);
@@ -320,6 +327,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             this.emitTime();
         }, DELAY_BEFORE_EMITTING_TIME);
     }
+    calculateTimePenalty(player: Player) {
+        const penalty = this.gameConstantsService.readGameConstantsFile().gamePenalty as number;
+        return player.usedHints * penalty;
+    }
 
     handleConnection(socket: Socket) {
         Logger.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
@@ -333,9 +344,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         socket.leave(room.roomName);
         if (!room.isGameDone) {
             if (room.gameType === 'solo') {
+                const penalty = this.calculateTimePenalty(room.player1);
                 const history: HistoryInterface = {
                     gameStart: this.getFullDate(room.startTime),
-                    duration: this.elapsedTime(room.startTime),
+                    duration: this.elapsedTime(room.startTime, penalty),
                     gameMode: 'solo',
                     player1: room.player1.name,
                     winner1: false,
@@ -404,10 +416,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         const index = sheet.title.charCodeAt(0) % scores.length;
         this.sheetService.modifySheet({ _id: sheetId, top3Solo: scores[index], top3Multi: scores[(index * 3) % scores.length] });
     }
-    private elapsedTime(startTime: Date): string {
+    private elapsedTime(startTime: Date, timePenalty: number = 0 || null): string {
         const MILLISECONDS = 1000;
         const MINUTES = 60;
-        const elapsedTimeInSeconds = Math.floor((new Date().getTime() - startTime.getTime()) / MILLISECONDS);
+        const elapsedTimeInSeconds = Math.floor((new Date().getTime() - startTime.getTime()) / MILLISECONDS) + timePenalty;
         const minutes = Math.floor(elapsedTimeInSeconds / MINUTES);
         const seconds = elapsedTimeInSeconds % MINUTES;
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
