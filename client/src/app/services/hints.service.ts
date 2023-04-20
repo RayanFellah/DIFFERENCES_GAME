@@ -18,7 +18,6 @@ import { GameReplayService } from './game-replay/game-replay.service';
 })
 export class HintsService {
     hintsLeft: number = INITIAL_HINTS;
-
     tempCanvas: HTMLCanvasElement;
     tempContext: CanvasRenderingContext2D;
     blockClick: boolean = false;

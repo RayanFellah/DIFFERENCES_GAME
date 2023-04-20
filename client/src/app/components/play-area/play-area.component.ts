@@ -92,7 +92,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
         this.logic.cheat();
     }
     hint(delay = THREE_SECONDS) {
-        if (this.hintService.blockClick || !this.hintService.differences || !this.isSolo) return;
+        if (this.hintService.blockClick || !this.hintService.differences || !this.isSolo || this.gameReplayService.isReplay) return;
         this.socketService.send('hint', this.playerName);
         this.hintService.executeHint(this.playAreaContainer.nativeElement, delay);
         if (!this.gameReplayService.isReplay) {

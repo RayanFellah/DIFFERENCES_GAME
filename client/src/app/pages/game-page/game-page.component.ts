@@ -40,7 +40,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     timer: boolean;
     initialHtml: string;
     count = 0;
-
+    mode: string;
     replaySpeed = 1;
     elapsedTimeInSeconds: number;
     messageTime: string;
@@ -122,6 +122,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
         this.socketService.on<PlayRoom>('roomInfo', (room: PlayRoom) => {
             this.differences = room.numberOfDifferences;
+            this.mode = room.gameType;
             if (!room.player2) this.person = room.player1;
             else {
                 if (room.player1.socketId === this.socketService.socket.id) {

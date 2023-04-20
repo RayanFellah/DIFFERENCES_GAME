@@ -5,15 +5,16 @@
 <main class="main-container">
     <div class="info-container">
         <h3>Difficulté: {{ difficulty }}</h3>
+        <h3>Mode: {{ this.mode === 'solo' ? 'Solo♟️' : 'MultiJoueur🆚' }}</h3>
 
         <div class="player1-points" *ngIf="person">
-            <h3>{{ person.name }}: {{ person.differencesFound }}/{{ this.differences }}</h3>
+            <h3>🌝{{ person.name.toUpperCase() }}: {{ person.differencesFound }}/{{ this.differences }}</h3>
         </div>
         <div class="player2-points" *ngIf="opponent">
-            <h3>{{ opponent.name }}: {{ opponent.differencesFound }}/{{ this.differences }}</h3>
+            <h3>👹{{ opponent.name.toUpperCase() }}: {{ opponent.differencesFound }}/{{ this.differences }}</h3>
         </div>
         <div class="time-container">
-            <h3>Temps: {{ isReplayStarted ? this.elapsedTime : formattedTime }}</h3>
+            <h3>⏲️ {{ isReplayStarted ? this.elapsedTime : formattedTime }}</h3>
         </div>
         <app-hints *ngIf="!opponent"></app-hints>
     </div>
@@ -26,6 +27,7 @@
         ></app-play-area>
         <p id="time-penalty" *ngIf="hint.activateHint">Pénalité: {{ penaltyTime }} secondes</p>
     </div>
+    <app-hint-message #hintMessage class="hints"> </app-hint-message>
 
     <div class="replay-options-container">
         <button mat-stroked-button color="primary" *ngIf="isReplayStarted && !isReplayPaused" (click)="pauseReplay()">Pause Replay</button>
@@ -35,7 +37,6 @@
         <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="setReplaySpeed(2)">2X</button>
         <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="setReplaySpeed(4)">4X</button>
     </div>
-    <app-hint-message #hintMessage class="hints"> </app-hint-message>
 
     <div class="chat-zone-container">
         <app-chat-zone

@@ -146,20 +146,6 @@ describe('TimeLimitModeService', () => {
         expect(service.timeLimit).toEqual(constants.timeLimit);
     });
 
-    it('useHint should decrement hints', () => {
-        service.hintsLeft = 1;
-        const returnValue = service.useHint();
-        expect(service.hintsLeft).toEqual(0);
-        expect(returnValue).toEqual(true);
-    });
-
-    it('use hints should not decrement hints if hintsLeft is 0', () => {
-        service.hintsLeft = 0;
-        const returnValue = service.useHint();
-        expect(service.hintsLeft).toEqual(0);
-        expect(returnValue).toEqual(false);
-    });
-
     it('sendClick should send click', () => {
         const event = {
             offsetX: 10,

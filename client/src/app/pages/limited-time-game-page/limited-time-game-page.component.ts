@@ -20,6 +20,7 @@ export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
     @ViewChild(TimeLimitPlayGroundComponent) playGround: TimeLimitPlayGroundComponent;
     timeLeft: number;
     gameType = 'TL';
+    mode: string;
     playerName: string;
     opponent: string = '';
     roomName: string = 'room';
@@ -50,6 +51,7 @@ export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
                 this.gameLogic.playRoom.player1.name === this.playerName
                     ? this.gameLogic.playRoom.player2.name
                     : this.gameLogic.playRoom.player1.name;
+        this.mode = this.gameLogic.playRoom.mode;
     }
     handleResponses() {
         this.socketService.on('gameConstants', (constants: GameConstants) => {

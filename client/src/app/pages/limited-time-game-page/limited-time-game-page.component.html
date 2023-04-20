@@ -4,17 +4,20 @@
 </button>
 <main class="main-container">
     <div class="info-container">
+        <div>
+            <h3>Mode: {{ this.mode === 'LimitedTimeSolo' ? 'Solo♟️' : 'Coopératif👯‍♀️' }}</h3>
+        </div>
         <div class="player1-points" *ngIf="playerName">
-            <h3>{{ playerName }}</h3>
+            <h3>🌝{{ playerName.toUpperCase() }}</h3>
         </div>
         <div class="player2-points" *ngIf="opponent">
-            <h3>{{ this.opponent }}</h3>
+            <h3>🌚{{ this.opponent.toUpperCase() }}</h3>
         </div>
         <div>
             <h3>Différences trouvées: {{ this.gameLogic.differencesFound }}</h3>
         </div>
         <div class="time-container">
-            <h3>Temps: {{ this.time }}</h3>
+            <h3>⌛{{ this.time }}</h3>
         </div>
         <app-hints *ngIf="!opponent"></app-hints>
     </div>

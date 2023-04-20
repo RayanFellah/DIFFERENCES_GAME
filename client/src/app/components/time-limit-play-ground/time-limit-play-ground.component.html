@@ -9,7 +9,7 @@
             </div>
         </article>
     </section>
-    <button *ngIf="this.isSolo" (click)="hint()" mat-stroked-button [disabled]="this.hintService.blockClick" color="primary">
+    <button *ngIf="this.isSolo" (click)="hint()" mat-stroked-button [disabled]="this.hintService.blockClick || this.isGameOver" color="primary">
         <mat-icon>search</mat-icon> Indice
     </button>
 </div>

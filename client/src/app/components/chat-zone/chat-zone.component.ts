@@ -35,9 +35,7 @@ export class ChatZoneComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     scrollToBottom(): void {
-        try {
-            this.chatArea.nativeElement.scrollTop = this.chatArea.nativeElement.scrollHeight;
-        } catch (err) {}
+        this.chatArea.nativeElement.scrollTop = this.chatArea.nativeElement.scrollHeight;
     }
     sendMessageTL() {
         if (this.messageContent.length > 0) {

@@ -38,6 +38,9 @@ export class TimeLimitPlayGroundComponent implements AfterViewInit, OnDestroy {
     get hintService() {
         return this._hintService;
     }
+    get isGameOver() {
+        return this.gameLogic.isGameOver;
+    }
     ngAfterViewInit() {
         this.gameLogic.bindCanvasRefs(this.canvas1.nativeElement, this.canvas2.nativeElement);
         this.gameLogic.drawOnCanvas();
@@ -47,7 +50,8 @@ export class TimeLimitPlayGroundComponent implements AfterViewInit, OnDestroy {
         this.gameLogic.sendClick(event);
     }
     hint() {
-        if (this.hintService.blockClick || this.hintService.differences.toString() === [].toString() || !this.isSolo) return;
+        if (this.hintService.blockClick || this.hintService.differences.toString() === [].toString() || !this.isSolo || this.gameLogic.isGameOver)
+            return;
         this.socketService.send('hint', 'a');
         this.timer.addPenaltyTime(this.constants);
         this.hintService.executeHint(this.playAreaContainer.nativeElement, ONE_SECOND);

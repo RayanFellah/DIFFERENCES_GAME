@@ -85,13 +85,6 @@ export class TimeLimitModeService implements OnDestroy {
         this.timeBonus = bonus;
     }
 
-    useHint() {
-        if (this.hintsLeft > 0) {
-            this.hintsLeft--;
-            return true;
-        }
-        return false;
-    }
     sendClick(event: MouseEvent) {
         if (this.clickIgnored || this.isGameOver) return;
         this.currentClick = event;
