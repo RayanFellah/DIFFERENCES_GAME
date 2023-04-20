@@ -34,7 +34,7 @@ export class GameHistoryComponent implements OnInit {
     constructor(private socketService: SocketClientService, public dialogRef: MatDialogRef<GameHistoryComponent>, public dialog: MatDialog) {}
 
     ngOnInit(): void {
-        this.socketService.connect();
+        if (!this.socketService.isSocketAlive()) this.socketService.connect();
         this.socketService.send('get_all_History');
         this.socketService.on('history_received', (historyDocument: HistoryDocument) => {
             this.gamesHistory.unshift({

@@ -166,7 +166,10 @@ export class GameGateway implements OnGatewayDisconnect {
         this.server.to(foundRoom.roomName).emit(GameEvents.playerLeft, { room: foundRoom, player });
         const message: ChatMessage = { content: 'Ton allié a quitté la partie😱, basculé en mode Solo!', type: 'game' };
         this.server.to(foundRoom.roomName).emit(ChatEvents.RoomMessage, message);
+        console.log(foundRoom.isGameDone);
         if (!foundRoom.playersInRoom && !foundRoom.isGameDone) {
+        
+            console.log('in the if');
             this.gatewayLogicService.createHistoryForDesertedRoom(foundRoom);
             this.removeRoom(foundRoom);
         } else if (foundRoom.isGameDone) {

@@ -76,7 +76,7 @@ export class GatewayLogicService {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
 
         const history: HistoryInterface = {
-            gameStart: room.startTime.toLocaleTimeString(),
+            gameStart: this.getFullDate(room.startTime),
             duration: this.elapsedTime(room.startTime),
             gameMode: mode,
             player1: room.player1.name,
