@@ -1,10 +1,11 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Vec2 } from '@app/interfaces/vec2';
 import { GameConstants } from '@common/game-constants';
 import { GameEvents } from '@common/game-events';
 import { LimitedTimeRoom } from '@common/limited-time-room';
 import { Player } from '@common/player';
+import { Subject, takeUntil } from 'rxjs';
 import { AudioService } from './audio.service';
 import { CanvasFormatterService } from './canvas-formatter.service';
 import { DialogService } from './dialog-service/dialog.service';
@@ -18,7 +19,7 @@ const BONUS = 7;
 @Injectable({
     providedIn: 'root',
 })
-export class TimeLimitModeService implements OnDestroy {
+export class TimeLimitModeService {
     player: Player;
     playRoom: LimitedTimeRoom;
     timeLimit: number = TIME;
@@ -35,10 +36,11 @@ export class TimeLimitModeService implements OnDestroy {
     isPlayer2Online: boolean = false;
     allyGaveUp: boolean = false;
     private _constants: GameConstants;
+    private unsubscribe$ = new Subject<void>();
     // eslint-disable-next-line max-params
     constructor(
         private router: Router,
-        private socketService: SocketClientService,
+        private socketClientService: SocketClientService,
         private dialogService: DialogService,
         private gameStateService: GameStateService,
         private canvasFormatter: CanvasFormatterService,
@@ -46,6 +48,8 @@ export class TimeLimitModeService implements OnDestroy {
         private hintService: HintsService,
         private timer: TimerReplayService,
     ) {
+        this.handleResponses();
+
         this.timer.timeDone$.subscribe((res) => {
             if (res) this.timeOutProtocol();
         });
@@ -69,12 +73,8 @@ export class TimeLimitModeService implements OnDestroy {
     }
 
     logPlayer(player: string) {
-        if (!this.socketService.isSocketAlive()) {
-            this.socketService.connect();
-        }
-        this.handleResponses();
         this.player = {
-            socketId: this.socketService.socket.id,
+            socketId: this.socketClientService.socketId,
             name: player,
             differencesFound: 0,
         };
@@ -94,7 +94,7 @@ export class TimeLimitModeService implements OnDestroy {
             click: { target: (this.currentClick.target as HTMLCanvasElement).id, x: this.currentClick.offsetX, y: this.currentClick.offsetY },
         };
 
-        this.socketService.send(GameEvents.ClickTL, data);
+        this.socketClientService.send(GameEvents.ClickTL, data);
     }
     createSolo() {
         this.createGame(GameEvents.CreateLimitedTimeSolo);
@@ -127,16 +127,21 @@ export class TimeLimitModeService implements OnDestroy {
     }
 
     startTimer() {
-        this.socketService.on(GameEvents.Clock, () => {
-            if (!this.isGameOver) this.updateTimer();
-        });
+        this.socketClientService
+            .on<void>(GameEvents.Clock)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(() => {
+                if (!this.isGameOver) this.updateTimer();
+            });
     }
 
     handleResponses() {
-        this.socketService.on(
-            GameEvents.ClickValidated,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            async (res: { diffFound: Vec2[]; player: Player; room: LimitedTimeRoom; left: Buffer; right: Buffer; click: any }) => {
+        // Click Validated event
+        this.socketClientService
+            .on<{ diffFound: Vec2[]; player: Player; room: LimitedTimeRoom; left: Buffer; right: Buffer; click: unknown }>(GameEvents.ClickValidated)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((res) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 this.handleClick(res.click, res.diffFound, res.player.socketId);
                 this.playRoom = res.room;
                 if (res.left && res.right) {
@@ -144,53 +149,67 @@ export class TimeLimitModeService implements OnDestroy {
                     this.rightBuffer = res.right;
                     this.drawOnCanvas();
                 }
-            },
-        );
+            });
 
-        this.socketService.on(GameEvents.GameOver, () => {
-            const DELAY = 50;
-            this.isGameOver = true;
-            setTimeout(() => {
-                this.timer.stopTimer();
-                this.audio.playWonSound();
-            }, DELAY);
-        });
+        // Game Over event
+        this.socketClientService
+            .on<void>(GameEvents.GameOver)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(() => {
+                const DELAY = 50;
+                this.isGameOver = true;
+                setTimeout(() => {
+                    this.timer.stopTimer();
+                    this.audio.playWonSound();
+                }, DELAY);
+            });
 
-        this.socketService.on(GameEvents.SecondPlayerJoined, (res: { room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
-            this.isPlayer2Online = true;
-            this.playRoom = res.room;
-            this.leftBuffer = res.left;
-            this.rightBuffer = res.right;
-            this.dialogService.emitCoopLunch();
-            this.router.navigate(['/limited-time']);
-            this.startTimer();
-        });
+        // Second Player Joined event
+        this.socketClientService
+            .on<{ room: LimitedTimeRoom; left: Buffer; right: Buffer }>(GameEvents.SecondPlayerJoined)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((res) => {
+                this.isPlayer2Online = true;
+                this.playRoom = res.room;
+                this.leftBuffer = res.left;
+                this.rightBuffer = res.right;
+                this.dialogService.emitCoopLunch();
+                this.router.navigate(['/limited-time']);
+                this.startTimer();
+            });
 
-        this.socketService.on(GameEvents.LimitedTimeRoomCreated, (res: { room: LimitedTimeRoom; left: Buffer; right: Buffer }) => {
-            this.playRoom = res.room;
-            this.leftBuffer = res.left;
-            this.rightBuffer = res.right;
-            this.router.navigate(['/limited-time']);
-            this.startTimer();
-            this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
-        });
+        // Limited Time Room Created event
+        this.socketClientService
+            .on<{ room: LimitedTimeRoom; left: Buffer; right: Buffer }>(GameEvents.LimitedTimeRoomCreated)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((res) => {
+                this.playRoom = res.room;
+                this.leftBuffer = res.left;
+                this.rightBuffer = res.right;
+                this.router.navigate(['/limited-time']);
+                this.startTimer();
+                this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
+            });
 
-        this.socketService.on(GameEvents.playerLeft, (/*    player: Player*/) => {
-            this.isPlayer2Online = false;
-            this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
-            this.allyGaveUp = true;
-        });
-    }
-    disconnect() {
-        this.socketService.disconnect();
+        // Player Left event
+        this.socketClientService
+            .on<void>(GameEvents.playerLeft)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(() => {
+                this.isPlayer2Online = false;
+                this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
+                this.allyGaveUp = true;
+            });
     }
 
     cancelGame() {
-        this.socketService.send(GameEvents.CancelGame);
+        this.socketClientService.send(GameEvents.CancelGame);
     }
-    ngOnDestroy(): void {
-        this.disconnect();
+    cleanup() {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
+
     private createGame(event: string) {
         const data = {
             player: this.player,
@@ -198,7 +217,7 @@ export class TimeLimitModeService implements OnDestroy {
             timeLimit: this.timeLimit,
             hintsLeft: this.hintsLeft,
         };
-        this.socketService.send(event, data);
+        this.socketClientService.send(event, data);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -213,13 +232,13 @@ export class TimeLimitModeService implements OnDestroy {
             this.timer.addTimerBonus(this.constants);
             this.hintService.differences = this.hintService.fetchCoords(this.playRoom.currentDifferences);
             this.timeLimit += this.timeBonus;
-            if (player === this.socketService.socket.id) {
+            if (player === this.socketClientService.socketId) {
                 this.audio.playSuccessSound();
             }
 
             this.differencesFound++;
             return diff;
-        } else if (player === this.socketService.socket.id) {
+        } else if (player === this.socketClientService.socketId) {
             this.ignoreClicks();
             this.canvasFormatter.displayErrorMessage(event, ctx);
             this.audio.playFailSound();
@@ -241,8 +260,8 @@ export class TimeLimitModeService implements OnDestroy {
         }
     }
     private timeOutProtocol() {
-        this.player.socketId = this.socketService.socket.id;
+        this.player.socketId = this.socketClientService.socketId;
         this.isGameOver = true;
-        this.socketService.send(GameEvents.TimeOut, { roomName: this.playRoom.roomName, player: this.player, allyGaveUp: this.allyGaveUp });
+        this.socketClientService.send(GameEvents.TimeOut, { roomName: this.playRoom.roomName, player: this.player, allyGaveUp: this.allyGaveUp });
     }
 }

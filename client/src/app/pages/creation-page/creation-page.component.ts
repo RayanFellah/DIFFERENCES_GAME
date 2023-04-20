@@ -191,11 +191,9 @@ export class CreationPageComponent implements OnInit {
                     this.dialog.openImageDialog(response.image);
                     this.createGame.reset();
                     this.navigate();
-                    // Handle success
                 },
                 error: (error) => {
                     this.snackBar.openSnackBar(`${error.error} `, 'Fermer');
-                    // Handle error
                 },
             });
             this.socketService.send('sheetCreated');

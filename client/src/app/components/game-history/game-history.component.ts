@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 // import {GamePlay} from '@common/game-play'
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { History } from '@common/history';
+import { Subject, takeUntil } from 'rxjs';
 
 enum GameMode {
     ClassicSolo = 'ClassicSolo',
@@ -27,34 +28,25 @@ export interface HistoryDocument {
     templateUrl: './game-history.component.html',
     styleUrls: ['./game-history.component.scss'],
 })
-export class GameHistoryComponent implements OnInit {
+export class GameHistoryComponent implements OnInit, OnDestroy {
     gameModeHistory: string;
     gamesHistory: History[] = [];
+    private unsubscribe$ = new Subject<void>();
 
-    constructor(private socketService: SocketClientService, public dialogRef: MatDialogRef<GameHistoryComponent>, public dialog: MatDialog) {}
+    constructor(private socketClientService: SocketClientService, public dialogRef: MatDialogRef<GameHistoryComponent>, public dialog: MatDialog) {}
 
     ngOnInit(): void {
-        if (!this.socketService.isSocketAlive()) this.socketService.connect();
-        this.socketService.send('get_all_History');
-        this.socketService.on('history_received', (historyDocument: HistoryDocument) => {
-            this.gamesHistory.unshift({
-                gameStart: historyDocument.gameStart,
-                duration: historyDocument.duration,
-                gameMode: historyDocument.gameMode,
-                player1: historyDocument.player1,
-                winner1: historyDocument.winner1,
-                gaveUp1: historyDocument.gaveUp1,
-                player2: historyDocument.player2,
-                winner2: historyDocument.winner2,
-                gaveUp2: historyDocument.gaveUp2,
-            });
-        });
+        this.socketClientService.send('get_all_History');
+        this.handleResponses();
+    }
 
-        this.socketService.on<HistoryDocument[]>('all_history_received', (historyDocuments: HistoryDocument[]) => {
-            for (const historyDocument of historyDocuments) {
+    handleResponses() {
+        this.socketClientService
+            .on<HistoryDocument>('history_received')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((historyDocument) => {
                 this.gamesHistory.unshift({
                     gameStart: historyDocument.gameStart,
-
                     duration: historyDocument.duration,
                     gameMode: historyDocument.gameMode,
                     player1: historyDocument.player1,
@@ -64,16 +56,38 @@ export class GameHistoryComponent implements OnInit {
                     winner2: historyDocument.winner2,
                     gaveUp2: historyDocument.gaveUp2,
                 });
-            }
-        });
-    }
+            });
 
+        this.socketClientService
+            .on<HistoryDocument[]>('all_history_received')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((historyDocuments: HistoryDocument[]) => {
+                for (const historyDocument of historyDocuments) {
+                    this.gamesHistory.unshift({
+                        gameStart: historyDocument.gameStart,
+
+                        duration: historyDocument.duration,
+                        gameMode: historyDocument.gameMode,
+                        player1: historyDocument.player1,
+                        winner1: historyDocument.winner1,
+                        gaveUp1: historyDocument.gaveUp1,
+                        player2: historyDocument.player2,
+                        winner2: historyDocument.winner2,
+                        gaveUp2: historyDocument.gaveUp2,
+                    });
+                }
+            });
+    }
     closeDialog() {
         this.dialogRef.close();
     }
 
     resetHistory() {
         this.gamesHistory = [];
-        this.socketService.send('reset_history');
+        this.socketClientService.send('reset_history');
+    }
+    ngOnDestroy(): void {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 }

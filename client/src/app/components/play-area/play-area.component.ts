@@ -79,6 +79,7 @@ export class PlayAreaComponent implements AfterViewInit, AfterViewChecked, OnDes
     }
     ngOnDestroy(): void {
         this.hintService.reset();
+        this.logic.cleanup();
     }
 
     handleClick(event: MouseEvent) {

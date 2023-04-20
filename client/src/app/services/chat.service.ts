@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ChatEvents } from '@app/interfaces/chat-events';
 import { ChatMessage } from '@common/chat-message';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { SocketClientService } from './socket-client/socket-client.service';
 
 @Injectable({
@@ -11,12 +11,11 @@ export class ChatService {
     chatMessagesSubject: BehaviorSubject<ChatMessage[]> = new BehaviorSubject<ChatMessage[]>([]);
     chatMessages$ = this.chatMessagesSubject.asObservable();
     messageTime: string;
+    private unsubscribe$ = new Subject<void>();
     private roomName: string;
 
-    constructor(private socketClient: SocketClientService) {
-        if (!this.socketClient.isSocketAlive()) {
-            this.socketClient.connect();
-        }
+    constructor(private socketClientService: SocketClientService) {
+        this.handleResponses();
     }
 
     get chatMessagesValue(): ChatMessage[] {
@@ -30,18 +29,29 @@ export class ChatService {
     sendMessage(message: ChatMessage) {
         message.time = this.messageTime;
         this.chatMessagesSubject.value.push(message);
-        this.socketClient.send('roomMessage', { message, roomName: this.roomName });
+        this.socketClientService.send('roomMessage', { message, roomName: this.roomName });
+    }
+    cleanup() {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     handleResponses() {
-        this.socketClient.on<ChatMessage>('roomMessage', (message: ChatMessage) => {
-            message.time = this.messageTime;
-            this.chatMessagesSubject.value.push(message);
-            this.chatMessagesSubject.next(this.chatMessagesSubject.value);
-        });
-        this.socketClient.on<Date>(ChatEvents.Clock, (time: Date) => {
-            const now = new Date(time);
-            this.messageTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        });
+        this.socketClientService
+            .on<ChatMessage>('roomMessage')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((message) => {
+                message.time = this.messageTime;
+                this.chatMessagesSubject.value.push(message);
+                this.chatMessagesSubject.next(this.chatMessagesSubject.value);
+            });
+
+        this.socketClientService
+            .on<Date>(ChatEvents.Clock)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((time) => {
+                const now = new Date(time);
+                this.messageTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            });
     }
 }
