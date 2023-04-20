@@ -1,5 +1,5 @@
 <mat-card class="chat-zone">
-    <div class="chat-area" #chatArea swScrollPosition="lorum-ipsum">
+    <div class="chat-area" #chatArea>
         <div *ngFor="let message of isReplay ? replayMessages : chatMessages">
             <span>@{{ message.time }}</span>
             <span *ngIf="message.name" class="message-span">[{{ message.name }}] </span>
@@ -28,6 +28,6 @@
         [(ngModel)]="messageContent"
         tabindex="0"
         *ngIf="opponent"
-        (keyup.enter)="sendMessage()"
+        (keyup.enter)="sendMessageTL()"
     />
 </mat-card>

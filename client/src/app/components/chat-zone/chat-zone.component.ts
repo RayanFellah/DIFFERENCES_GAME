@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ChatService } from '@app/services/chat.service';
 
 import { ChatMessage } from '@common/chat-message';
@@ -8,7 +8,8 @@ import { ChatMessage } from '@common/chat-message';
     templateUrl: './chat-zone.component.html',
     styleUrls: ['./chat-zone.component.scss'],
 })
-export class ChatZoneComponent implements OnInit, OnDestroy {
+export class ChatZoneComponent implements OnInit, OnDestroy, AfterViewChecked {
+    @ViewChild('chatArea') chatArea: ElementRef;
     @Input() playerName: string;
     @Input() replayMessages: ChatMessage[] = [];
     @Input() isReplay: boolean = false;
@@ -28,24 +29,23 @@ export class ChatZoneComponent implements OnInit, OnDestroy {
         this.chatService.room = this.roomName;
         this.chatService.handleResponses();
     }
-    sendMessage() {
-        if (this.messageContent.length > 0) {
-            // if (this.gameMode === 'Classic') {
-            //     this.newMessage = { name: this.playerName, content: this.messageContent, type: 'player' };
-            //     this.messageEvent.emit(this.newMessage);
-            //     this.messageContent = '';
-            // } else {
-            this.sendMessageTL();
-            // }
-        }
+
+    ngAfterViewChecked() {
+        this.scrollToBottom();
     }
 
+    scrollToBottom(): void {
+        try {
+            this.chatArea.nativeElement.scrollTop = this.chatArea.nativeElement.scrollHeight;
+        } catch (err) {}
+    }
     sendMessageTL() {
         if (this.messageContent.length > 0) {
             this.newMessage = { name: this.playerName, content: this.messageContent, type: 'player' };
             this.messageEvent.emit(this.newMessage);
             this.chatService.sendMessage(this.newMessage);
             this.messageContent = '';
+            this.scrollToBottom();
         }
     }
     ngOnDestroy(): void {
