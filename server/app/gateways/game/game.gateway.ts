@@ -54,14 +54,15 @@ export class GameGateway implements OnGatewayDisconnect {
     }
     @SubscribeMessage(GameEvents.JoinCoop)
     async joinAndConfirmCoopGame(client: Socket, payload) {
-        const room = this.rooms.find((iter) => (iter.player1 === undefined || iter.player2 === undefined) && iter.mode === LIMITED_TIME_COOP);
+        const room = this.gatewayLogicService.findRoomToJoin(this.rooms);
+        room.hasStarted = true;
         client.join(room.roomName);
         room.player2 = payload.player;
         room.player2.socketId = client.id;
         room.playersInRoom = 2;
         const left = this.gatewayLogicService.createImageBuffer(room.currentSheet.originalImagePath);
         const right = this.gatewayLogicService.createImageBuffer(room.currentSheet.modifiedImagePath);
-        room.hasStarted = true;
+
         this.server.to(room.roomName).emit(GameEvents.SecondPlayerJoined, { room, left, right });
     }
 
@@ -86,13 +87,14 @@ export class GameGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage(GameEvents.TimeOut)
-    async handleTimeOut(client: Socket, payload) {
+    handleTimeOut(client: Socket, payload) {
         const room: LimitedTimeRoom = this.rooms.find((iter) => iter.roomName === payload.roomName);
         const message = 'Time Out⏲️! Bien essayé!👍';
         client.emit(GameEvents.GameOver, message);
         if (room.isGameDone) return;
-        room.isGameDone = true;
-        this.gatewayLogicService.createHistoryForGameExpired(room, payload.player, payload.allyGaveUp);
+        this.gatewayLogicService.createHistoryForGameExpired(room, payload.player, payload.allyGaveUp).then(() => {
+            room.isGameDone = true;
+        });
     }
 
     @SubscribeMessage(GameEvents.ClickTL)
@@ -141,7 +143,7 @@ export class GameGateway implements OnGatewayDisconnect {
         client.emit(ChatEvents.RoomMessage, hintUsed);
     }
 
-    handleDisconnect(socket: Socket) {
+    async handleDisconnect(socket: Socket) {
         let player: Player;
         let foundRoom: LimitedTimeRoom;
         for (const room of this.rooms) {
@@ -166,11 +168,8 @@ export class GameGateway implements OnGatewayDisconnect {
         this.server.to(foundRoom.roomName).emit(GameEvents.playerLeft, { room: foundRoom, player });
         const message: ChatMessage = { content: 'Ton allié a quitté la partie😱, basculé en mode Solo!', type: 'game' };
         this.server.to(foundRoom.roomName).emit(ChatEvents.RoomMessage, message);
-        console.log(foundRoom.isGameDone);
         if (!foundRoom.playersInRoom && !foundRoom.isGameDone) {
-        
-            console.log('in the if');
-            this.gatewayLogicService.createHistoryForDesertedRoom(foundRoom);
+            await this.gatewayLogicService.createHistoryForDesertedRoom(foundRoom);
             this.removeRoom(foundRoom);
         } else if (foundRoom.isGameDone) {
             this.removeRoom(foundRoom);

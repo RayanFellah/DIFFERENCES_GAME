@@ -11,7 +11,8 @@ export class ResetDialogComponent implements OnInit {
     constructor(public dialogRef: MatDialogRef<ResetDialogComponent>, public dialog: MatDialog, private socketService: SocketClientService) {}
 
     ngOnInit(): void {
-        if (!this.socketService.isSocketAlive()) this.socketService.connect();    }
+        if (!this.socketService.isSocketAlive()) this.socketService.connect();
+    }
 
     resetScores() {
         this.socketService.send('reset_all_scores');

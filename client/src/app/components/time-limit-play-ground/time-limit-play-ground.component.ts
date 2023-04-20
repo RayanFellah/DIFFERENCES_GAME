@@ -1,5 +1,5 @@
 /* eslint-disable max-params */
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild } from '@angular/core';
 import { HintsService } from '@app/services/hints.service';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { TimeLimitModeService } from '@app/services/time-limit-mode.service';
@@ -13,7 +13,7 @@ import { HEIGHT, ONE_SECOND, WIDTH } from 'src/constants';
     styleUrls: ['./time-limit-play-ground.component.scss'],
     providers: [],
 })
-export class TimeLimitPlayGroundComponent implements AfterViewInit {
+export class TimeLimitPlayGroundComponent implements AfterViewInit, OnDestroy {
     @Input() constants: GameConstants;
     @Input() isSolo: boolean = true;
     @ViewChild('canvas1', { static: false }) private canvas1!: ElementRef<HTMLCanvasElement>;
@@ -54,5 +54,8 @@ export class TimeLimitPlayGroundComponent implements AfterViewInit {
         setTimeout(() => {
             this.hintService.activateHint = false;
         }, ONE_SECOND);
+    }
+    ngOnDestroy() {
+        if (this.socketService.isSocketAlive()) this.socketService.disconnect();
     }
 }

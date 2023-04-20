@@ -25,7 +25,7 @@ export class GatewayLogicService {
         return this.sheetService.getAllSheets();
     }
 
-    createHistoryForWin(room: LimitedTimeRoom, player: Player) {
+    async createHistoryForWin(room: LimitedTimeRoom, player: Player) {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
         let playerLeft;
         if (player.socketId === room.player1?.socketId) {
@@ -53,10 +53,10 @@ export class GatewayLogicService {
         if (room.mode === LIMITED_TIME_SOLO) {
             history.player2 = undefined;
         }
-        this.gameHistoryService.addHistory(history);
+        await this.gameHistoryService.addHistory(history);
     }
 
-    createHistoryForGameExpired(room: LimitedTimeRoom, player: Player, allyGaveUp: boolean) {
+    async createHistoryForGameExpired(room: LimitedTimeRoom, player: Player, allyGaveUp: boolean) {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
         const history: HistoryInterface = {
             gameStart: this.getFullDate(room.startTime),
@@ -69,10 +69,10 @@ export class GatewayLogicService {
             winner2: false,
             gaveUp2: room.player1?.socketId === player.socketId && allyGaveUp,
         };
-        this.gameHistoryService.addHistory(history);
+        await this.gameHistoryService.addHistory(history);
     }
 
-    createHistoryForDesertedRoom(room: LimitedTimeRoom) {
+    async createHistoryForDesertedRoom(room: LimitedTimeRoom) {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
 
         const history: HistoryInterface = {
@@ -86,7 +86,7 @@ export class GatewayLogicService {
             winner2: false,
             gaveUp2: true,
         };
-        this.gameHistoryService.addHistory(history);
+        await this.gameHistoryService.addHistory(history);
     }
 
     getRandomSheet(availableSheets: Sheet[]): Sheet {

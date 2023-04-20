@@ -4,11 +4,8 @@ import { SheetService } from '@app/services/sheet/sheet.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GatewayLogicService } from './gateway-logic.service';
 
-
 describe('GatewayLogicService', () => {
     let service: GatewayLogicService;
-
-
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -35,6 +32,4 @@ describe('GatewayLogicService', () => {
     it('should be defined', () => {
         expect(service).toBeDefined();
     });
-
 });
-

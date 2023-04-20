@@ -82,7 +82,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
                 this.currentSheetId = '';
             }
         });
-        this.connect();
+        if (!this.socketService.isSocketAlive) this.connect();
         const startIndex = this.currentPage * SHEETS_PER_PAGE;
         this.sheets.slice(startIndex, startIndex + SHEETS_PER_PAGE);
         this.socketService.send('getConstants');
@@ -224,6 +224,5 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.dialogService.reset();
         if (this.currentSheetId) this.socketService.send('cancelGameCreation', this.currentSheetId);
-        // if (this.socketService.isSocketAlive()) this.socketService.disconnect();
     }
 }

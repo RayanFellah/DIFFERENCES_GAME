@@ -71,6 +71,7 @@ export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        this.socketService.disconnect();
         location.reload();
     }
 }
