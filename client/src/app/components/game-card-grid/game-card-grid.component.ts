@@ -82,7 +82,7 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
                 this.currentSheetId = '';
             }
         });
-        if (!this.socketService.isSocketAlive) this.connect();
+        this.connect();
         const startIndex = this.currentPage * SHEETS_PER_PAGE;
         this.sheets.slice(startIndex, startIndex + SHEETS_PER_PAGE);
         this.socketService.send('getConstants');

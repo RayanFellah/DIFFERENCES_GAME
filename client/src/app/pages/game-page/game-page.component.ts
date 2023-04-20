@@ -267,6 +267,5 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.gameReplayService.isReplay = false;
         this.gameReplayService.events = [];
         this.dialogService.emitReplay(false);
-        if (this.socketService.isSocketAlive()) this.socketService.disconnect();
     }
 }
