@@ -1,24 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
+import { GameConstants } from '@common/game-constants';
+import { Subject } from 'rxjs';
 import { ConstantsDialogComponent } from './constants-dialog.component';
 
 describe('ConstantsDialogComponent', () => {
     let component: ConstantsDialogComponent;
     let fixture: ComponentFixture<ConstantsDialogComponent>;
-    const socketServiceStub = {
-        send: () => {
-            return;
-        },
-        on: () => {
-            return;
-        },
-    } as unknown as SocketClientService;
+
+    const socketClientServiceSpy = jasmine.createSpyObj('SocketClientService', ['on', 'send']);
+
+    const responseSubject = new Subject<GameConstants>();
+
+    socketClientServiceSpy.on.and.returnValue(responseSubject);
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ConstantsDialogComponent],
             providers: [
-                { provide: SocketClientService, useValue: socketServiceStub },
+                { provide: SocketClientService, useValue: socketClientServiceSpy },
                 {
                     provide: MAT_DIALOG_DATA,
                     useValue: {},

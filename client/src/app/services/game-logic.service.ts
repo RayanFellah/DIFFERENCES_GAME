@@ -70,7 +70,7 @@ export class GameLogicService {
                         const blob = new Blob([res], { type: 'image/bmp' });
                         this.rightCanvas.drawImageOnCanvas(blob);
                     });
-                    if (this.socketClientService.isSocketAlive()) this.handleResponses();
+                    this.handleResponses();
                     this.playRoom = this.activatedRoute.snapshot.paramMap.get('roomId') as string;
                     this.cheatMode.getDifferences(this.sheet);
                     this.gameHttp.getAllDifferences(this.sheet._id).subscribe((res) => {

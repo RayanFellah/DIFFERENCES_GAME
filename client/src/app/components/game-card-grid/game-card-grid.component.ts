@@ -143,7 +143,6 @@ export class GameCardGridComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe((sheetId: string) => {
                 if (sheetId === 'all') {
-                    console.log('all sheets deleted');
                     this.sheets = [];
                     return;
                 }
