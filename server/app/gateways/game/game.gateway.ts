@@ -11,7 +11,7 @@ import { GameEvents } from '@common/game-events';
 import { LIMITED_TIME_COOP, LIMITED_TIME_SOLO } from '@common/game-types';
 import { LimitedTimeRoom } from '@common/limited-time-room';
 import { Player } from '@common/player';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
@@ -28,19 +28,34 @@ export class GameGateway implements OnGatewayDisconnect {
         public gameHistoryService: GameHistoryService,
         public gatewayLogicService: GatewayLogicService,
     ) {
-        this.gatewayLogicService.getAllSheets().then((sheets) => {
+        Logger.log('GameGateway created');
+        this.sheetService.addedSheet.subscribe((sheet) => {
+            if (this.availableSheets) {
+                this.availableSheets.push(sheet);
+            }
+        });
+        this.sheetService.deletedSheet.subscribe((id) => {
+            if (this.availableSheets) {
+                this.availableSheets = this.availableSheets.filter((sheet) => sheet._id.toString() !== id.toString());
+            }
+        });
+
+        this.sheetService.getAllSheets().then((sheets) => {
             this.availableSheets = sheets;
         });
     }
 
     @SubscribeMessage(GameEvents.CreateLimitedTimeSolo)
     async createLimitedSoloGame(client: Socket, payload) {
+        setTimeout(() => {}, 100);
         payload.player.socketId = client.id;
         const room = await this.gatewayLogicService.createRoom(client, payload, LIMITED_TIME_SOLO, this.rooms, this.availableSheets);
-        room.hasStarted = true;
-        const left = this.gatewayLogicService.createImageBuffer(room.currentSheet.originalImagePath);
-        const right = this.gatewayLogicService.createImageBuffer(room.currentSheet.modifiedImagePath);
-        this.server.to(room.roomName).emit(GameEvents.LimitedTimeRoomCreated, { room, left, right });
+        if (room) {
+            room.hasStarted = true;
+            const left = this.gatewayLogicService.createImageBuffer(room.currentSheet.originalImagePath);
+            const right = this.gatewayLogicService.createImageBuffer(room.currentSheet.modifiedImagePath);
+            this.server.to(room.roomName).emit(GameEvents.LimitedTimeRoomCreated, { room, left, right });
+        }
     }
     @SubscribeMessage(GameEvents.CreateLimitedTimeCoop)
     async createLimitedCoopGame(client: Socket, payload) {

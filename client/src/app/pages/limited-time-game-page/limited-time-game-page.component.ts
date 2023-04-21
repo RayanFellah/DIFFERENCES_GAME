@@ -83,6 +83,7 @@ export class LimitedTimeGamePageComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe(() => {
                 this.opponent = '';
+                this.mode = 'LimitedTimeSolo';
             });
     }
 

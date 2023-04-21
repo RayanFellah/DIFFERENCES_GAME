@@ -300,7 +300,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     async deleteAllSheets() {
         try {
             await this.sheetService.deleteAllSheets();
-            this.server.to('GridRoom').emit('sheetDeleted', 'all');
+            this.server.emit('sheetDeleted', 'all');
+            // this.server.to('GridRoom').emit('sheetDeleted', 'all');
             for (const room of this.rooms) {
                 this.server.to(room.roomName).emit('kickOut');
             }

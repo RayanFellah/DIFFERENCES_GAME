@@ -76,7 +76,7 @@ export class SheetService {
                 addSheet = change.fullDocument;
                 this.addedSheetSubject.next(addSheet);
             } else if (change.operationType === 'delete') {
-                deleteSheetID = change.documentKey;
+                deleteSheetID = change.documentKey._id;
                 this.deletedSheetSubject.next(deleteSheetID);
             }
         });

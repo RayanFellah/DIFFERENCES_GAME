@@ -1,6 +1,7 @@
 /* eslint-disable max-params */
 import { ID_LENGTH } from '@app/constants';
 import { HistoryInterface } from '@app/model/schema/history.schema';
+import { DifferenceService } from '@app/services/difference/difference.service';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
@@ -8,7 +9,7 @@ import { LIMITED_TIME_COOP, LIMITED_TIME_SOLO } from '@common/game-types';
 import { LimitedTimeRoom } from '@common/limited-time-room';
 import { Player } from '@common/player';
 import { Sheet } from '@common/sheet';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { readFileSync } from 'fs';
 import * as path from 'path';
 import { Socket } from 'socket.io';
@@ -20,11 +21,6 @@ export class GatewayLogicService {
         private readonly sheetService: SheetService,
         private gameService: GameLogicService,
     ) {}
-
-    async getAllSheets(): Promise<Sheet[]> {
-        return this.sheetService.getAllSheets();
-    }
-
     async createHistoryForWin(room: LimitedTimeRoom, player: Player) {
         const mode = room.mode === LIMITED_TIME_SOLO ? LIMITED_TIME_SOLO : LIMITED_TIME_COOP;
         let playerLeft;
@@ -106,27 +102,34 @@ export class GatewayLogicService {
     }
     async createRoom(client: Socket, payload, gameMode: string, rooms: LimitedTimeRoom[], availableSheets: Sheet[]) {
         const sheet = this.getRandomSheet(availableSheets);
-        const diffs = await this.gameService.getAllDifferences(sheet);
-        const room: LimitedTimeRoom = {
-            roomName: this.generateRandomId(ID_LENGTH),
-            player1: payload.player,
-            player2: undefined,
-            currentSheet: sheet,
-            timeLimit: payload.timeLimit,
-            timeBonus: payload.timeBonus,
-            hintsLeft: payload.hintsLeft,
-            isGameDone: false,
-            currentDifferences: diffs,
-            usedSheets: [sheet._id],
-            mode: gameMode,
-            hasStarted: false,
-            startTime: new Date(),
-            playersInRoom: 1,
-            timeLeft: payload.timeLimit,
-        };
-        rooms.push(room);
-        client.join(room.roomName);
-        return room;
+        let diffs: DifferenceService[];
+        try {
+            diffs = await this.gameService.getAllDifferences(sheet);
+        } catch (error) {
+            Logger.error(error);
+        }
+        if (availableSheets.length > 0) {
+            const room: LimitedTimeRoom = {
+                roomName: this.generateRandomId(ID_LENGTH),
+                player1: payload.player,
+                player2: undefined,
+                currentSheet: sheet,
+                timeLimit: payload.timeLimit,
+                timeBonus: payload.timeBonus,
+                hintsLeft: payload.hintsLeft,
+                isGameDone: false,
+                currentDifferences: diffs,
+                usedSheets: [sheet._id],
+                mode: gameMode,
+                hasStarted: false,
+                startTime: new Date(),
+                playersInRoom: 1,
+                timeLeft: payload.timeLimit,
+            };
+            rooms.push(room);
+            client.join(room.roomName);
+            return room;
+        }
     }
     createImageBuffer(imagePath: string) {
         const imgPath = path.join(process.cwd(), 'uploads', imagePath);
