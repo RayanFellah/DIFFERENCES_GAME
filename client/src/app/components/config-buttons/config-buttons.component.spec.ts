@@ -34,4 +34,28 @@ describe('ConfigButtonsComponent', () => {
             expect(mockDialog.open).toHaveBeenCalled();
         });
     });
+
+    describe('openHistory()', () => {
+        it('should open the history dialog', () => {
+            const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of({}), close: null });
+            mockDialog.open.and.returnValue(dialogRefSpyObj);
+
+            component.openHistory();
+
+            expect(mockDialog.open).toHaveBeenCalled();
+        }); 
+    } );
+
+    describe('openReset()', () => {
+        it('should open the reset dialog', () => {
+            const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of({}), close: null });
+            mockDialog.open.and.returnValue(dialogRefSpyObj);
+
+            component.openReset();
+
+            expect(mockDialog.open).toHaveBeenCalled();
+        });
+    } );
+
+    
 });

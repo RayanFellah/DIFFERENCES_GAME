@@ -50,4 +50,55 @@ describe('ConstantsDialogComponent', () => {
         const penaltyTimeElement = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(2) span');
         expect(penaltyTimeElement.textContent.trim()).toBe('5 secondes');
     });
+
+  
+    it('should increment the game time', () => {
+        component.data = { gameTime: 30, penaltyTime: 5, savedTime: 5 };
+        fixture.detectChanges();
+        const incrementButton = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(1) button:nth-of-type(2)');
+        incrementButton.click();
+        fixture.detectChanges();
+        const gameTimeElement = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(1) span');
+        expect(gameTimeElement.textContent).toContain('31 secondes');
+    } );
+
+    it('should decrement the game time', () => {
+        component.data = { gameTime: 30, penaltyTime: 5, savedTime: 5 };
+        fixture.detectChanges();
+        const decrementButton = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(1) button:nth-of-type(1)');
+        decrementButton.click();
+        fixture.detectChanges();
+        const gameTimeElement = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(1) span');
+        expect(gameTimeElement.textContent).toContain('29 secondes');
+    } );
+
+    it('should increment the penalty time', () => {
+        component.data = { gameTime: 30, penaltyTime: 5, savedTime: 5 };
+        fixture.detectChanges();
+        const incrementButton = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(2) button:nth-of-type(2)');
+        incrementButton.click();
+        fixture.detectChanges();
+        const penaltyTimeElement = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(2) span');
+        expect(penaltyTimeElement.textContent.trim()).toBe('6 secondes');
+    } );
+
+    it('should decrement the penalty time', () => {
+        component.data = { gameTime: 30, penaltyTime: 5, savedTime: 5 };
+        fixture.detectChanges();
+        const decrementButton = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(2) button:nth-of-type(1)');
+        decrementButton.click();
+        fixture.detectChanges();
+        const penaltyTimeElement = fixture.nativeElement.querySelector('mat-dialog-content:nth-of-type(2) span');
+        expect(penaltyTimeElement.textContent.trim()).toBe('4 secondes');
+    } );
+
+ 
+   
+
+    
+
+    
+
+  
+
 });
