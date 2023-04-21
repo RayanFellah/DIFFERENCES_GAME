@@ -2,41 +2,36 @@ import { GameHistoryService } from '@app/services/game-history/game-history.serv
 import { GameLogicService } from '@app/services/game-logic/game-logic.service';
 import { GatewayLogicService } from '@app/services/gateway-logic/gateway-logic.service';
 import { SheetService } from '@app/services/sheet/sheet.service';
-import { Sheet } from '@common/sheet';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Subject } from 'rxjs';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Server } from 'socket.io';
 import { GameGateway } from './game.gateway';
 
+class SheetServiceMock {
+    addedSheet = new Subject();
+    deletedSheet = new Subject();
+    async getAllSheets() {
+        return Promise.resolve([]);
+    }
+}
+
 describe('GameGateway', () => {
     let gateway: GameGateway;
-    let sheetService: SinonStubbedInstance<SheetService>;
+
     let gatewayService: SinonStubbedInstance<GatewayLogicService>;
     let server: SinonStubbedInstance<Server>;
-    const sheetMocks: Sheet[] = [];
 
     beforeEach(async () => {
-        sheetService = createStubInstance(SheetService);
         gatewayService = createStubInstance(GatewayLogicService);
         server = createStubInstance<Server>(Server);
 
-        jest.spyOn(sheetService, 'getAllSheets').mockImplementation(async () => {
-            return new Promise<Sheet[]>((resolve) => {
-                resolve(sheetMocks);
-            });
-        });
-        jest.spyOn(gatewayService, 'getAllSheets').mockImplementation(async () => {
-            return new Promise<Sheet[]>((resolve) => {
-                resolve(sheetMocks);
-            });
-        });
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 GameGateway,
-
                 {
                     provide: SheetService,
-                    useValue: {},
+                    useClass: SheetServiceMock,
                 },
                 {
                     provide: GameLogicService,
@@ -53,7 +48,10 @@ describe('GameGateway', () => {
             ],
         }).compile();
 
+        // Get an instance of GameGateway from the testing module
         gateway = module.get<GameGateway>(GameGateway);
+
+        // Set the server property to the mocked server instance
         gateway.server = server;
     });
 

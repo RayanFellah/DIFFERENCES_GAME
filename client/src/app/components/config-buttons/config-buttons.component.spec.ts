@@ -43,8 +43,8 @@ describe('ConfigButtonsComponent', () => {
             component.openHistory();
 
             expect(mockDialog.open).toHaveBeenCalled();
-        }); 
-    } );
+        });
+    });
 
     describe('openReset()', () => {
         it('should open the reset dialog', () => {
@@ -55,7 +55,5 @@ describe('ConfigButtonsComponent', () => {
 
             expect(mockDialog.open).toHaveBeenCalled();
         });
-    } );
-
-    
+    });
 });

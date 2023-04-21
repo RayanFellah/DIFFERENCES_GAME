@@ -20,6 +20,4 @@ describe('GameScoreComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-
-        
 });

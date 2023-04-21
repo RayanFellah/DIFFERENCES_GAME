@@ -18,7 +18,7 @@ describe('GameLogicService', () => {
     let rightCanvasSpy: CanvasHelperService;
     let imageHttpSpy: ImageHttpService;
     let sheetHttpSpy: SheetHttpService;
-    let socketServiceSpy: SocketClientService;
+    let mockSocketClientService: jasmine.SpyObj<SocketClientService>;
     let cheatModeSpy: CheatModeService;
     const hintService = jasmine.createSpyObj('HintsService', ['removeDifference', 'getDifferences']);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,7 +48,7 @@ describe('GameLogicService', () => {
         rightCanvasSpy = jasmine.createSpyObj('CanvasHelperService', ['drawImage', 'getContext', 'getImageData', 'drawImageOnCanvas', 'getCanvas']);
         imageHttpSpy = jasmine.createSpyObj('ImageHttpService', ['getDiffImage', 'getImage']);
         sheetHttpSpy = jasmine.createSpyObj('SheetHttpService', ['getSheet']);
-        socketServiceSpy = jasmine.createSpyObj('SocketClientService', ['disconnect', 'on', 'send', 'socket', 'isSocketAlive']);
+        mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['on']);
         cheatModeSpy = jasmine.createSpyObj('CheatModeService', ['isCheatModeOn', 'getDifferences', 'cheatBlink', 'removeDifference']);
 
         TestBed.configureTestingModule({
@@ -58,7 +58,7 @@ describe('GameLogicService', () => {
                 { provide: CanvasHelperService, useValue: rightCanvasSpy },
                 { provide: ImageHttpService, useValue: imageHttpSpy },
                 { provide: SheetHttpService, useValue: sheetHttpSpy },
-                { provide: SocketClientService, useValue: socketServiceSpy },
+                { provide: SocketClientService, useValue: mockSocketClientService },
                 { provide: CheatModeService, useValue: cheatModeSpy },
                 { provide: HttpClient, useValue: {} },
                 {
@@ -75,6 +75,9 @@ describe('GameLogicService', () => {
             ],
         });
         service = TestBed.inject(GameLogicService);
+        mockSocketClientService.on.withArgs('clickFeedBack').and.returnValue(of(/* Your fake data for clickFeedBack */));
+        mockSocketClientService.on.withArgs('gameDone').and.returnValue(of(/* Your fake data for gameDone */));
+        mockSocketClientService.on.withArgs('playerLeft').and.returnValue(of(/* Your fake data for playerLeft */));
     });
 
     it('should be created', () => {
@@ -100,13 +103,11 @@ describe('GameLogicService', () => {
         imageHttpSpy.getImage = jasmine.createSpy().and.returnValue(of(blob));
         const blob2 = new Blob(['path2'], { type: 'image/bmp' });
         imageHttpSpy.getImage = jasmine.createSpy().and.returnValue(of(blob2));
-        socketServiceSpy.isSocketAlive = jasmine.createSpy().and.returnValue(true);
         service.start().then((difficulty) => {
             expect(difficulty).toBe('Easy');
             expect(sheetHttpSpy.getSheet).toHaveBeenCalled();
             expect(imageHttpSpy.getImage).toHaveBeenCalledWith(sheet.originalImagePath);
             expect(imageHttpSpy.getImage).toHaveBeenCalledWith(sheet.modifiedImagePath);
-            expect(socketServiceSpy.isSocketAlive).toHaveBeenCalled();
             expect(cheatModeSpy.getDifferences).toHaveBeenCalledWith(sheet);
         });
     });
@@ -117,7 +118,6 @@ describe('GameLogicService', () => {
         service.setClick(click, 'testName');
 
         expect(service.currentClick).toBeUndefined();
-        expect(socketServiceSpy['send']).not.toHaveBeenCalled();
     });
 
     it('should replace modifiedImageData with tempImageData at specified positions', () => {

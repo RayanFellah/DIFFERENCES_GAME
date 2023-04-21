@@ -7,6 +7,7 @@ import { Vec2 } from '@app/interfaces/vec2';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { Player } from '@common/player';
 import { Sheet } from '@common/sheet';
+import { Subject, takeUntil } from 'rxjs';
 import { BLINK_DURATION, CHEAT_BLINK_INTERVAL, RGBA_LENGTH } from 'src/constants';
 import { AudioService } from './audio.service';
 import { CanvasHelperService } from './canvas-helper.service';
@@ -36,6 +37,7 @@ export class GameLogicService {
     isGameDone = false;
     differences: Vec2[][];
     isReplay = false;
+    private unsubscribe$ = new Subject<void>();
 
     constructor(
         private leftCanvas: CanvasHelperService,
@@ -43,7 +45,7 @@ export class GameLogicService {
         private readonly imageHttp: ImageHttpService,
         public activatedRoute: ActivatedRoute,
         private sheetHttp: SheetHttpService,
-        private socketService: SocketClientService,
+        private socketClientService: SocketClientService,
         private cheatMode: CheatModeService,
         private hintService: HintsService,
         private gameReplayService: GameReplayService,
@@ -68,7 +70,7 @@ export class GameLogicService {
                         const blob = new Blob([res], { type: 'image/bmp' });
                         this.rightCanvas.drawImageOnCanvas(blob);
                     });
-                    if (this.socketService.isSocketAlive()) this.handleResponses();
+                    this.handleResponses();
                     this.playRoom = this.activatedRoute.snapshot.paramMap.get('roomId') as string;
                     this.cheatMode.getDifferences(this.sheet);
                     this.gameHttp.getAllDifferences(this.sheet._id).subscribe((res) => {
@@ -91,29 +93,39 @@ export class GameLogicService {
                 playerName: name,
                 click: { x: click.offsetX, y: click.offsetY, target: (click.target as HTMLCanvasElement).id },
             };
-            this.socketService.send('click', data);
+            this.socketClientService.send('click', data);
         }
     }
 
     handleResponses() {
-        this.socketService.on('clickFeedBack', (res: { click: MouseEvent; coords: Vec2[]; player: Player; diffsLeft: number }) => {
-            if (!this.gameReplayService.isReplay) {
-                this.gameReplayService.events.push({
-                    playerName: res.player.name,
-                    type: res.coords ? 'found' : 'error',
-                    timestamp: Date.now(),
-                    data: { click: res.click, coords: res.coords, name: res.player.socketId },
-                });
-            }
-            this.handleClick(res.click, res.coords, res.player.socketId);
-        });
+        this.socketClientService
+            .on<{ click: MouseEvent; coords: Vec2[]; player: Player; diffsLeft: number }>('clickFeedBack')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((res) => {
+                if (!this.gameReplayService.isReplay) {
+                    this.gameReplayService.events.push({
+                        playerName: res.player.name,
+                        type: res.coords ? 'found' : 'error',
+                        timestamp: Date.now(),
+                        data: { click: res.click, coords: res.coords, name: res.player.socketId },
+                    });
+                }
+                this.handleClick(res.click, res.coords, res.player.socketId);
+            });
 
-        this.socketService.on('gameDone', () => {
-            this.gameDoneProtocol();
-        });
-        this.socketService.on('playerLeft', () => {
-            this.gameDoneProtocol();
-        });
+        this.socketClientService
+            .on<void>('gameDone')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(() => {
+                this.gameDoneProtocol();
+            });
+
+        this.socketClientService
+            .on<void>('playerLeft')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(() => {
+                this.gameDoneProtocol();
+            });
     }
 
     makeBlink(diff: Vec2[], delay = BLINK_DURATION) {
@@ -159,7 +171,7 @@ export class GameLogicService {
 
         if (diff) {
             this.makeBlink(diff, delay);
-            if (player === this.socketService.socket.id) {
+            if (player === this.socketClientService.socketId) {
                 this.audio.playSuccessSound();
             }
 
@@ -167,7 +179,7 @@ export class GameLogicService {
             this.cheatMode.removeDifference(diff);
             this.hintService.removeDifference(diff);
             return diff;
-        } else if (player === this.socketService.socket.id) {
+        } else if (player === this.socketClientService.socketId) {
             this.ignoreClicks();
             canvas.displayErrorMessage2(event, canvas.getCanvas().getContext('2d')!);
             this.audio.playFailSound();
@@ -185,6 +197,10 @@ export class GameLogicService {
         }
         this.cheatMode.getDifferences(this.sheet);
         this.cheatMode.cheatBlink(this.leftCanvas, this.rightCanvas, this.originalImageData, this.modifiedImageData, delay);
+    }
+    cleanup() {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
     async restart() {
         await this.start();

@@ -16,6 +16,7 @@ import { SocketClientService } from '@app/services/socket-client/socket-client.s
 import { ChatMessage } from '@common/chat-message';
 import { PlayRoom } from '@common/play-room';
 import { Player } from '@common/player';
+import { Subject, takeUntil } from 'rxjs';
 import { CHEAT_BLINK_INTERVAL, ONE_SECOND, SCRUTATION_DELAY, THREE_SECONDS } from 'src/constants';
 @Component({
     selector: 'app-game-page',
@@ -46,9 +47,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
     messageTime: string;
     seed: any;
     penaltyTime: string;
+    private unsubscribe$ = new Subject<void>();
+
     constructor(
         private activatedRoute: ActivatedRoute,
-        private socketService: SocketClientService,
+        private socketClientService: SocketClientService,
         private gameStateService: GameStateService,
         private router: Router,
         private readonly dialog: DialogComponent,
@@ -75,7 +78,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         } else {
             this.fetchParams();
             this.initTimer();
-            if (this.socketService.isSocketAlive()) this.handleResponses();
+            this.handleResponses();
         }
         this.dialogService.shouldReplay$.subscribe(async (shouldReplay: boolean) => {
             if (shouldReplay) {
@@ -102,61 +105,92 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.difficulty = eventData;
     }
     handleResponses() {
-        this.socketService.on<ChatMessage>(ChatEvents.RoomMessage, (message: ChatMessage) => {
-            message.time = this.messageTime;
-            if (message.type === 'opponent') message.name = this.opponent.name;
-            this.gameReplayService.events.push({
-                type: 'chat',
-                timestamp: Date.now(),
-                data: message,
+        // RoomMessage event
+        this.socketClientService
+            .on<ChatMessage>(ChatEvents.RoomMessage)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((message) => {
+                message.time = this.messageTime;
+                if (message.type === 'opponent') message.name = this.opponent.name;
+                this.gameReplayService.events.push({
+                    type: 'chat',
+                    timestamp: Date.now(),
+                    data: message,
+                });
             });
-        });
-        this.socketService.on('kickOut', () => {
-            const kickOutMessage = "La partie n'existe plus 💀 Tu es renvoyé à la page principale.";
-            this.gameDone(kickOutMessage);
-            const delay = 3000;
-            setTimeout(() => {
-                this.router.navigate(['/main']);
-            }, delay);
-        });
 
-        this.socketService.on<PlayRoom>('roomInfo', (room: PlayRoom) => {
-            this.differences = room.numberOfDifferences;
-            this.mode = room.gameType;
-            if (!room.player2) this.person = room.player1;
-            else {
-                if (room.player1.socketId === this.socketService.socket.id) {
-                    this.person = room.player1;
-                    this.opponent = room.player2;
-                } else {
-                    this.person = room.player2;
-                    this.opponent = room.player1;
+        // kickOut event
+        this.socketClientService
+            .on('kickOut')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(() => {
+                const kickOutMessage = "La partie n'existe plus 💀 Tu es renvoyé à la page principale.";
+                this.gameDone(kickOutMessage);
+                const delay = 3000;
+                setTimeout(() => {
+                    this.router.navigate(['/main']);
+                }, delay);
+            });
+
+        // Room Info event
+        this.socketClientService
+            .on<PlayRoom>('roomInfo')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((room: PlayRoom) => {
+                this.differences = room.numberOfDifferences;
+                this.mode = room.gameType;
+                if (!room.player2) this.person = room.player1;
+                else {
+                    if (room.player1.socketId === this.socketClientService.socketId) {
+                        this.person = room.player1;
+                        this.opponent = room.player2;
+                    } else {
+                        this.person = room.player2;
+                        this.opponent = room.player1;
+                    }
                 }
-            }
-        });
-        this.socketService.on<Date>(ChatEvents.Clock, (time: Date) => {
-            if (!this.timer) return;
-            this.startTimer(time);
-        });
+            });
 
-        this.socketService.on<Player>('foundDiff', (player: Player) => {
-            if (this.person.socketId === player.socketId) this.person = player;
-            else this.opponent = player;
-        });
+        // Clock event
+        this.socketClientService
+            .on<Date>(ChatEvents.Clock)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((time: Date) => {
+                if (!this.timer) return;
+                this.startTimer(time);
+            });
 
-        this.socketService.on('gameDone', (winner: string) => {
-            if (this.person.name === winner) {
-                const congratsMessage = `Félicitations ${winner}! Tu Gagnes 🥳`;
-                this.gameDone(congratsMessage);
-            } else {
-                const hardLuckMessage = 'Tu as perdu 🤕 Bonne chance pour la prochaine fois!';
-                this.gameDone(hardLuckMessage);
-            }
-        });
-        this.socketService.on<string>('playerLeft', () => {
-            const quitMessage = 'Adversaire a quitté 🏃‍♂️💨, tu Gagnes!';
-            this.gameDone(quitMessage);
-        });
+        // FoundDiff event
+        this.socketClientService
+            .on<Player>('foundDiff')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((player: Player) => {
+                if (this.person.socketId === player.socketId) this.person = player;
+                else this.opponent = player;
+            });
+
+        // GameDone event
+        this.socketClientService
+            .on<string>('gameDone')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((winner: string) => {
+                if (this.person.name === winner) {
+                    const congratsMessage = `Félicitations ${winner}! Tu Gagnes 🥳`;
+                    this.gameDone(congratsMessage);
+                } else {
+                    const hardLuckMessage = 'Tu as perdu 🤕 Bonne chance pour la prochaine fois!';
+                    this.gameDone(hardLuckMessage);
+                }
+            });
+
+        // PlayerLeft event
+        this.socketClientService
+            .on<string>('playerLeft')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(() => {
+                const quitMessage = 'Adversaire a quitté 🏃‍♂️💨, tu Gagnes!';
+                this.gameDone(quitMessage);
+            });
     }
 
     gameDone(message: string) {
@@ -268,5 +302,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.gameReplayService.isReplay = false;
         this.gameReplayService.events = [];
         this.dialogService.emitReplay(false);
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 }

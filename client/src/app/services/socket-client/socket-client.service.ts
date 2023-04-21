@@ -1,27 +1,44 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
-import { io, Socket } from 'socket.io-client';
+import { Observable, Subject, filter, map } from 'rxjs';
+import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
 })
 export class SocketClientService {
-    socket: Socket;
+    private socket: Socket;
+    private eventsSubject: Subject<any> = new Subject();
 
+    constructor() {
+        this.connect();
+    }
+    get socketId() {
+        return this.socket.id;
+    }
     isSocketAlive() {
         return this.socket && this.socket.connected;
     }
 
     connect() {
-        this.socket = io(environment.socketServerUrl, { transports: ['websocket'], upgrade: false });
+        if (!this.isSocketAlive()) {
+            this.socket = io(environment.socketServerUrl, { transports: ['websocket'], upgrade: false });
+            this.socket.onAny((event, ...args) => this.eventsSubject.next({ event, args }));
+        }
     }
 
     disconnect() {
-        this.socket.disconnect();
+        if (this.isSocketAlive()) {
+            this.socket.disconnect();
+        }
     }
 
-    on<T>(event: string, action: (data: T) => void) {
-        this.socket.on(event, action);
+    on<T>(event: string): Observable<T> {
+        return this.eventsSubject.asObservable().pipe(
+            filter((e: any) => e.event === event),
+            map((e: any) => e.args[0] as T),
+        );
     }
 
     send<T>(event: string, data?: T) {

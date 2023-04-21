@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { GameConstants } from '@common/game-constants';
 import { GameEvents } from '@common/game-events';
+import { Subject, takeUntil } from 'rxjs';
 import {
     GAME_TIME_LOWER_LIMIT,
     GAME_TIME_UPPER_LIMIT,
@@ -17,7 +18,7 @@ import {
     templateUrl: './constants-dialog.component.html',
     styleUrls: ['./constants-dialog.component.scss'],
 })
-export class ConstantsDialogComponent implements OnInit {
+export class ConstantsDialogComponent implements OnInit, OnDestroy {
     timeLimits = {
         gameTime: { lowerLimit: GAME_TIME_LOWER_LIMIT, upperLimit: GAME_TIME_UPPER_LIMIT },
         gamePenalty: { lowerLimit: TIME_PENALTY_LOWER_LIMIT, upperLimit: TIME_PENALTY_UPPER_LIMIT },
@@ -26,7 +27,9 @@ export class ConstantsDialogComponent implements OnInit {
     private gameTime = 30;
     private gamePenalty = 5;
     private gameBonus = 5;
-    constructor(@Inject(MAT_DIALOG_DATA) public data: unknown, private socketService: SocketClientService) {}
+    private unsubscribe$ = new Subject<void>();
+
+    constructor(@Inject(MAT_DIALOG_DATA) public data: unknown, private socketClientService: SocketClientService) {}
 
     get gameTimeValue(): number {
         return this.gameTime;
@@ -39,16 +42,19 @@ export class ConstantsDialogComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.socketService.send('getConstants');
+        this.socketClientService.send('getConstants');
         this.handleResponse();
     }
 
     handleResponse() {
-        this.socketService.on('gameConstants', (data: GameConstants) => {
-            this.gameTime = data.gameTime;
-            this.gamePenalty = data.gamePenalty;
-            this.gameBonus = data.gameBonus;
-        });
+        this.socketClientService
+            .on<GameConstants>('gameConstants')
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((data) => {
+                this.gameTime = data.gameTime;
+                this.gamePenalty = data.gamePenalty;
+                this.gameBonus = data.gameBonus;
+            });
     }
 
     incrementValue(attributeName: string) {
@@ -94,8 +100,12 @@ export class ConstantsDialogComponent implements OnInit {
             gamePenalty: this.gamePenalty,
             gameBonus: this.gameBonus,
         };
-        this.socketService.send(GameEvents.UpdateConstants, data);
+        this.socketClientService.send(GameEvents.UpdateConstants, data);
         this.showAlert('Les valeurs ont été sauvegardées.');
         location.reload();
+    }
+    ngOnDestroy(): void {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 }

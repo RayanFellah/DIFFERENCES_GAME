@@ -27,7 +27,6 @@ export class ChatZoneComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.chatMessages = messages;
         });
         this.chatService.room = this.roomName;
-        this.chatService.handleResponses();
     }
 
     ngAfterViewChecked() {
@@ -48,5 +47,6 @@ export class ChatZoneComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
     ngOnDestroy(): void {
         location.reload();
+        this.chatService.cleanup();
     }
 }

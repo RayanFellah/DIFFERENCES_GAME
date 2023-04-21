@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SocketClientService } from '@app/services/socket-client/socket-client.service';
 import { GameEvents } from '@common/game-events';
@@ -7,12 +7,8 @@ import { GameEvents } from '@common/game-events';
     templateUrl: './reset-dialog.component.html',
     styleUrls: ['./reset-dialog.component.scss'],
 })
-export class ResetDialogComponent implements OnInit {
+export class ResetDialogComponent {
     constructor(public dialogRef: MatDialogRef<ResetDialogComponent>, public dialog: MatDialog, private socketService: SocketClientService) {}
-
-    ngOnInit(): void {
-        if (!this.socketService.isSocketAlive()) this.socketService.connect();
-    }
 
     resetScores() {
         this.socketService.send('reset_all_scores');

@@ -101,11 +101,4 @@ describe('DialogComponent', () => {
             expect(component['joinLoadingDialogRef'].close).toHaveBeenCalled();
         });
     });
-
-  
-
-   
-
-    
-    
 });
