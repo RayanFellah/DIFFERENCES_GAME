@@ -1,0 +1,19 @@
+<mat-card id="card">
+    <mat-card-header>
+        <mat-card-title>{{ sheet.title }}</mat-card-title>
+        <mat-card-subtitle>{{ sheet.difficulty }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <img [src]="trustedUrl" alt="Image" class="card-image" />
+        <app-game-score [top3Solo]="this.sheet.top3Solo" [top3Multi]="this.sheet.top3Multi"></app-game-score
+    ></mat-card-content>
+
+    <mat-card-actions class="action-container">
+        <button mat-raised-button color="accent" (click)="play()">
+            {{ isConfig ? 'Réinitialiser' : 'Jouer' }}
+        </button>
+        <button mat-raised-button color="primary" (click)="isConfig ? onDelete() : sheet.isJoinable ? join() : create()">
+            {{ isConfig ? 'Supprimer' : sheet.isJoinable ? 'Joindre' : 'Créer' }}
+        </button>
+    </mat-card-actions>
+</mat-card>

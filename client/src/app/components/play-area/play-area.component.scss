@@ -1,0 +1,42 @@
+.canvas {
+    position: relative;
+    display: inline-block;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+}
+
+canvas {
+    max-width: 640px;
+    max-height: 480px;
+    position: relative;
+    grid-row-start: 1;
+    grid-column-start: 1;
+    border: solid 1px #3f51b5;
+}
+
+section {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+    grid-column-gap: 10px;
+    grid-template-areas: 'OG OG newbie newbie';
+}
+
+.original {
+    grid-area: OG;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modified {
+    grid-area: newbie;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#play-area-container button {
+    display: block;
+    margin: 0 auto;
+}

@@ -1,0 +1,13 @@
+.toolbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+#colorInput {
+    width: 30px;
+}
+.buttonClicked {
+    background-color: rgb(233, 225, 243);
+    color: white !important;
+}

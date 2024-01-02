@@ -1,0 +1,33 @@
+<mat-card class="chat-zone">
+    <div class="chat-area" #chatArea>
+        <div *ngFor="let message of isReplay ? replayMessages : chatMessages">
+            <span>@{{ message.time }}</span>
+            <span *ngIf="message.name" class="message-span">[{{ message.name }}] </span>
+            <div
+                class="message-wrapper"
+                [ngClass]="{
+                    'message-player': message.type === 'player',
+                    'message-opponent': message.type === 'opponent',
+                    'message-game': message.type === 'game',
+                    'message-error': message.type === 'error',
+                    'message-global': message.type === 'global'
+                }"
+            >
+                <span>
+                    {{ message.content }}
+                </span>
+            </div>
+        </div>
+    </div>
+    <input
+        matInput
+        class="input-area"
+        placeholder="type..."
+        maxlength="200"
+        type="text"
+        [(ngModel)]="messageContent"
+        tabindex="0"
+        *ngIf="opponent"
+        (keyup.enter)="sendMessageTL()"
+    />
+</mat-card>

@@ -1,0 +1,41 @@
+<section>
+    <h1 mat-dialog-title>constantes de jeu</h1>
+    <div id="game-time">
+        <mat-dialog-content>
+            <h2>Temps de jeu</h2>
+            <button mat-icon-button (click)="decrementValue('gameTime')" [disabled]="gameTimeValue <= this.timeLimits.gameTime.lowerLimit">
+                <mat-icon>remove</mat-icon>
+            </button>
+            <span> {{ gameTimeValue }} secondes</span>
+            <button mat-icon-button (click)="incrementValue('gameTime')" [disabled]="gameTimeValue >= this.timeLimits.gameTime.upperLimit">
+                <mat-icon>add</mat-icon>
+            </button>
+        </mat-dialog-content>
+    </div>
+    <mat-dialog-content>
+        <h2>Temps de penalité</h2>
+        <button mat-icon-button (click)="decrementValue('gamePenalty')" [disabled]="gamePenaltyValue <= this.timeLimits.gamePenalty.lowerLimit">
+            <mat-icon>remove</mat-icon>
+        </button>
+        <span> {{ gamePenaltyValue }} secondes</span>
+        <button mat-icon-button (click)="incrementValue('gamePenalty')" [disabled]="gamePenaltyValue >= this.timeLimits.gamePenalty.upperLimit">
+            <mat-icon>add</mat-icon>
+        </button>
+    </mat-dialog-content>
+    <mat-dialog-content>
+        <h2>Temps gagné</h2>
+        <button mat-icon-button (click)="decrementValue('gameBonus')" [disabled]="gameBonusValue <= this.timeLimits.gameBonus.lowerLimit">
+            <mat-icon>remove</mat-icon>
+        </button>
+        <span> {{ gameBonusValue }} secondes</span>
+        <button mat-icon-button (click)="incrementValue('gameBonus')" [disabled]="gameBonusValue >= this.timeLimits.gameBonus.upperLimit">
+            <mat-icon>add</mat-icon>
+        </button>
+    </mat-dialog-content>
+    <div id="saveButton">
+        <button mat-raised-button color="primary" (click)="saveValues()" id="saveButton">Enregistrer</button>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-mini-fab mat-dialog-close cdkFocusInitial color="warn"><mat-icon>close</mat-icon></button>
+    </div>
+</section>

@@ -1,0 +1,19 @@
+<div class="scores-container">
+    <div class="title-container">
+        <h2>🏆TOP3🏆</h2>
+    </div>
+    <div class="scores-details-container" *ngIf="top3Multi && top3Solo">
+        <div class="scores-solo">
+            <h3>Solo</h3>
+            <div class="score-container" *ngFor="let score of formatScores(top3Solo); let i = index">
+                {{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '' }} {{ score }}
+            </div>
+        </div>
+        <div class="scores-1V1">
+            <h3>1 vs 1</h3>
+            <div class="score-container" *ngFor="let score of formatScores(top3Multi); let i = index">
+                {{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '' }} {{ score }}
+            </div>
+        </div>
+    </div>
+</div>

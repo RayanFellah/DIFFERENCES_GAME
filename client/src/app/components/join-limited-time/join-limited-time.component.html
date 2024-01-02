@@ -1,0 +1,13 @@
+<mat-card class="box">
+    <mat-card-title>Modes de jeu</mat-card-title>
+    <mat-card-subtitle>Choisissez un mode de jeu</mat-card-subtitle>
+    <mat-card-content class="content">
+        <button mat-stroked-button (click)="selectSolo()" color="primary"><mat-icon class="material-icons">person icon</mat-icon>SOLO</button>
+        <button mat-stroked-button (click)="selectCoop()" color="primary"><mat-icon class="material-icons">group icon</mat-icon>COOPÉRATIF</button>
+    </mat-card-content>
+    <mat-card-actions class="cancel">
+        <button cdkFocusInitial mat-stroked-button color="accent" [mat-dialog-close]="true">
+            <mat-icon class="material-icons">cancel</mat-icon>Annuler
+        </button>
+    </mat-card-actions>
+</mat-card>

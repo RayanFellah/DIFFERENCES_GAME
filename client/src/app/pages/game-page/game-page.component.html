@@ -1,0 +1,52 @@
+<app-header [displayShortcuts]="false" pageTitle="Bienvenue {{ playerName }}"></app-header>
+<button mat-icon-button class="exit" routerLink="/main" matTooltip="Quitter" matTooltipPosition="before">
+    <mat-icon>exit_to_app</mat-icon>
+</button>
+<main class="main-container">
+    <div class="info-container">
+        <h3>Difficulté: {{ difficulty }}</h3>
+        <h3>Mode: {{ this.mode === 'solo' ? 'Solo♟️' : 'MultiJoueur🆚' }}</h3>
+
+        <div class="player1-points" *ngIf="person">
+            <h3>🌝{{ person.name.toUpperCase() }}: {{ person.differencesFound }}/{{ this.differences }}</h3>
+        </div>
+        <div class="player2-points" *ngIf="opponent">
+            <h3>👹{{ opponent.name.toUpperCase() }}: {{ opponent.differencesFound }}/{{ this.differences }}</h3>
+        </div>
+        <div class="time-container">
+            <h3>⏲️ {{ isReplayStarted ? this.elapsedTime : formattedTime }}</h3>
+        </div>
+        <app-hints *ngIf="!opponent"></app-hints>
+    </div>
+    <div class="play-area-container" tabindex="0" autofocus (keyup.t)="playArea.blink()" (keyup.i)="playArea.hint()">
+        <app-play-area
+            [isSolo]="opponent ? false : true"
+            [playerName]="this.playerName"
+            (difficulty)="onDifficultyChange($event)"
+            class="play-area"
+        ></app-play-area>
+        <p id="time-penalty" *ngIf="hint.activateHint">Pénalité: {{ penaltyTime }} secondes</p>
+    </div>
+    <app-hint-message #hintMessage class="hints"> </app-hint-message>
+
+    <div class="replay-options-container">
+        <button mat-stroked-button color="primary" *ngIf="isReplayStarted && !isReplayPaused" (click)="pauseReplay()">Pause Replay</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayPaused" (click)="resumeReplay()">Resume Replay</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="restartReplay()">Restart Replay</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="setReplaySpeed(1)">1X</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="setReplaySpeed(2)">2X</button>
+        <button mat-stroked-button color="primary" *ngIf="isReplayStarted" (click)="setReplaySpeed(4)">4X</button>
+    </div>
+
+    <div class="chat-zone-container">
+        <app-chat-zone
+            [isReplay]="isReplayStarted"
+            [roomName]="this.roomName"
+            [replayMessages]="replayMessages"
+            [playerName]="playerName"
+            [opponent]="opponent ? opponent.name : ''"
+            (messageEvent)="sendMessage($event)"
+            class="chat-zone"
+        ></app-chat-zone>
+    </div>
+</main>

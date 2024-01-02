@@ -1,0 +1,11 @@
+<mat-toolbar class="header" color="primary">
+    <span>{{ pageTitle }}</span>
+    <span *ngIf="this.displayShortcuts">
+        <button mat-icon-button matTooltip="Retour à l'accueil" routerLink="/home">
+            <mat-icon>home</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Configuration" routerLink="/config">
+            <mat-icon>settings</mat-icon>
+        </button>
+    </span>
+</mat-toolbar>

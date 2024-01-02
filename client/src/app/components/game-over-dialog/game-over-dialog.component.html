@@ -1,0 +1,16 @@
+<mat-card>
+    <h2 mat-dialog-title>
+        <span class="name">{{ data.message}}</span>
+    </h2>
+    <div mat-dialog-content>
+        <p>La Partie Est Terminée.</p>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-mini-fab color="primary" matTooltip="Quitter" [routerLink]="['/home']" mat-dialog-close>
+            <mat-icon>exit_to_app</mat-icon>
+        </button>
+        <button *ngIf="data.isClassicGame" mat-mini-fab color="primary" matTooltip="reprise" mat-dialog-close (click)="replay()">
+            <mat-icon>replay</mat-icon>
+        </button>
+    </div>
+</mat-card>

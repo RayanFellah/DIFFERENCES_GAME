@@ -1,0 +1,69 @@
+.scores-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-top: 2px solid #ccc;
+    border-bottom: 2px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.scores-details-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 500px;
+    border-top: 2px solid #ccc;
+}
+
+.scores-solo,
+.scores-1V1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-left: 2px solid #ccc;
+    border-right: 2px solid #ccc;
+    padding: 10px;
+}
+
+.scores-solo {
+    margin-right: 10px;
+}
+
+.scores-1V1 {
+    margin-left: 10px;
+}
+
+h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.title-container {
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.title-container h2 {
+    margin: 0;
+}
+
+.score-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.score-container:last-child {
+    margin-bottom: 0;
+}

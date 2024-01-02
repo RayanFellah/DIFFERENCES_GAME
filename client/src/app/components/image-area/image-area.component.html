@@ -1,0 +1,21 @@
+<div class="canvas" #canvasContainer>
+    <app-drawing id="tools" [canvas]="foreground"></app-drawing>
+    <canvas
+        id="foreground"
+        tabindex="0"
+        [attr.width]="width"
+        [attr.height]="height"
+        (mousedown)="draw($event)"
+        (mousemove)="draw($event)"
+        (mouseup)="stop($event)"
+        (mouseout)="stop($event)"
+        (keyup.shift)="drawingTool.drawingService.shiftKeyPressed = false"
+        (keydown.shift)="drawingTool.drawingService.shiftKeyPressed = true"
+        (keydown)="keyEvents($event)"
+        (keyup.shift)="drawingTool.drawingService.shiftKeyPressed = false"
+        (keydown.shift)="drawingTool.drawingService.shiftKeyPressed = true"
+        #foreground
+    >
+    </canvas>
+    <canvas id="background" [attr.width]="width" [attr.height]="height" #background> </canvas>
+</div>

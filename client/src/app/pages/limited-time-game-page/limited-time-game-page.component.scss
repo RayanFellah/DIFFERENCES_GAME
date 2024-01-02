@@ -1,0 +1,50 @@
+$my-indigo: #3f51b5;
+$my-pink: #e91e63;
+
+.main-container {
+    display: grid;
+    grid-template-areas:
+        'info info'
+        'overlay overlay'
+        'chat hints';
+}
+
+.exit {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.exit:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+}
+.info-container {
+    grid-area: info;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    color: $my-indigo;
+}
+.play-area-container {
+    grid-area: overlay;
+}
+
+.player2-points {
+    color: $my-pink;
+}
+
+div:focus {
+    border: none;
+    outline: none;
+}
+
+.chat-zone-container{ 
+    grid-area : chat;
+}
+
+.hints{
+    grid-area: hints;
+}

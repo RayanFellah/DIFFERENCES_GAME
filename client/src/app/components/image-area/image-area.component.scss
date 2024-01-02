@@ -1,0 +1,31 @@
+#foreground {
+    z-index: 1;
+    border: solid 1px #3f51b5;
+}
+
+#background {
+    border: solid 1px #3f51b5;
+    z-index: 0;
+}
+
+.canvas {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 2;
+    grid-template-areas:
+        'tools'
+        'canvas';
+    width: fit-content;
+}
+#tools {
+    grid-area: tools;
+}
+canvas {
+    max-width: 640px;
+    max-height: 480px;
+    position: relative;
+    grid-row-start: 1;
+    grid-column-start: 1;
+    grid-area: canvas;
+}

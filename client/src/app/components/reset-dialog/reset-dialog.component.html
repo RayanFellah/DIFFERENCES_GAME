@@ -1,0 +1,30 @@
+<section>
+    <h1 mat-dialog-title>Remise des données à leur état initial</h1>
+
+    <mat-dialog-content class="delete">
+        <button mat-button color="primary" (click)="deleteAllSheets()" (click)="showAlert('toutes les fiches de jeux ont été supprimées avec succès !')">
+            <mat-icon color="primary">description</mat-icon> Supprimer toutes les fiches<mat-icon color="primary">description</mat-icon>
+        </button>
+    </mat-dialog-content>
+    <mat-dialog-content class="delete">
+        <button mat-button color="primary" (click)="resetScores()"  (click)="showAlert('Meilleurs temps réinitialisés avec succès !')">
+            <mat-icon color="primary">assessment</mat-icon> Réinitialiser les meilleurs temps
+            <mat-icon color="primary">assessment</mat-icon>
+        </button>
+    </mat-dialog-content>
+    <mat-dialog-content class="delete">
+        <button mat-button color="primary" (click) ="resetConstants()" (click)="showAlert('Constantes remises à leur valeur par défaut !')">
+            <mat-icon color="primary">perm_data_setting</mat-icon> Remettre les constantes par défaut<mat-icon color="primary"
+                >perm_data_setting</mat-icon
+            >
+        </button>
+    </mat-dialog-content>
+    <mat-dialog-content class="delete">
+        <button mat-button color="primary" (click)="clearHistory()"(click)="showAlert('Historique de Jeu effacé avec succès ! ')" >
+            <mat-icon color="primary">history</mat-icon> Effacer l'historique des parties <mat-icon color="primary">history</mat-icon>
+        </button>
+    </mat-dialog-content>
+    <div mat-dialog-actions>
+        <button mat-flat-button color="accent" mat-dialog-close>fermer</button>
+    </div>
+</section>

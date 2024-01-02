@@ -1,0 +1,8 @@
+<div id="hintsLeft">
+    <div>
+        <mat-icon [ngClass]="(hintService.hintsLeft && hintService.hintsLeft <= 2) || !hintService.hintsLeft ? 'hint-used' : ''">lightbulb</mat-icon>
+        <mat-icon [ngClass]="(hintService.hintsLeft && hintService.hintsLeft <= 1) || !hintService.hintsLeft ? 'hint-used' : ''"> lightbulb</mat-icon>
+        <mat-icon [ngClass]="(hintService.hintsLeft && hintService.hintsLeft <= 0) || !hintService.hintsLeft ? 'hint-used' : ''">lightbulb</mat-icon>
+        <p>Indice</p>
+    </div>
+</div>

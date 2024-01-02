@@ -1,0 +1,49 @@
+<div>
+    <div class="toolbar">
+        <button
+            type="button"
+            mat-button
+            color="primary"
+            matTooltip="crayon"
+            [ngClass]="tools.pencil ? 'buttonClicked' : ''"
+            (click)="setUsedTool('pencil')"
+        >
+            <mat-icon color="primary">create</mat-icon>
+        </button>
+        <button type="button" mat-button color="primary" matTooltip="couleur">
+            <input id="colorInput" matInput type="color" (input)="changeColor($event)" />
+        </button>
+        <button type="button" mat-button color="primary" matTooltip="taille">
+            <input type="range" value="2" min="1" max="50" (input)="changePencilWidth($event)" />
+        </button>
+        <button
+            type="button"
+            mat-button
+            color="primary"
+            matTooltip="effacer"
+            [ngClass]="tools.eraser ? 'buttonClicked' : ''"
+            (click)="setUsedTool('eraser')"
+        >
+            <mat-icon>remove </mat-icon>
+        </button>
+        <button
+            type="button"
+            mat-button
+            color="primary"
+            matTooltip="rectangle"
+            [ngClass]="tools.rectangle ? 'buttonClicked' : ''"
+            (click)="setUsedTool('rectangle')"
+        >
+            <mat-icon>crop_square</mat-icon>
+        </button>
+        <button type="button" mat-button color="primary" (click)="reset()" matTooltip="reinitialiser">
+            <mat-icon> autorenew </mat-icon>
+        </button>
+        <button type="button" mat-button color="primary" (click)="undo()" matTooltip="annuler">
+            <mat-icon color="primary" class="material-icons mat-24">undo icon</mat-icon>
+        </button>
+        <button type="button" mat-button color="primary" (click)="redo()" matTooltip="refaire">
+            <mat-icon color="primary" class="material-icons mat-24">redo icon</mat-icon>
+        </button>
+    </div>
+</div>
